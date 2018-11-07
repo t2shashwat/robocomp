@@ -34,12 +34,21 @@ Tested in Ubuntu 18.04 (for 16.04 some packages have a different name. Ask in gi
 Make sure you have installed the following packages from the Ubuntu repository:
 
     sudo apt-get update
-    sudo apt-get install git git-annex cmake g++ libgsl-dev libopenscenegraph-dev cmake-qt-gui zeroc-ice-all-dev freeglut3-dev libboost-system-dev libboost-thread-dev qt4-dev-tools python-pip  python-pyparsing python-numpy python-pyside pyside-tools libxt-dev libboost-test-dev libboost-filesystem-dev python-libxml2 python-xmltodict libccd-dev python-zeroc-ice
+    sudo apt-get install git git-annex cmake g++ libgsl-dev libopenscenegraph-dev cmake-qt-gui zeroc-ice-all-dev freeglut3-dev libboost-system-dev libboost-thread-dev python-pip  python-pyparsing python-numpy python-pyside pyside-tools libxt-dev libboost-test-dev libboost-filesystem-dev python-libxml2 python-xmltodict libccd-dev python-zeroc-ice
     sudo pip install networkx
 
 It is recommendable to install the following packages::
 
     sudo apt-get install yakuake qt4-designer
+    
+### Qt4/Qt5 support
+This robocomp branch (qt5) could be compiled using Qt4 or Qt5 libraries. Qt4 related packages 
+
+    sudo apt-get install qt4-dev-tools qt4-designer
+
+If you prefer to use Qt5 these packages must be installed
+
+    sudo apt-get install qt5-default qttools5-dev-tools
 
 ## Installation itself
 
@@ -75,6 +84,25 @@ Done! Now let's compile and install the whole thing:
     cmake ..
     make
     sudo make install
+
+Robocomp uses any Qt library found, if you have both (Qt4/Qt5) Qt5 is used preferred, Qt4 compilation could be forced using cmake option provided
+
+- Change Qt library cmake configuration
+
+```bash
+cd ~/robocomp/build
+cmake-gui ..
+```
+- Select checkbox Qt4 and deselect Qt5 
+
+```bash
+push configure button
+push generate button
+exit
+
+make
+sudo make install
+```
 
 If you want to compile Robocomp with support for FCL, follow the instructions in the [Robocomp with FCL](doc/Compiling-RoboComp-with-collision-detection.md) tutorial.
 
