@@ -2,7 +2,6 @@
 LIST ( APPEND SOURCES
 	specificworker.cpp
 	specificmonitor.cpp
-	servers.cpp
 	pickhandler.cpp
 	serversinitiator.cpp
 	omnirobotserver.cpp
@@ -21,7 +20,7 @@ LIST ( APPEND HEADERS
 	specificmonitor.h
 )
 
-#add_definitions(-g  -std=gnu++17 -pedantic-errors)
+#add_definitions(-g  -std=gnu++17 -pedantic-errors -fmax-errors=6)
 SET(CMAKE_CXX_FLAGS " -std=c++17 -O3 -pthread ")
 SET(LIBS ${LIBS} -lpthread -lboost_system )
 

@@ -703,7 +703,7 @@ QVec InnerModel::transform(const QString &destId, const QVec &initVec, const QSt
 	}
 	else
 	{
-		throw InnerModelException("InnerModel::transform was called with an unsupported vector size.");
+		throw RoboComp::InnerModelException("InnerModel::transform was called with an unsupported vector size.");
 	}
 }
 
@@ -796,9 +796,9 @@ void InnerModel::setLists(const QString & origId, const QString & destId)
 	
 	InnerModelNode *a=hash[origId], *b=hash[destId];
 	if (!a)
-		throw InnerModelException("Cannot find node: \""+ origId.toStdString()+"\"");
+		throw RoboComp::InnerModelException("Cannot find node: \""+ origId.toStdString()+"\"");
 	if (!b)
-		throw InnerModelException("Cannot find node: "+ destId.toStdString()+"\"");
+		throw RoboComp::InnerModelException("Cannot find node: "+ destId.toStdString()+"\"");
 
 	int minLevel = a->level<b->level? a->level : b->level;
 	listA.clear();

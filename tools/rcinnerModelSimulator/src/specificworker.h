@@ -49,7 +49,6 @@
 #include <osgviewer/osgview.h>
 
 #include "genericworker.h"
-#include "servers.h"
 #include "pickhandler.h"
 #include "serversinitiator.h"
 #include <fps/fps.h>
@@ -102,13 +101,13 @@ Q_OBJECT
 		
 	public:
 		InnerModelNode *getNode(const QString &id, const QString &msg);
-		void checkOperationInvalidNode(InnerModelNode *node,QString msg);
-		void checkNodeAlreadyExists(const QString &id, const QString &msg);
-		void checkInvalidMeshValues(RoboCompInnerModelManager::meshType m, QString msg);
-		void AttributeAlreadyExists(InnerModelNode *node, QString attributeName, QString msg);
-		void NonExistingAttribute(InnerModelNode *node, QString attributeName, QString msg);
-		void getRecursiveNodeInformation(RoboCompInnerModelManager::NodeInformationSequence& nodesInfo, InnerModelNode *node);
-		RoboCompInnerModelManager::NodeType getNodeType(InnerModelNode *node);
+// 		void checkOperationInvalidNode(InnerModelNode *node,QString msg);
+// 		void checkNodeAlreadyExists(const QString &id, const QString &msg);
+// 		void checkInvalidMeshValues(RoboCompInnerModelManager::meshType m, QString msg);
+// 		void AttributeAlreadyExists(InnerModelNode *node, QString attributeName, QString msg);
+// 		void NonExistingAttribute(InnerModelNode *node, QString attributeName, QString msg);
+// 		void getRecursiveNodeInformation(RoboCompInnerModelManager::NodeInformationSequence& nodesInfo, InnerModelNode *node);
+//		RoboCompInnerModelManager::NodeType getNodeType(InnerModelNode *node);
 	
   private:
 		void cambiaColor(QString id, osg::Vec4 color);

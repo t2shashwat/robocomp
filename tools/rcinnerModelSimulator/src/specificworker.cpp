@@ -422,200 +422,200 @@ InnerModelNode* SpecificWorker::getNode(const QString &id, const QString &msg)
 	}
 }
 
-void SpecificWorker::checkOperationInvalidNode(InnerModelNode *node,QString msg)
-{
-	if (node==NULL)
-	{
-		#ifdef INNERMODELMANAGERDEBUG
-					qDebug() <<msg<<node->id<<"is not transform type";
-		#endif
-			RoboCompInnerModelManager::InnerModelManagerError err;
-		err.err = RoboCompInnerModelManager::OperationInvalidNode;
-		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: Node " << node->id.toStdString() <<" is not of the type require";
-		err.text = oss.str();
-		throw err;
-	}
-}
-
-void SpecificWorker::checkNodeAlreadyExists(const QString &id, const QString &msg)
-{
-	if (innerModel->getIDKeys().contains(id))
-	{
-		#ifdef INNERMODELMANAGERDEBUG
-			qDebug("item already exist. %s\n", id.toStdString().c_str());
-		#endif
-		RoboCompInnerModelManager::InnerModelManagerError err;
-		err.err = RoboCompInnerModelManager::NodeAlreadyExists;
-		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: Node " << id.toStdString() << " already exists.";
-		err.text = oss.str();
-		throw err;
-	}
-}
-
-void SpecificWorker::checkInvalidMeshValues(RoboCompInnerModelManager::meshType m, QString msg)
-{
-	///check Scale
-	osg::Node *osgMesh = osgDB::readNodeFile(m.meshPath);
-	if (m.scaleX<0.0 or m.scaleY <0.0 or m.scaleZ <0.0)
-	{
-#ifdef INNERMODELMANAGERDEBUG
-		qDebug() <<"--- Fatal:"<<msg<<"Scale can not be negative";
-		qDebug() <<"m.scaleX "<<m.scaleX<<"m.scaleY"<<m.scaleY<<"m.scaleZ"<<m.scaleZ;
-#endif
-		RoboCompInnerModelManager::InnerModelManagerError err;
-		err.err = RoboCompInnerModelManager::InvalidValues;
-		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: Scale (" << m.scaleX << ", " << m.scaleY << ", " << m.scaleZ << ") is invalid.";
-		err.text = oss.str();
-		throw err;
-	}
-	///check valid osg Node.
-	else if (osgMesh==NULL)
-	{
-		#ifdef INNERMODELMANAGERDEBUG
-				qDebug() <<"--- Fatal:"<<msg<<"meshPath:"<<QString::fromStdString(m.meshPath) <<"does not exist or no it is a type valid for his OpenSceneGraph.";
-		#endif
-		RoboCompInnerModelManager::InnerModelManagerError err;
-		err.err = RoboCompInnerModelManager::InvalidPath;
-		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: meshPath: " << m.meshPath << ", " <<"does not exist or no it is a type valid for his OpenSceneGraph.";
-		err.text = oss.str();
-		throw err;
-	}
-}
-
-void SpecificWorker::AttributeAlreadyExists(InnerModelNode *node, QString attributeName, QString msg)
-{
-	if (node->attributes.contains(attributeName))
-	{
-		#ifdef INNERMODELMANAGERDEBUG
-				qDebug("attribute already exist. %s\n", attributeName.toStdString().c_str());
-		#endif
-		RoboCompInnerModelManager::InnerModelManagerError err;
-		err.err = RoboCompInnerModelManager::AttributeAlreadyExists;
-		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " already exists." <<" in node "<<node->id.toStdString();
-		err.text = oss.str();
-		throw err;
-	}
-}
-
-void SpecificWorker::NonExistingAttribute(InnerModelNode *node, QString attributeName, QString msg)
-{
-	if (node->attributes.contains(attributeName) ==false)
-	{
-#ifdef INNERMODELMANAGERDEBUG
-		qDebug("attribute NO exist. %s\n", attributeName.toStdString().c_str());
-#endif
-		RoboCompInnerModelManager::InnerModelManagerError err;
-		err.err = RoboCompInnerModelManager::AttributeAlreadyExists;
-		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " NO exists."<<" in node "<<node->id.toStdString();
-		err.text = oss.str();
-		throw err;
-	}
-}
-
-void SpecificWorker::getRecursiveNodeInformation(RoboCompInnerModelManager::NodeInformationSequence& nodesInfo, InnerModelNode *node)
-{
-	/// Add current node information
-	RoboCompInnerModelManager::NodeInformation ni;
-	ni.id = node->id.toStdString();
-
-
-	if (node->parent)
-	{
-		ni.parentId = node->parent->id.toStdString();
-	}
-	else
-	{
-		ni.parentId = "";
-	}
-	ni.nType = getNodeType(node);
-
-	RoboCompInnerModelManager::AttributeType a;
-	foreach (const QString &str, node->attributes.keys())
-	{
-		a.type=node->attributes.value(str).type.toStdString();
-		a.value=node->attributes.value(str).value.toStdString();
-		ni.attributes[str.toStdString()]=a;
-	}
-	nodesInfo.push_back(ni);
-
-	/// Recursive call for all children
-	QList<InnerModelNode *>::iterator child;
-	for (child = node->children.begin(); child != node->children.end(); child++)
-	{
-		getRecursiveNodeInformation(nodesInfo, *child);
-	}
-}
-
-RoboCompInnerModelManager::NodeType SpecificWorker::getNodeType(InnerModelNode *node)
-{
-	if (dynamic_cast<InnerModelJoint*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::Joint;
-	}
-	else if (dynamic_cast<InnerModelTouchSensor*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::TouchSensor;
-	}
-	else if (dynamic_cast<InnerModelDifferentialRobot*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::DifferentialRobot;
-	}
-	else if (dynamic_cast<InnerModelOmniRobot*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::OmniRobot;
-	}
-	else if (dynamic_cast<InnerModelPlane*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::Plane;
-	}
-	else if (dynamic_cast<InnerModelDisplay*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::DisplayII;
-	}
-	else if (dynamic_cast<InnerModelRGBD*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::RGBD;
-	}
-	else if (dynamic_cast<InnerModelCamera*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::Camera;
-	}
-	else if (dynamic_cast<InnerModelIMU*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::IMU;
-	}
-	else if (dynamic_cast<InnerModelLaser*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::Laser;
-	}
-	else if (dynamic_cast<InnerModelMesh*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::Mesh;
-	}
-	else if (dynamic_cast<InnerModelPointCloud*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::PointCloud;
-	}
-	else if (dynamic_cast<InnerModelTransform*>(node) != NULL)
-	{
-		return RoboCompInnerModelManager::Transform;
-	}
-	else
-	{
-		RoboCompInnerModelManager::InnerModelManagerError err;
-		err.err = RoboCompInnerModelManager::InternalError;
-		std::ostringstream oss;
-		oss << "RoboCompInnerModelManager::getNodeType() error: Type of node " << node->id.toStdString() << " is unknown.";
-		err.text = oss.str();
-		throw err;
-	}
-}
+// void SpecificWorker::checkOperationInvalidNode(InnerModelNode *node,QString msg)
+// {
+// 	if (node==NULL)
+// 	{
+// 		#ifdef INNERMODELMANAGERDEBUG
+// 					qDebug() <<msg<<node->id<<"is not transform type";
+// 		#endif
+// 			RoboCompInnerModelManager::InnerModelManagerError err;
+// 		err.err = RoboCompInnerModelManager::OperationInvalidNode;
+// 		std::ostringstream oss;
+// 		oss <<msg.toStdString() <<" error: Node " << node->id.toStdString() <<" is not of the type require";
+// 		err.text = oss.str();
+// 		throw err;
+// 	}
+// }
+// 
+// void SpecificWorker::checkNodeAlreadyExists(const QString &id, const QString &msg)
+// {
+// 	if (innerModel->getIDKeys().contains(id))
+// 	{
+// 		#ifdef INNERMODELMANAGERDEBUG
+// 			qDebug("item already exist. %s\n", id.toStdString().c_str());
+// 		#endif
+// 		RoboCompInnerModelManager::InnerModelManagerError err;
+// 		err.err = RoboCompInnerModelManager::NodeAlreadyExists;
+// 		std::ostringstream oss;
+// 		oss <<msg.toStdString() <<" error: Node " << id.toStdString() << " already exists.";
+// 		err.text = oss.str();
+// 		throw err;
+// 	}
+// }
+// 
+// void SpecificWorker::checkInvalidMeshValues(RoboCompInnerModelManager::meshType m, QString msg)
+// {
+// 	///check Scale
+// 	osg::Node *osgMesh = osgDB::readNodeFile(m.meshPath);
+// 	if (m.scaleX<0.0 or m.scaleY <0.0 or m.scaleZ <0.0)
+// 	{
+// #ifdef INNERMODELMANAGERDEBUG
+// 		qDebug() <<"--- Fatal:"<<msg<<"Scale can not be negative";
+// 		qDebug() <<"m.scaleX "<<m.scaleX<<"m.scaleY"<<m.scaleY<<"m.scaleZ"<<m.scaleZ;
+// #endif
+// 		RoboCompInnerModelManager::InnerModelManagerError err;
+// 		err.err = RoboCompInnerModelManager::InvalidValues;
+// 		std::ostringstream oss;
+// 		oss <<msg.toStdString() <<" error: Scale (" << m.scaleX << ", " << m.scaleY << ", " << m.scaleZ << ") is invalid.";
+// 		err.text = oss.str();
+// 		throw err;
+// 	}
+// 	///check valid osg Node.
+// 	else if (osgMesh==NULL)
+// 	{
+// 		#ifdef INNERMODELMANAGERDEBUG
+// 				qDebug() <<"--- Fatal:"<<msg<<"meshPath:"<<QString::fromStdString(m.meshPath) <<"does not exist or no it is a type valid for his OpenSceneGraph.";
+// 		#endif
+// 		RoboCompInnerModelManager::InnerModelManagerError err;
+// 		err.err = RoboCompInnerModelManager::InvalidPath;
+// 		std::ostringstream oss;
+// 		oss <<msg.toStdString() <<" error: meshPath: " << m.meshPath << ", " <<"does not exist or no it is a type valid for his OpenSceneGraph.";
+// 		err.text = oss.str();
+// 		throw err;
+// 	}
+// }
+// 
+// void SpecificWorker::AttributeAlreadyExists(InnerModelNode *node, QString attributeName, QString msg)
+// {
+// 	if (node->attributes.contains(attributeName))
+// 	{
+// 		#ifdef INNERMODELMANAGERDEBUG
+// 				qDebug("attribute already exist. %s\n", attributeName.toStdString().c_str());
+// 		#endif
+// 		RoboCompInnerModelManager::InnerModelManagerError err;
+// 		err.err = RoboCompInnerModelManager::AttributeAlreadyExists;
+// 		std::ostringstream oss;
+// 		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " already exists." <<" in node "<<node->id.toStdString();
+// 		err.text = oss.str();
+// 		throw err;
+// 	}
+// }
+// 
+// void SpecificWorker::NonExistingAttribute(InnerModelNode *node, QString attributeName, QString msg)
+// {
+// 	if (node->attributes.contains(attributeName) ==false)
+// 	{
+// #ifdef INNERMODELMANAGERDEBUG
+// 		qDebug("attribute NO exist. %s\n", attributeName.toStdString().c_str());
+// #endif
+// 		RoboCompInnerModelManager::InnerModelManagerError err;
+// 		err.err = RoboCompInnerModelManager::AttributeAlreadyExists;
+// 		std::ostringstream oss;
+// 		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " NO exists."<<" in node "<<node->id.toStdString();
+// 		err.text = oss.str();
+// 		throw err;
+// 	}
+// }
+// 
+// void SpecificWorker::getRecursiveNodeInformation(RoboCompInnerModelManager::NodeInformationSequence& nodesInfo, InnerModelNode *node)
+// {
+// 	/// Add current node information
+// 	RoboCompInnerModelManager::NodeInformation ni;
+// 	ni.id = node->id.toStdString();
+// 
+// 
+// 	if (node->parent)
+// 	{
+// 		ni.parentId = node->parent->id.toStdString();
+// 	}
+// 	else
+// 	{
+// 		ni.parentId = "";
+// 	}
+// 	ni.nType = getNodeType(node);
+// 
+// 	RoboCompInnerModelManager::AttributeType a;
+// 	foreach (const QString &str, node->attributes.keys())
+// 	{
+// 		a.type=node->attributes.value(str).type.toStdString();
+// 		a.value=node->attributes.value(str).value.toStdString();
+// 		ni.attributes[str.toStdString()]=a;
+// 	}
+// 	nodesInfo.push_back(ni);
+// 
+// 	/// Recursive call for all children
+// 	QList<InnerModelNode *>::iterator child;
+// 	for (child = node->children.begin(); child != node->children.end(); child++)
+// 	{
+// 		getRecursiveNodeInformation(nodesInfo, *child);
+// 	}
+// }
+// 
+// RoboCompInnerModelManager::NodeType SpecificWorker::getNodeType(InnerModelNode *node)
+// {
+// 	if (dynamic_cast<InnerModelJoint*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::Joint;
+// 	}
+// 	else if (dynamic_cast<InnerModelTouchSensor*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::TouchSensor;
+// 	}
+// 	else if (dynamic_cast<InnerModelDifferentialRobot*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::DifferentialRobot;
+// 	}
+// 	else if (dynamic_cast<InnerModelOmniRobot*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::OmniRobot;
+// 	}
+// 	else if (dynamic_cast<InnerModelPlane*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::Plane;
+// 	}
+// 	else if (dynamic_cast<InnerModelDisplay*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::DisplayII;
+// 	}
+// 	else if (dynamic_cast<InnerModelRGBD*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::RGBD;
+// 	}
+// 	else if (dynamic_cast<InnerModelCamera*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::Camera;
+// 	}
+// 	else if (dynamic_cast<InnerModelIMU*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::IMU;
+// 	}
+// 	else if (dynamic_cast<InnerModelLaser*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::Laser;
+// 	}
+// 	else if (dynamic_cast<InnerModelMesh*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::Mesh;
+// 	}
+// 	else if (dynamic_cast<InnerModelPointCloud*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::PointCloud;
+// 	}
+// 	else if (dynamic_cast<InnerModelTransform*>(node) != NULL)
+// 	{
+// 		return RoboCompInnerModelManager::Transform;
+// 	}
+// 	else
+// 	{
+// 		RoboCompInnerModelManager::InnerModelManagerError err;
+// 		err.err = RoboCompInnerModelManager::InternalError;
+// 		std::ostringstream oss;
+// 		oss << "RoboCompInnerModelManager::getNodeType() error: Type of node " << node->id.toStdString() << " is unknown.";
+// 		err.text = oss.str();
+// 		throw err;
+// 	}
+// }
 
 // Cambia el color de un mesh
 void SpecificWorker::cambiaColor(QString id, osg::Vec4 color)

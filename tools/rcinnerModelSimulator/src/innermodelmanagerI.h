@@ -43,41 +43,45 @@ class InnerModelManagerI : public QObject, public virtual RoboCompInnerModelMana
 	Q_OBJECT
 public:
 	InnerModelManagerI ( std::shared_ptr<SpecificWorker> w );
-	
 	~InnerModelManagerI() {};
 	
-	bool setPose ( const std::string& item, const std::string& base, const Pose3D& pose, const Ice::Current& );
-	bool setPoseFromParent ( const std::string& item, const Pose3D& pose, const Ice::Current& );
-	bool getPose ( const std::string& item, const std::string& base, Pose3D& pose, const Ice::Current& );
-	bool getPoseFromParent ( const std::string& item, Pose3D& pose, const Ice::Current& );
-	
-	bool transform ( const std::string& item, const std::string& base, const coord3D& coordInItem, coord3D& coordInBase, const Ice::Current& );
-	Matrix getTransformationMatrix ( const std::string& item, const std::string& base, const Ice::Current& );
-	bool setScale ( const std::string& item, float scaleX,float scaleY, float scaleZ, const Ice::Current& );
-	
-	bool setPlane ( const std::string& item, const Plane3D& pose, const Ice::Current& );
-	bool setPlaneTexture ( const std::string& item, const std::string& texture, const Ice::Current& );
+	// Ice interface
 	bool addTransform ( const std::string& item, const std::string& engine, const std::string& base, const Pose3D& pose, const Ice::Current& );
 	bool addJoint ( const std::string& item,const std::string& base, const jointType& j, const Ice::Current& );
 	bool addMesh ( const std::string& item, const std::string& base, const meshType& m, const Ice::Current& );
 	bool addPlane ( const std::string &item, const std::string &base, const Plane3D &p, const Ice::Current& );
-	
+	void getAllNodeInformation ( NodeInformationSequence &nodesInfo, const Ice::Current& );
+	bool setPose ( const std::string& item, const std::string& base, const Pose3D& pose, const Ice::Current& );
+	bool setPoseFromParent ( const std::string& item, const Pose3D& pose, const Ice::Current& );
+	bool getPose ( const std::string& item, const std::string& base, Pose3D& pose, const Ice::Current& );
+	bool getPoseFromParent ( const std::string& item, Pose3D& pose, const Ice::Current& );
+	bool setPlane ( const std::string& item, const Plane3D& pose, const Ice::Current& );
+	bool setPlaneTexture ( const std::string& item, const std::string& texture, const Ice::Current& );
+	bool transform ( const std::string& item, const std::string& base, const coord3D& coordInItem, coord3D& coordInBase, const Ice::Current& );
+	Matrix getTransformationMatrix ( const std::string& item, const std::string& base, const Ice::Current& );
+	bool setScale ( const std::string& item, float scaleX,float scaleY, float scaleZ, const Ice::Current& );
 	bool addAttribute ( const std::string& idNode, const std::string& name, const std::string& type, const std::string& value, const Ice::Current& );
 	bool removeAttribute ( const std::string& idNode, const std::string& name, const Ice::Current& );
 	bool setAttribute ( const std::string& idNode, const std::string& name, const std::string& type, const std::string& value,const Ice::Current& );
 	bool getAttribute ( const std::string& idNode, const std::string& name, std::string& type, std::string& value, const Ice::Current& );
-	
 	bool removeNode ( const std::string& item, const Ice::Current& );
 	bool moveNode ( const std::string& src, const std::string& dst, const Ice::Current& );
-	
-	void getAllNodeInformation ( NodeInformationSequence &nodesInfo, const Ice::Current& );
-	
 	void setPointCloudData ( const std::string &id, const RoboCompInnerModelManager::PointCloudVector &cloud, const Ice::Current& );
-
 	bool collide(const std::string &a, const std::string &b, const Ice::Current&);
+	
 private:
 	std::shared_ptr<SpecificWorker> worker;
+	std::shared_ptr<InnerModel> innerModel;
 	QString id;
+	
+	void checkOperationInvalidNode(InnerModelNode *node, QString msg);
+	void checkNodeAlreadyExists(const QString &id, const QString &msg);
+	void checkInvalidMeshValues(RoboCompInnerModelManager::meshType m, QString msg);
+	void AttributeAlreadyExists(InnerModelNode *node, QString attributeName, QString msg);
+	void NonExistingAttribute(InnerModelNode *node, QString attributeName, QString msg);
+	void getRecursiveNodeInformation(RoboCompInnerModelManager::NodeInformationSequence& nodesInfo, InnerModelNode *node);
+	RoboCompInnerModelManager::NodeType getNodeType(InnerModelNode *node);
+
 };
 
 #endif

@@ -21,11 +21,31 @@
 #include <stdexcept>
 #include <iostream>
 #include <string>
+#include <exception>
 
-class InnerModelException : public std::runtime_error
+namespace RoboComp
 {
-	public:
-		InnerModelException(const std::string &arg);
-};
 
+	class InnerModelException : public std::exception
+	{
+		public:
+			InnerModelException(std::string &&arg_) : arg(std::move(arg_)) {};
+			const char* what() const noexcept override { return arg.c_str(); };
+			void print() const { std::cout << arg << std::endl;};
+		private:
+			std::string arg; 
+	};
+
+	class BadCastToFinalType : InnerModelException 
+	{
+		public:
+			BadCastToFinalType(std::string &&arg_) : InnerModelException(std::move(arg_)) {};
+	};
+
+	class NonExistingNode : InnerModelException 
+	{
+		public:
+			NonExistingNode(std::string &&arg_) : InnerModelException(std::move(arg_)){};
+	};
+}
 #endif // INNERMODELEXCEPTION_H

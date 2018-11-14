@@ -22,226 +22,214 @@
 
 InnerModelManagerI::InnerModelManagerI(std::shared_ptr<SpecificWorker> w)
 {
+	//copy sptrs to local variables
 	worker = w;
+	innerModel = w->innerModel;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 
-bool InnerModelManagerI::setPose(const std::string &base, const std::string &item, const RoboCompInnerModelManager::Pose3D &pose, const Ice::Current&)
+void InnerModelManagerI::checkOperationInvalidNode(InnerModelNode *node, QString msg)
 {
-	guard gl(worker->innerModel->mutex);
-	
-	QString qBase = QString::fromStdString(base);
-	QString qItem = QString::fromStdString(item);
-	QString m="RoboCompInnerModelManager::setPose()";
-
-	//check type transform
-	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qBase, m));
-	worker->checkOperationInvalidNode(aux, m + qBase +"can't be use as base because it's not a InnerModelTransform node.");
-	aux = NULL;
-	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
-	worker->checkOperationInvalidNode(aux, m + qItem +"can't be use as item because it's not a InnerModelTransform node.");
-
-	worker->innerModel->updateTransformValues(qItem, pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz, qBase);
-
-	return true;
-}
-
-
-bool InnerModelManagerI::setPoseFromParent(const std::string &item, const RoboCompInnerModelManager::Pose3D &pose, const Ice::Current&)
-{
-	//return worker->imm_setPoseFromParent(id, item, pose);
-	guard gl(worker->innerModel->mutex);
-
-	QString qItem = QString::fromStdString(item);
-	QString m="RoboCompInnerModelManager::setPose()";
-
-	//check type transform
-	InnerModelTransform *aux = NULL;
-	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
-	worker->checkOperationInvalidNode(aux, m + qItem +"can't be use as item because it's not a InnerModelTransform node.");
-	worker->innerModel->updateTransformValues(qItem, pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz);
-
-	return true;
-}
-
-bool InnerModelManagerI::getPose(const std::string &base, const std::string &item, RoboCompInnerModelManager::Pose3D &pose, const Ice::Current&)
-{
-	//return worker->imm_getPose(id, base, item, pose);
-	guard gl(worker->innerModel->mutex);
-
-	QVec p;
-	QString qBase = QString::fromStdString(base);
-	QString qItem = QString::fromStdString(item);
-	QString m="RoboCompInnerModelManager::getPose()";
-
-	// check type transform
-	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qBase, m));
-	worker->checkOperationInvalidNode(aux, m + qBase +"can't be use as base because it's not a InnerModelTransform node.");
-	aux = NULL;
-	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
-	worker->checkOperationInvalidNode(aux, m + qItem +"can't be use as item because it's not a InnerModelTransform node.");
-
-	// calculate position
-	p = worker->innerModel->transform(QString::fromUtf8(base.c_str()), QVec::vec3(0,0,0), QString::fromUtf8(item.c_str()));
-	pose.x = p.x();
-	pose.y = p.y();
-	pose.z = p.z();
-	//calulate rotation
-	p = worker->innerModel->getRotationMatrixTo(QString::fromUtf8(base.c_str()), QString::fromUtf8(item.c_str())).extractAnglesR();
-	pose.rx = p.x();
-	pose.ry = p.y();
-	pose.rz = p.z();
-
-	return true;
-}
-
-
-bool InnerModelManagerI::getPoseFromParent(const std::string &item, RoboCompInnerModelManager::Pose3D &pose, const Ice::Current&)
-{
-	//return worker->imm_getPoseFromParent(id, item, pose);
-	guard gl(worker->innerModel->mutex);
-
-	QString m="RoboCompInnerModelManager::getPoseFromParent()";
-
-	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(QString::fromStdString(item), m));
-	worker->checkOperationInvalidNode(aux, m+aux->id+"can't be use as base because it's not a InnerModelTransform node.");
-
-	pose.x = aux->backtX;
-	pose.y = aux->backtY;
-	pose.z = aux->backtZ;
-	pose.rx = aux->backrX;
-	pose.ry = aux->backrY;
-	pose.rz = aux->backrZ;
-
-	return true;
-}
-
-
-bool InnerModelManagerI::transform(const std::string &base, const std::string &item, const coord3D &coordInItem, coord3D &coordInBase, const Ice::Current&)
-{
-	//return worker->imm_transform(id, base, item, coordInItem, coordInBase);
-	guard gl(worker->innerModel->mutex);
-
-	QVec p;
-	const QString qBase = QString::fromStdString(base);
-	const QString qItem = QString::fromStdString(item);
-	const QString m="RoboCompInnerModelManager::transform()";
-
-	//check type transform
-	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qBase, m));
-	worker->checkOperationInvalidNode(aux, m + qBase +"can't be used as base because it's not a InnerModelTransform node.");
-
-	aux = NULL;
-	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
-	worker->checkOperationInvalidNode(aux, m + qItem +"can't be used as item because it's not a InnerModelTransform node.");
-
-	// calculate position
-	p = worker->innerModel->transform(QString::fromUtf8(base.c_str()), QVec::vec3(coordInItem.x,coordInItem.y,coordInItem.z),QString::fromUtf8(item.c_str()));
-	coordInBase.x = p.x();
-	coordInBase.y = p.y();
-	coordInBase.z = p.z();
-
-	return true;
-}
-
-Matrix InnerModelManagerI::getTransformationMatrix(const std::string &base, const std::string &item, const Ice::Current&)
-{
-	//return worker->imm_getTransformationMatrix(base, item);
-	const QString qBase = QString::fromStdString(base);
-	const QString qItem = QString::fromStdString(item);
-	const QString m="RoboCompInnerModelManager::transform()";
-	guard gl(worker->innerModel->mutex);
-
-
-	//check type transform
-	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qBase, m));
-	worker->checkOperationInvalidNode(aux, m + qBase +"can't be used as base because it's not a InnerModelTransform node.");
-
-	aux = NULL;
-	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
-	worker->checkOperationInvalidNode(aux, m + qItem +"can't be used as item because it's not a InnerModelTransform node.");
-
-	// calculate position
-	RTMat retA = worker->innerModel->getTransformationMatrix(qBase, qItem);
-	RoboCompInnerModelManager::Matrix retB;
-
-	retB.cols = retA.nCols();
-	retB.rows = retA.nRows();
-	retB.data.resize(retB.cols*retB.rows);
-	retA.print("retA");
-	printf("\n");
-	for (int r=0; r<retB.rows; r++)
+	if (node==nullptr)
 	{
-		for (int c=0; c<retB.cols; c++)
-		{
-			printf("%f ", retB.data[r*retB.cols + c]);
-			retB.data[r*retB.cols + c] = retA(r, c);
-		}
-		printf("\n");
+		#ifdef INNERMODELMANAGERDEBUG
+					qDebug() << __FUNCTION__ << msg << "is not transform type";
+		#endif
+		RoboCompInnerModelManager::InnerModelManagerError err{ RoboCompInnerModelManager::OperationInvalidNode, 
+			msg.toStdString() + " error: Node is not of the type required"};
+		throw err;
+			//err.err = RoboCompInnerModelManager::OperationInvalidNode;
+			// 		std::ostringstream oss;
+			// 		oss << msg.toStdString() << " error: Node " << node->id.toStdString() <<" is not of the type required";
+			// 		err.text = oss.str();
+		  //throw err;
 	}
-	printf("\n");
-
-	return retB;
 }
 
-
-bool InnerModelManagerI::setScale(const std::string &item, float scaleX,float scaleY, float scaleZ, const Ice::Current&)
+void InnerModelManagerI::checkNodeAlreadyExists(const QString &id, const QString &msg)
 {
-	//return worker->imm_setScale(id, item, scaleX, scaleY, scaleZ);
-	guard gl(worker->innerModel->mutex);
-
-	QString qItem = QString::fromStdString(item);
-	QString m="RoboCompInnerModelManager::setScale()";
-
-	InnerModelMesh *aux = dynamic_cast<InnerModelMesh*>(worker->getNode(QString::fromStdString(item),m));
-	worker->checkOperationInvalidNode(aux,m + qItem +"can't be used because it's not a InnerModelMesh node.");
-
-	aux->setScale(scaleX, scaleY, scaleZ);
-	return true;
-}
-
-
-bool InnerModelManagerI::setPlane(const std::string &item, const RoboCompInnerModelManager::Plane3D &plane, const Ice::Current&)
-{
-	//return worker->imm_setPlane(id, item, plane);
-	guard gl(worker->innerModel->mutex);
-
-	QString m="RoboCompInnerModelManager::setPlane()";
-// 	printf("SETPLANE %s: %f_%f_%f\n", item.c_str(), plane.px, plane.py, plane.pz);
-	InnerModelPlane *aux = dynamic_cast<InnerModelPlane*>(worker->getNode(QString::fromStdString(item), m));
-	worker->checkOperationInvalidNode(aux,m + aux->id +"can't be use as base because it's not of the type InnerModelPlane.");
-	worker->innerModel->updatePlaneValues(QString::fromStdString(item), plane.nx, plane.ny, plane.nz, plane.px, plane.py, plane.pz);
-	return true;
-	
-}
-bool InnerModelManagerI::setPlaneTexture(const std::string &item, const std::string &texture, const Ice::Current&)
-{
-	//return worker->imm_setPlaneTexture(id, item, texture);
-	guard gl(worker->innerModel->mutex);
-
-	QString m="RoboCompInnerModelManager::setPlaneTextureº()";
-	printf("SETPLANETEXTURE %s: %s\n", item.c_str(), texture.c_str());
-	InnerModelPlane *aux = dynamic_cast<InnerModelPlane*>(worker->getNode(QString::fromStdString(item), m));
-	//qDebug()<<"aux->texture"<<aux->texture<<"qstring"<<QString::fromStdString(texture);
-	
-	aux->texture=QString::fromStdString(texture);
-	
-	osg::Image *image=NULL;
-	image = osgDB::readImageFile(texture);
-	if (not image)
+	if (innerModel->getIDKeys().contains(id))
 	{
-		qDebug() << "Couldn't load texture:" << texture.c_str();
-		throw "Couldn't load texture.";
+		#ifdef INNERMODELMANAGERDEBUG
+			qDebug("item already exist. %s\n", id.toStdString().c_str());
+		#endif
+		RoboCompInnerModelManager::InnerModelManagerError err;
+		err.err = RoboCompInnerModelManager::NodeAlreadyExists;
+		std::ostringstream oss;
+		oss <<msg.toStdString() <<" error: Node " << id.toStdString() << " already exists.";
+		err.text = oss.str();
+		throw err;
 	}
-	
-	worker->imv->planesHash[aux->id]->image =image;
-	worker->imv->planesHash[aux->id]->texture->setImage(image);
-
-	qDebug()<<"change aux->texture"<<aux->texture;
-// 	checkOperationInvalidNode(aux,m + aux->id +"can't be use as base because it's not of the type InnerModelPlane.");
-// 	innerModel->updatePlaneValues(QString::fromStdString(item), plane.nx, plane.ny, plane.nz, plane.px, plane.py, plane.pz);
-	return true;
 }
+
+void InnerModelManagerI::checkInvalidMeshValues(RoboCompInnerModelManager::meshType m, QString msg)
+{
+	///check Scale
+	osg::Node *osgMesh = osgDB::readNodeFile(m.meshPath);
+	if (m.scaleX<0.0 or m.scaleY <0.0 or m.scaleZ <0.0)
+	{
+#ifdef INNERMODELMANAGERDEBUG
+		qDebug() <<"--- Fatal:"<<msg<<"Scale can not be negative";
+		qDebug() <<"m.scaleX "<<m.scaleX<<"m.scaleY"<<m.scaleY<<"m.scaleZ"<<m.scaleZ;
+#endif
+		RoboCompInnerModelManager::InnerModelManagerError err;
+		err.err = RoboCompInnerModelManager::InvalidValues;
+		std::ostringstream oss;
+		oss <<msg.toStdString() <<" error: Scale (" << m.scaleX << ", " << m.scaleY << ", " << m.scaleZ << ") is invalid.";
+		err.text = oss.str();
+		throw err;
+	}
+	///check valid osg Node.
+	else if (osgMesh==NULL)
+	{
+		#ifdef INNERMODELMANAGERDEBUG
+				qDebug() <<"--- Fatal:"<<msg<<"meshPath:"<<QString::fromStdString(m.meshPath) <<"does not exist or no it is a type valid for his OpenSceneGraph.";
+		#endif
+		RoboCompInnerModelManager::InnerModelManagerError err;
+		err.err = RoboCompInnerModelManager::InvalidPath;
+		std::ostringstream oss;
+		oss <<msg.toStdString() <<" error: meshPath: " << m.meshPath << ", " <<"does not exist or no it is a type valid for his OpenSceneGraph.";
+		err.text = oss.str();
+		throw err;
+	}
+}
+
+void InnerModelManagerI::AttributeAlreadyExists(InnerModelNode *node, QString attributeName, QString msg)
+{
+	if (node->attributes.contains(attributeName))
+	{
+		#ifdef INNERMODELMANAGERDEBUG
+				qDebug("attribute already exist. %s\n", attributeName.toStdString().c_str());
+		#endif
+		RoboCompInnerModelManager::InnerModelManagerError err;
+		err.err = RoboCompInnerModelManager::AttributeAlreadyExists;
+		std::ostringstream oss;
+		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " already exists." <<" in node "<<node->id.toStdString();
+		err.text = oss.str();
+		throw err;
+	}
+}
+
+void InnerModelManagerI::NonExistingAttribute(InnerModelNode *node, QString attributeName, QString msg)
+{
+	if (node->attributes.contains(attributeName) ==false)
+	{
+#ifdef INNERMODELMANAGERDEBUG
+		qDebug("attribute NO exist. %s\n", attributeName.toStdString().c_str());
+#endif
+		RoboCompInnerModelManager::InnerModelManagerError err;
+		err.err = RoboCompInnerModelManager::AttributeAlreadyExists;
+		std::ostringstream oss;
+		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " NO exists."<<" in node "<<node->id.toStdString();
+		err.text = oss.str();
+		throw err;
+	}
+}
+
+void InnerModelManagerI::getRecursiveNodeInformation(RoboCompInnerModelManager::NodeInformationSequence& nodesInfo, InnerModelNode *node)
+{
+	/// Add current node information
+	RoboCompInnerModelManager::NodeInformation ni;
+	ni.id = node->id.toStdString();
+
+
+	if (node->parent)
+	{
+		ni.parentId = node->parent->id.toStdString();
+	}
+	else
+	{
+		ni.parentId = "";
+	}
+	ni.nType = getNodeType(node);
+
+	RoboCompInnerModelManager::AttributeType a;
+	foreach (const QString &str, node->attributes.keys())
+	{
+		a.type=node->attributes.value(str).type.toStdString();
+		a.value=node->attributes.value(str).value.toStdString();
+		ni.attributes[str.toStdString()]=a;
+	}
+	nodesInfo.push_back(ni);
+
+	/// Recursive call for all children
+	QList<InnerModelNode *>::iterator child;
+	for (child = node->children.begin(); child != node->children.end(); child++)
+	{
+		getRecursiveNodeInformation(nodesInfo, *child);
+	}
+}
+
+RoboCompInnerModelManager::NodeType InnerModelManagerI::getNodeType(InnerModelNode *node)
+{
+	if (dynamic_cast<InnerModelJoint*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::Joint;
+	}
+	else if (dynamic_cast<InnerModelTouchSensor*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::TouchSensor;
+	}
+	else if (dynamic_cast<InnerModelDifferentialRobot*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::DifferentialRobot;
+	}
+	else if (dynamic_cast<InnerModelOmniRobot*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::OmniRobot;
+	}
+	else if (dynamic_cast<InnerModelPlane*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::Plane;
+	}
+	else if (dynamic_cast<InnerModelDisplay*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::DisplayII;
+	}
+	else if (dynamic_cast<InnerModelRGBD*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::RGBD;
+	}
+	else if (dynamic_cast<InnerModelCamera*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::Camera;
+	}
+	else if (dynamic_cast<InnerModelIMU*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::IMU;
+	}
+	else if (dynamic_cast<InnerModelLaser*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::Laser;
+	}
+	else if (dynamic_cast<InnerModelMesh*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::Mesh;
+	}
+	else if (dynamic_cast<InnerModelPointCloud*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::PointCloud;
+	}
+	else if (dynamic_cast<InnerModelTransform*>(node) != NULL)
+	{
+		return RoboCompInnerModelManager::Transform;
+	}
+	else
+	{
+		RoboCompInnerModelManager::InnerModelManagerError err;
+		err.err = RoboCompInnerModelManager::InternalError;
+		std::ostringstream oss;
+		oss << "RoboCompInnerModelManager::getNodeType() error: Type of node " << node->id.toStdString() << " is unknown.";
+		err.text = oss.str();
+		throw err;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// INTERFACE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool InnerModelManagerI::addTransform(const std::string &item, const std::string &engine, const std::string &base,const Pose3D &pose, const Ice::Current&)
 {
@@ -249,7 +237,7 @@ bool InnerModelManagerI::addTransform(const std::string &item, const std::string
 	guard gl(worker->innerModel->mutex);
 
 	InnerModelNode *parent = worker->getNode(QString::fromStdString(base), "RoboCompInnerModelManager::addTransform()");
-	worker->checkNodeAlreadyExists(QString::fromStdString(item), "RoboCompInnerModelManager::addTransform()");
+	checkNodeAlreadyExists(QString::fromStdString(item), "RoboCompInnerModelManager::addTransform()");
 	
 	QString qEngine = QString::fromStdString( engine);
 	if (qEngine !="static" and qEngine !="bullet")
@@ -283,7 +271,7 @@ bool InnerModelManagerI::addJoint(const std::string &item, const std::string &ba
 	RoboCompInnerModelManager::Pose3D pose = j_.pose;
 
 	InnerModelTransform *parent=dynamic_cast<InnerModelTransform *>(worker->getNode(QString::fromStdString(base), "RoboCompInnerModelManager::addJoint()"));
-	worker->checkNodeAlreadyExists(QString::fromStdString(item), "RoboCompInnerModelManager::addJoint()");
+	checkNodeAlreadyExists(QString::fromStdString(item), "RoboCompInnerModelManager::addJoint()");
 
 	InnerModelJoint *j_N = worker->innerModel->newJoint(QString::fromStdString(item), parent, j_.lx, j_.ly, j_.lz, j_.hx, j_.hy, j_.hz, pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz, j_.min, j_.max, j_.port, j_.axis);
 	parent->addChild (j_N);
@@ -316,33 +304,36 @@ bool InnerModelManagerI::addMesh(const std::string &item,const std::string &base
 	qDebug() <<msg<<QString::fromStdString(base) <<QString::fromStdString(item);
 	qDebug() <<QString::fromStdString(m.meshPath);
 #endif
-	InnerModelTransform *parent = dynamic_cast<InnerModelTransform*>(worker->getNode(QString::fromStdString(base), msg));
-
-	//Checking if its parent is not a mesh.
-	worker->checkOperationInvalidNode(parent, msg);
-	worker->checkNodeAlreadyExists(QString::fromStdString(item), msg);
-	worker->checkInvalidMeshValues(m,msg);
-
-	int render = m.render;
-	if(render!=0 and render!=1)
+	//InnerModelTransform *parent = dynamic_cast<InnerModelTransform*>(worker->getNode(QString::fromStdString(base), msg));
+	try 
 	{
-		render=0;
+		auto parent = innerModel->getNode<InnerModelTransform>(base);
+		//Checking if its parent is not a mesh.
+		checkOperationInvalidNode(parent, msg);
+		checkNodeAlreadyExists(QString::fromStdString(item), msg);
+		checkInvalidMeshValues(m,msg);
+
+		int render = m.render;
+		if(render!=0 and render!=1)
+			render=0;
+		
+		InnerModelMesh *mesh = innerModel->newMesh (
+			QString::fromStdString(item),
+			parent,
+			QString::fromStdString(m.meshPath),
+			m.scaleX, m.scaleY, m.scaleZ,
+			render,
+			m.pose.x, m.pose.y, m.pose.z,
+			m.pose.rx, m.pose.ry, m.pose.rz);
+
+		mesh->setScale(m.scaleX, m.scaleY, m.scaleZ);
+		parent->addChild(mesh);
+
+		worker->imv->recursiveConstructor(mesh, worker->imv->mts[parent->id], worker->imv->mts, worker->imv->meshHash); // osgmeshes,imv->osgmeshPats);
+		return true;
+
 	}
-	
-	InnerModelMesh *mesh = worker->innerModel->newMesh (
-		QString::fromStdString(item),
-		parent,
-		QString::fromStdString(m.meshPath),
-		m.scaleX, m.scaleY, m.scaleZ,
-		render,
-		m.pose.x, m.pose.y, m.pose.z,
-		m.pose.rx, m.pose.ry, m.pose.rz);
-
-	mesh->setScale(m.scaleX, m.scaleY, m.scaleZ);
-	parent->addChild(mesh);
-
-	worker->imv->recursiveConstructor(mesh, worker->imv->mts[parent->id], worker->imv->mts, worker->imv->meshHash); // osgmeshes,imv->osgmeshPats);
-	return true;
+	catch(const RoboComp::InnerModelException &e) { e.print(); }
 }
 
 
@@ -353,8 +344,7 @@ bool InnerModelManagerI::addPlane(const std::string &item, const std::string &ba
 
 
 	InnerModelNode *parent = worker->getNode(QString::fromStdString(base), "RoboCompInnerModelManager::addPlane()");
-	worker->checkNodeAlreadyExists(QString::fromStdString(item), "RoboCompInnerModelManager::addPlane()");
-
+	checkNodeAlreadyExists(QString::fromStdString(item), "RoboCompInnerModelManager::addPlane()");
 
 	InnerModelPlane *plane = worker->innerModel->newPlane(QString::fromStdString(item), parent, QString::fromStdString(p.texture),
 	                         p.width, p.height, p.thickness, 1,
@@ -368,6 +358,306 @@ bool InnerModelManagerI::addPlane(const std::string &item, const std::string &ba
 	return true;
 }
 
+
+void InnerModelManagerI::getAllNodeInformation(NodeInformationSequence &nodesInfo, const Ice::Current&)
+{
+	guard gl(worker->innerModel->mutex);
+	nodesInfo.clear();
+	getRecursiveNodeInformation(nodesInfo, worker->innerModel->getRoot());
+}
+
+
+bool InnerModelManagerI::setPose(const std::string &base, const std::string &item, const RoboCompInnerModelManager::Pose3D &pose, const Ice::Current&)
+{
+	guard gl(worker->innerModel->mutex);
+	
+	QString qBase = QString::fromStdString(base);
+	QString qItem = QString::fromStdString(item);
+	QString m = "RoboCompInnerModelManager::setPose()";
+
+	//check type transform
+	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qBase, m));
+	//auto aux = worker->innerModel.getNode<InnerModelTransform>(qBase);
+	checkOperationInvalidNode(aux, m + qBase +"can't be use as base because it's not a InnerModelTransform node.");
+	aux = NULL;
+	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
+	checkOperationInvalidNode(aux, m + qItem +"can't be use as item because it's not a InnerModelTransform node.");
+
+	worker->innerModel->updateTransformValues(qItem, pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz, qBase);
+
+	return true;
+}
+
+
+bool InnerModelManagerI::setPoseFromParent(const std::string &item, const RoboCompInnerModelManager::Pose3D &pose, const Ice::Current&)
+{
+	//return worker->imm_setPoseFromParent(id, item, pose);
+	guard gl(worker->innerModel->mutex);
+
+	QString qItem = QString::fromStdString(item);
+	QString m="RoboCompInnerModelManager::setPose()";
+
+	//check type transform
+	InnerModelTransform *aux = NULL;
+	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
+	checkOperationInvalidNode(aux, m + qItem +"can't be use as item because it's not a InnerModelTransform node.");
+	innerModel->updateTransformValues(qItem, pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz);
+
+	return true;
+}
+
+bool InnerModelManagerI::getPose(const std::string &base, const std::string &item, RoboCompInnerModelManager::Pose3D &pose, const Ice::Current&)
+{
+	//return worker->imm_getPose(id, base, item, pose);
+	guard gl(worker->innerModel->mutex);
+
+	QVec p;
+	QString qBase = QString::fromStdString(base);
+	QString qItem = QString::fromStdString(item);
+	QString m="RoboCompInnerModelManager::getPose()";
+
+	// check type transform
+	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qBase, m));
+	checkOperationInvalidNode(aux, m + qBase +"can't be use as base because it's not a InnerModelTransform node.");
+	aux = NULL;
+	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
+	checkOperationInvalidNode(aux, m + qItem +"can't be use as item because it's not a InnerModelTransform node.");
+
+	// calculate position
+	p = worker->innerModel->transform(QString::fromUtf8(base.c_str()), QVec::vec3(0,0,0), QString::fromUtf8(item.c_str()));
+	pose.x = p.x();
+	pose.y = p.y();
+	pose.z = p.z();
+	//calulate rotation
+	p = worker->innerModel->getRotationMatrixTo(QString::fromUtf8(base.c_str()), QString::fromUtf8(item.c_str())).extractAnglesR();
+	pose.rx = p.x();
+	pose.ry = p.y();
+	pose.rz = p.z();
+
+	return true;
+}
+
+bool InnerModelManagerI::getPoseFromParent(const std::string &item, RoboCompInnerModelManager::Pose3D &pose, const Ice::Current&)
+{
+	//return worker->imm_getPoseFromParent(id, item, pose);
+	guard gl(worker->innerModel->mutex);
+
+	QString m="RoboCompInnerModelManager::getPoseFromParent()";
+
+	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(QString::fromStdString(item), m));
+	checkOperationInvalidNode(aux, m+aux->id+"can't be use as base because it's not a InnerModelTransform node.");
+
+	pose.x = aux->backtX;
+	pose.y = aux->backtY;
+	pose.z = aux->backtZ;
+	pose.rx = aux->backrX;
+	pose.ry = aux->backrY;
+	pose.rz = aux->backrZ;
+
+	return true;
+}
+
+bool InnerModelManagerI::setPlane(const std::string &item, const RoboCompInnerModelManager::Plane3D &plane, const Ice::Current&)
+{
+	//return worker->imm_setPlane(id, item, plane);
+	guard gl(worker->innerModel->mutex);
+
+	QString m="RoboCompInnerModelManager::setPlane()";
+// 	printf("SETPLANE %s: %f_%f_%f\n", item.c_str(), plane.px, plane.py, plane.pz);
+	InnerModelPlane *aux = dynamic_cast<InnerModelPlane*>(worker->getNode(QString::fromStdString(item), m));
+	checkOperationInvalidNode(aux,m + aux->id +"can't be use as base because it's not of the type InnerModelPlane.");
+	innerModel->updatePlaneValues(QString::fromStdString(item), plane.nx, plane.ny, plane.nz, plane.px, plane.py, plane.pz);
+	return true;
+}
+
+bool InnerModelManagerI::setPlaneTexture(const std::string &item, const std::string &texture, const Ice::Current&)
+{
+	//return worker->imm_setPlaneTexture(id, item, texture);
+	guard gl(worker->innerModel->mutex);
+
+	QString m="RoboCompInnerModelManager::setPlaneTextureº()";
+	printf("SETPLANETEXTURE %s: %s\n", item.c_str(), texture.c_str());
+	InnerModelPlane *aux = dynamic_cast<InnerModelPlane*>(worker->getNode(QString::fromStdString(item), m));
+	//qDebug()<<"aux->texture"<<aux->texture<<"qstring"<<QString::fromStdString(texture);
+	
+	aux->texture=QString::fromStdString(texture);
+	
+	osg::Image *image=NULL;
+	image = osgDB::readImageFile(texture);
+	if (not image)
+	{
+		qDebug() << "Couldn't load texture:" << texture.c_str();
+		throw "Couldn't load texture.";
+	}
+	
+	worker->imv->planesHash[aux->id]->image =image;
+	worker->imv->planesHash[aux->id]->texture->setImage(image);
+
+	qDebug()<<"change aux->texture"<<aux->texture;
+// 	checkOperationInvalidNode(aux,m + aux->id +"can't be use as base because it's not of the type InnerModelPlane.");
+// 	innerModel->updatePlaneValues(QString::fromStdString(item), plane.nx, plane.ny, plane.nz, plane.px, plane.py, plane.pz);
+	return true;
+}
+
+bool InnerModelManagerI::transform(const std::string &base, const std::string &item, const coord3D &coordInItem, coord3D &coordInBase, const Ice::Current&)
+{
+	//return worker->imm_transform(id, base, item, coordInItem, coordInBase);
+	guard gl(worker->innerModel->mutex);
+
+	QVec p;
+	const QString qBase = QString::fromStdString(base);
+	const QString qItem = QString::fromStdString(item);
+	const QString m="RoboCompInnerModelManager::transform()";
+
+	//check type transform
+	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qBase, m));
+	checkOperationInvalidNode(aux, m + qBase +"can't be used as base because it's not a InnerModelTransform node.");
+
+	aux = NULL;
+	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
+	checkOperationInvalidNode(aux, m + qItem +"can't be used as item because it's not a InnerModelTransform node.");
+
+	// calculate position
+	p = worker->innerModel->transform(QString::fromUtf8(base.c_str()), QVec::vec3(coordInItem.x,coordInItem.y,coordInItem.z),QString::fromUtf8(item.c_str()));
+	coordInBase.x = p.x();
+	coordInBase.y = p.y();
+	coordInBase.z = p.z();
+
+	return true;
+}
+
+Matrix InnerModelManagerI::getTransformationMatrix(const std::string &base, const std::string &item, const Ice::Current&)
+{
+	//return worker->imm_getTransformationMatrix(base, item);
+	const QString qBase = QString::fromStdString(base);
+	const QString qItem = QString::fromStdString(item);
+	const QString m="RoboCompInnerModelManager::transform()";
+	guard gl(worker->innerModel->mutex);
+
+
+	//check type transform
+	InnerModelTransform *aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qBase, m));
+	checkOperationInvalidNode(aux, m + qBase +"can't be used as base because it's not a InnerModelTransform node.");
+
+	aux = NULL;
+	aux = dynamic_cast<InnerModelTransform*>(worker->getNode(qItem, m));
+	checkOperationInvalidNode(aux, m + qItem +"can't be used as item because it's not a InnerModelTransform node.");
+
+	// calculate position
+	RTMat retA = worker->innerModel->getTransformationMatrix(qBase, qItem);
+	RoboCompInnerModelManager::Matrix retB;
+
+	retB.cols = retA.nCols();
+	retB.rows = retA.nRows();
+	retB.data.resize(retB.cols*retB.rows);
+	retA.print("retA");
+	printf("\n");
+	for (int r=0; r<retB.rows; r++)
+	{
+		for (int c=0; c<retB.cols; c++)
+		{
+			printf("%f ", retB.data[r*retB.cols + c]);
+			retB.data[r*retB.cols + c] = retA(r, c);
+		}
+		printf("\n");
+	}
+	printf("\n");
+
+	return retB;
+}
+
+bool InnerModelManagerI::setScale(const std::string &item, float scaleX,float scaleY, float scaleZ, const Ice::Current&)
+{
+	//return worker->imm_setScale(id, item, scaleX, scaleY, scaleZ);
+	guard gl(worker->innerModel->mutex);
+
+	QString qItem = QString::fromStdString(item);
+	QString m="RoboCompInnerModelManager::setScale()";
+
+	InnerModelMesh *aux = dynamic_cast<InnerModelMesh*>(worker->getNode(QString::fromStdString(item),m));
+	checkOperationInvalidNode(aux,m + qItem +"can't be used because it's not a InnerModelMesh node.");
+
+	aux->setScale(scaleX, scaleY, scaleZ);
+	return true;
+}
+
+bool InnerModelManagerI::addAttribute(const string &idNode, const string &name, const string &type, const string &value, const Ice::Current&)
+{
+///	return worker->imm_addAttribute(id, idNode, name, type, value);
+	guard gl(worker->innerModel->mutex);
+
+	QString qIdNode=QString::fromStdString(idNode);
+	QString qName=QString::fromStdString(name);
+	QString qType=QString::fromStdString(type);
+	QString qValue=QString::fromStdString(value);
+	QString m="RoboCompInnerModelManager::addAttribute()";
+
+	InnerModelNode *node = worker->getNode(qIdNode, m);
+	AttributeAlreadyExists(node,qName,m);
+
+	InnerModelNode::AttributeType t;
+	t.type=qType;
+	t.value=qValue;
+	node->attributes.insert(qName,t);
+
+	return true;
+}
+
+bool InnerModelManagerI::removeAttribute(const string &idNode, const string &name, const Ice::Current&)
+{
+	//return worker->imm_removeAttribute(id, idNode, name);
+	guard gl(worker->innerModel->mutex);
+
+	QString qIdNode=QString::fromStdString(idNode);
+	QString qName=QString::fromStdString(name);
+	QString m="RoboCompInnerModelManager::removeAttribute()";
+
+	InnerModelNode *node = worker->getNode(qIdNode, m);
+	NonExistingAttribute(node, qName,m);
+
+	node->attributes.remove(qName);
+
+	return true;
+}
+
+bool InnerModelManagerI::setAttribute(const string &idNode, const string &name, const string &type, const string &value, const Ice::Current&)
+{
+	//return worker->imm_setAttribute(id, idNode, name, type, value);
+	guard gl(worker->innerModel->mutex);
+
+	QString qIdNode=QString::fromStdString(idNode);
+	QString qName=QString::fromStdString(name);
+	QString qType=QString::fromStdString(type);
+	QString qValue=QString::fromStdString(value);
+
+	QString m="RoboCompInnerModelManager::setAttribute()";
+
+	InnerModelNode *node = worker->getNode(qIdNode, m);
+	NonExistingAttribute(node,qName,m);
+
+	node->attributes[qName].type=qType;
+	node->attributes[qName].value=qValue;
+
+	return true;
+}
+
+bool InnerModelManagerI::getAttribute(const string &idNode, const string &name,  string &type,  string &value, const Ice::Current&)
+{
+	//return worker->imm_getAttribute(id, idNode,name,type,value);
+	guard gl(worker->innerModel->mutex);
+
+	QString qIdNode=QString::fromStdString(idNode);
+	QString qName=QString::fromStdString(name);
+	QString m="RoboCompInnerModelManager::getAttribute()";
+
+	InnerModelNode *node = worker->getNode(qIdNode, m);
+	NonExistingAttribute(node, qName,m);
+
+	type= node->attributes[qName].type.toStdString();
+	value=node->attributes[qName].value.toStdString();
+
+	return true;
+}
 
 bool InnerModelManagerI::removeNode(const std::string &item, const Ice::Current&)
 {
@@ -393,7 +683,7 @@ bool InnerModelManagerI::removeNode(const std::string &item, const Ice::Current&
 	}
 
 	InnerModelNode *node = worker->getNode(QString::fromStdString(item), msg);
-	worker->checkOperationInvalidNode(node,msg);
+	checkOperationInvalidNode(node,msg);
 
 	QStringList l;
 	l.clear();
@@ -494,23 +784,19 @@ bool InnerModelManagerI::moveNode(const std::string &src, const std::string &dst
 		throw err;
 	}
 	
-
 	InnerModelNode *nodeSrc = worker->getNode(idSrc, msg);
-	worker->checkOperationInvalidNode(nodeSrc,msg);
+	checkOperationInvalidNode(nodeSrc,msg);
 	
 	InnerModelNode *nodeDst = worker->getNode(idDst, msg);
-	worker->checkOperationInvalidNode(nodeDst,msg);
+	checkOperationInvalidNode(nodeDst,msg);
 
 	QStringList l;
 	l.clear();
 	
 	//consigo ids para viewer
-	worker->innerModel->getSubTree (nodeSrc,&l);
+	innerModel->getSubTree (nodeSrc,&l);
 	//muevo 
-	worker->innerModel->moveSubTree(nodeSrc,nodeDst);
-	
-	
-	
+	innerModel->moveSubTree(nodeSrc,nodeDst);
 
 	/// Replicate InnerModel node removals in the InnerModelViewer tree. And in handlers Lists
 	foreach(QString n, l) {
@@ -552,99 +838,8 @@ bool InnerModelManagerI::moveNode(const std::string &src, const std::string &dst
 		worker->imv->recursiveConstructor(worker->innerModel->getNode(n), worker->imv->mts[worker->innerModel->getNode(n)->parent->id], worker->imv->mts, 
 																			worker->imv->meshHash); // imv->osgmeshes,imv->osgmeshPats);
 	}
-	
 	qDebug()<<"-- fin move Subtree --";
 	return true;
-}
-
-
-bool InnerModelManagerI::addAttribute(const string &idNode, const string &name, const string &type, const string &value, const Ice::Current&)
-{
-///	return worker->imm_addAttribute(id, idNode, name, type, value);
-	guard gl(worker->innerModel->mutex);
-
-	QString qIdNode=QString::fromStdString(idNode);
-	QString qName=QString::fromStdString(name);
-	QString qType=QString::fromStdString(type);
-	QString qValue=QString::fromStdString(value);
-	QString m="RoboCompInnerModelManager::addAttribute()";
-
-	InnerModelNode *node = worker->getNode(qIdNode, m);
-	worker->AttributeAlreadyExists(node,qName,m);
-
-	InnerModelNode::AttributeType t;
-	t.type=qType;
-	t.value=qValue;
-	node->attributes.insert(qName,t);
-
-	return true;
-}
-
-
-bool InnerModelManagerI::removeAttribute(const string &idNode, const string &name, const Ice::Current&)
-{
-	//return worker->imm_removeAttribute(id, idNode, name);
-	guard gl(worker->innerModel->mutex);
-
-	QString qIdNode=QString::fromStdString(idNode);
-	QString qName=QString::fromStdString(name);
-	QString m="RoboCompInnerModelManager::removeAttribute()";
-
-	InnerModelNode *node = worker->getNode(qIdNode, m);
-	worker->NonExistingAttribute(node, qName,m);
-
-	node->attributes.remove(qName);
-
-	return true;
-}
-
-
-bool InnerModelManagerI::setAttribute(const string &idNode, const string &name, const string &type, const string &value, const Ice::Current&)
-{
-	//return worker->imm_setAttribute(id, idNode, name, type, value);
-	guard gl(worker->innerModel->mutex);
-
-	QString qIdNode=QString::fromStdString(idNode);
-	QString qName=QString::fromStdString(name);
-	QString qType=QString::fromStdString(type);
-	QString qValue=QString::fromStdString(value);
-
-	QString m="RoboCompInnerModelManager::setAttribute()";
-
-	InnerModelNode *node = worker->getNode(qIdNode, m);
-	worker->NonExistingAttribute(node,qName,m);
-
-	node->attributes[qName].type=qType;
-	node->attributes[qName].value=qValue;
-
-	return true;
-}
-
-
-bool InnerModelManagerI::getAttribute(const string &idNode, const string &name,  string &type,  string &value, const Ice::Current&)
-{
-	//return worker->imm_getAttribute(id, idNode,name,type,value);
-	guard gl(worker->innerModel->mutex);
-
-	QString qIdNode=QString::fromStdString(idNode);
-	QString qName=QString::fromStdString(name);
-	QString m="RoboCompInnerModelManager::getAttribute()";
-
-	InnerModelNode *node = worker->getNode(qIdNode, m);
-	worker->NonExistingAttribute(node, qName,m);
-
-	type= node->attributes[qName].type.toStdString();
-	value=node->attributes[qName].value.toStdString();
-
-	return true;
-}
-
-
-void InnerModelManagerI::getAllNodeInformation(NodeInformationSequence &nodesInfo, const Ice::Current&)
-{
-	guard gl(worker->innerModel->mutex);
-	nodesInfo.clear();
-	worker->getRecursiveNodeInformation(nodesInfo, worker->innerModel->getRoot());
 }
 
 //void InnerModelManagerI::addPointCloud(const std::string &id, const Ice::Current&)
@@ -656,7 +851,7 @@ void InnerModelManagerI::setPointCloudData(const std::string &idNode, const Poin
 {
 	//worker->imm_setPointCloudData(id, idNode, cloud);
 	guard gl(worker->innerModel->mutex);
-	QString m = QString("SpecificWorker::setPointCloudData");
+	QString m = QString("InnerModelManagerI::setPointCloudData");
 	std::cout << "setPointCloudData: " << idNode << " " << cloud.size() <<std::endl;
 
 	/// Aqui Marco va a mejorar el código :-) felicidad (comprobar que la nube existe)

@@ -74,7 +74,6 @@
 #include "innermodelmanagerI.h"
 #include "config.h"
 #include "genericworker.h"
-#include "servers.h"
 #include "specificworker.h"
 #include <RCISMousePicker.h> 
 #include "ui_guiDlg.h"
@@ -158,7 +157,6 @@ int robotSimulatorComp::run( int argc, char* argv[] )
 	}
 
 	// Create the worker
-	//SpecificWorker* worker = new SpecificWorker(mprx, communicator(), argv[1], ms);
 	std::shared_ptr<SpecificWorker> worker = std::make_shared<SpecificWorker>(mprx, communicator(), argv[1], ms);
 	
 	try
@@ -171,9 +169,6 @@ int robotSimulatorComp::run( int argc, char* argv[] )
 		adapter->add(innermodelmanagerI, Ice::stringToIdentity("innermodelmanager"));
 		adapter->activate();
 		cout << SERVER_FULL_NAME " started in port " << port << endl;
-
-		// Start the interfaces
-		//worker->startServers();
 
 		// Run the Qt event loop
 		a.setQuitOnLastWindowClosed( true );
