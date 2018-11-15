@@ -42,7 +42,7 @@ bool InnerModel::support_fcl()
 InnerModel::InnerModel(std::string xmlFilePath)
 {
 	//QMutexLocker ml(mutex);
-	root = NULL;
+	root = nullptr;
 	if (not InnerModelReader::load(QString::fromStdString(xmlFilePath), this))
 	{
 		QString error;
