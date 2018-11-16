@@ -194,8 +194,8 @@ QVec InnerModelCamera::horizonLine(QString planeId, QString cameraId, float heig
 	
 	// 	printf("-------------------------------------- cam:%s plane:%s\n", qPrintable(cameraId), qPrintable(planeId));
 	// Get camera and plane pointers
-	InnerModelPlane *plane = innermodel->getNode<InnerModelPlane>(planeId);
-	InnerModelCamera *camera = innermodel->getNode<InnerModelCamera>(cameraId);
+	InnerModelPlane *plane = innermodel->getNode<InnerModelPlane>(planeId.toStdString());
+	InnerModelCamera *camera = innermodel->getNode<InnerModelCamera>(cameraId.toStdString());
 	// Transform rotate plane normal vector to camera reference system
 	QMat rtm = innermodel->getRotationMatrixTo(cameraId, planeId);
 	QVec vec = QVec::vec3(plane->normal(0), plane->normal(1), plane->normal(2));
@@ -239,14 +239,14 @@ QMat InnerModelCamera::getHomographyMatrix(QString virtualCamera, QString plane,
 {
 	
 
-	QVec planeN = innermodel->getNode<InnerModelPlane>(plane)->normal;
+	QVec planeN = innermodel->getNode<InnerModelPlane>(plane.toStdString())->normal;
 	planeN = innermodel->getRotationMatrixTo(sourceCamera, plane)*planeN;
-	QVec planePoint = innermodel->transform(sourceCamera, innermodel->getNode<InnerModelPlane>(plane)->point, plane);
+	QVec planePoint = innermodel->transform(sourceCamera, innermodel->getNode<InnerModelPlane>(plane.toStdString())->point, plane);
 	QMat R  = innermodel->getRotationMatrixTo(virtualCamera, sourceCamera);
 	QMat t  = innermodel->transform(virtualCamera, QVec::vec3(0,0,0), sourceCamera);
 	QMat n  = QMat(planeN);
-	QMat K1 = innermodel->getNode<InnerModelCamera>(sourceCamera)->camera;
-	QMat K2 = innermodel->getNode<InnerModelCamera>(virtualCamera)->camera;
+	QMat K1 = innermodel->getNode<InnerModelCamera>(sourceCamera.toStdString())->camera;
+	QMat K2 = innermodel->getNode<InnerModelCamera>(virtualCamera.toStdString())->camera;
 
 	double d = -(planePoint*planeN);
 	QMat H = K2 * ( R - ((t*n.transpose()) / d) ) * K1.invert();
@@ -257,14 +257,14 @@ QMat InnerModelCamera::getAffineHomographyMatrix(QString virtualCamera, QString 
 {
 	
 
-	QVec planeN = innermodel->getNode<InnerModelPlane>(plane)->normal;
+	QVec planeN = innermodel->getNode<InnerModelPlane>(plane.toStdString())->normal;
 	planeN = innermodel->getRotationMatrixTo(sourceCamera, plane)*planeN;
-	QVec planePoint = innermodel->transform(sourceCamera, innermodel->getNode<InnerModelPlane>(plane)->point, plane);
+	QVec planePoint = innermodel->transform(sourceCamera, innermodel->getNode<InnerModelPlane>(plane.toStdString())->point, plane);
 
 	QMat R  = innermodel->getRotationMatrixTo(virtualCamera, sourceCamera);
 	QMat t  = innermodel->transform(virtualCamera, QVec::vec3(0,0,0), sourceCamera);
 	QMat n  = QMat(planeN);
-	QMat K1 = innermodel->getNode<InnerModelCamera>(sourceCamera)->camera;
+	QMat K1 = innermodel->getNode<InnerModelCamera>(sourceCamera.toStdString())->camera;
 
 	double d = -(planePoint*planeN);
 	QMat H = ( R - ((t*n.transpose()) / d) ) * K1.invert();
@@ -277,14 +277,14 @@ QMat InnerModelCamera::getAffineHomographyMatrix(QString virtualCamera, QString 
 QMat InnerModelCamera::getPlaneProjectionMatrix(QString virtualCamera, QString plane, QString sourceCamera)
 {
 	
-	QVec planeN = innermodel->getNode<InnerModelPlane>(plane)->normal;
+	QVec planeN = innermodel->getNode<InnerModelPlane>(plane.toStdString())->normal;
 	planeN = innermodel->getRotationMatrixTo(sourceCamera, plane)*planeN;
-	QVec planePoint = innermodel->transform(sourceCamera, innermodel->getNode<InnerModelPlane>(plane)->point, plane);
+	QVec planePoint = innermodel->transform(sourceCamera, innermodel->getNode<InnerModelPlane>(plane.toStdString())->point, plane);
 
 	QMat R  = innermodel->getRotationMatrixTo(virtualCamera, sourceCamera);
 	QMat t  = innermodel->transform(virtualCamera, QVec::vec3(0,0,0), sourceCamera);
 	QMat n  = QMat(planeN);
-	QMat K1 = innermodel->getNode<InnerModelCamera>(sourceCamera)->camera;
+	QMat K1 = innermodel->getNode<InnerModelCamera>(sourceCamera.toStdString())->camera;
 
 	double d = -(planePoint*planeN);
 	QMat H = ( R - ((t*n.transpose()) / d) ) * K1.invert();

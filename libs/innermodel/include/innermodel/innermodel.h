@@ -111,22 +111,22 @@ class InnerModel
 		InnerModelMesh* newMesh(QString id, InnerModelNode *parent, QString path, float scalex, float scaley, float scalez, int render, float tx, float ty, float tz, float rx, float ry, float rz, bool collidable=0);
 		InnerModelPointCloud* newPointCloud(QString id, InnerModelNode *parent);
 
-		InnerModelTransform *getTransform(const QString &id)                 { return getNode<InnerModelTransform>(id); }
-		InnerModelJoint *getJoint(const QString &id)                         { return getNode<InnerModelJoint>(id); }
-		InnerModelJoint *getJoint(const std::string &id)                     { return getNode<InnerModelJoint>(QString::fromStdString(id)); }
-		InnerModelJoint *getJointS(const std::string &id)                    { return getNode<InnerModelJoint>(QString::fromStdString(id)); }
-		InnerModelJoint &getJointRef(const std::string &id)                  { return *getNode<InnerModelJoint>(QString::fromStdString(id)); }
-		InnerModelTouchSensor *getTouchSensor(const QString &id)             { return getNode<InnerModelTouchSensor>(id); }
-		InnerModelPrismaticJoint *getPrismaticJoint(const QString &id)       { return getNode<InnerModelPrismaticJoint>(id); }
-		InnerModelDifferentialRobot *getDifferentialRobot(const QString &id) { return getNode<InnerModelDifferentialRobot>(id); }
-		InnerModelOmniRobot *getOmniRobot(const QString &id)                 { return getNode<InnerModelOmniRobot>(id); }
-		InnerModelCamera *getCamera(QString id)                              { return getNode<InnerModelCamera>(id); }
-		InnerModelRGBD *getRGBD(QString id)                                  { return getNode<InnerModelRGBD>(id); }
-		InnerModelIMU *getIMU(QString id)                                    { return getNode<InnerModelIMU>(id); }
-		InnerModelLaser *getLaser(QString id)                                { return getNode<InnerModelLaser>(id); }
-		InnerModelPlane *getPlane(const QString &id)                         { return getNode<InnerModelPlane>(id); }
-		InnerModelMesh *getMesh(const QString &id)                           { return getNode<InnerModelMesh>(id); }
-		InnerModelPointCloud *getPointCloud(const QString &id)               { return getNode<InnerModelPointCloud>(id); }
+		InnerModelTransform *getTransform(const QString &id)                 { return getNode<InnerModelTransform>(id.toStdString()); }
+		InnerModelJoint *getJoint(const QString &id)                         { return getNode<InnerModelJoint>(id.toStdString()); }
+		InnerModelJoint *getJoint(const std::string &id)                     { return getNode<InnerModelJoint>(id); }
+		InnerModelJoint *getJointS(const std::string &id)                    { return getNode<InnerModelJoint>(id); }
+		InnerModelJoint &getJointRef(const std::string &id)                  { return *getNode<InnerModelJoint>(id); }
+		InnerModelTouchSensor *getTouchSensor(const QString &id)             { return getNode<InnerModelTouchSensor>(id.toStdString()); }
+		InnerModelPrismaticJoint *getPrismaticJoint(const QString &id)       { return getNode<InnerModelPrismaticJoint>(id.toStdString()); }
+		InnerModelDifferentialRobot *getDifferentialRobot(const QString &id) { return getNode<InnerModelDifferentialRobot>(id.toStdString()); }
+		InnerModelOmniRobot *getOmniRobot(const QString &id)                 { return getNode<InnerModelOmniRobot>(id.toStdString()); }
+		InnerModelCamera *getCamera(QString id)                              { return getNode<InnerModelCamera>(id.toStdString()); }
+		InnerModelRGBD *getRGBD(QString id)                                  { return getNode<InnerModelRGBD>(id.toStdString()); }
+		InnerModelIMU *getIMU(QString id)                                    { return getNode<InnerModelIMU>(id.toStdString()); }
+		InnerModelLaser *getLaser(QString id)                                { return getNode<InnerModelLaser>(id.toStdString()); }
+		InnerModelPlane *getPlane(const QString &id)                         { return getNode<InnerModelPlane>(id.toStdString()); }
+		InnerModelMesh *getMesh(const QString &id)                           { return getNode<InnerModelMesh>(id.toStdString()); }
+		InnerModelPointCloud *getPointCloud(const QString &id)               { return getNode<InnerModelPointCloud>(id.toStdString()); }
 
 		///////////////////////////////////
 		/// Kinematic transformation methods
@@ -177,22 +177,22 @@ class InnerModel
 				}
 		}
 
-		template <typename N> N* getNode(const QString &id) const
-		{
-			auto rnode = hash.value(id, nullptr);
-			if(rnode == nullptr)
-					throw  RoboComp::NonExistingNode("Node not found in tree");
-			else
-				try 
-				{	
-					N* rfinalnode = dynamic_cast<N*>(rnode);	
-					return rfinalnode;
-				} 
-				catch(const std::bad_cast& ex)
-				{ 
-					auto e = RoboComp::BadCastToFinalType("Can't convert type");
-					throw e;
-				}
+// 		template <typename N> N* getNode(const QString &id) const
+// 		{
+// 			auto rnode = hash.value(id, nullptr);
+// 			if(rnode == nullptr)
+// 					throw  RoboComp::NonExistingNode("Node not found in tree");
+// 			else
+// 				try 
+// 				{	
+// 					N* rfinalnode = dynamic_cast<N*>(rnode);	
+// 					return rfinalnode;
+// 				} 
+// 				catch(const std::bad_cast& ex)
+// 				{ 
+// 					auto e = RoboComp::BadCastToFinalType("Can't convert type");
+// 					throw e;
+// 				}
 				
 			//if (hash.contains(qid)) return hash[qid]; else return nullptr;
 			//N* r = dynamic_cast<N *>(getNode(QString::fromStdString(id)));
@@ -202,7 +202,7 @@ class InnerModel
 			//	error.sprintf("No such joint %s", id.c_str());
 			//	throw error;
 			//}
-		}
+	//	}
 		
 	// 	template <class N> N* getNode(const QString &id) const
 	// 	{
@@ -285,7 +285,7 @@ class InnerModel
 		QVec laserTo(const QString &dest, const QString & laserId , float r, float alfa)
 		{
 			//qDebug() << __FUNCTION__ << "DEPRECATED. Use getNode<InnerModelLaser>(laserId)->laserTo(dest,laserId, r, alfa) ";
-			return getNode<InnerModelLaser>(laserId)->laserTo(dest, r, alfa);
+			return getNode<InnerModelLaser>(laserId.toStdString())->laserTo(dest, r, alfa);
 		};
 
 		//QMutex *mutex;

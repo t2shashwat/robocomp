@@ -34,7 +34,7 @@ void LaserI::add (std::string _id)
 {
 	id = _id;
 	//laserNode = worker->innerModel->getLaser(id);
-	laserNode = worker->innerModel->getNode<InnerModelLaser>(QString::fromStdString(id));
+	laserNode = worker->innerModel->getNode<InnerModelLaser>(id);
 	laserConf.staticConf   =  1;
 	laserConf.maxMeasures  =  laserNode->measures;
 	laserConf.maxDegrees   = ( int ) ( 180.f*laserNode->angle/M_PI );

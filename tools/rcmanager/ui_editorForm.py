@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/pbustos/robocomp/tools/rcmanager/editorForm.ui'
 #
-# Created: Sat Nov 10 19:37:51 2018
+# Created: Fri Nov 16 22:02:51 2018
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!

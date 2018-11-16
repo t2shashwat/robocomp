@@ -231,7 +231,7 @@ void SpecificWorker::updateLasers()
 			angle -= incAngle;
 		}
 	
-		laserDataArray.insert(std::make_pair(id, laserData));
+		laserDataArray.insert_or_assign(id, laserData);
 
 		// create and insert laser shape
 		if (false) // DRAW LASER
