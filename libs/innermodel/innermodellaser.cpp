@@ -18,7 +18,7 @@
 #include "innermodellaser.h"
 #include <innermodel/innermodel.h>
 
-InnerModelLaser::InnerModelLaser(QString id_, uint32_t _port, uint32_t _min, uint32_t _max, float _angle, uint32_t _measures, QString _ifconfig, InnerModel *innermodel_, InnerModelNode *parent_) :  InnerModelNode(id_, parent_) , innermodel(innermodel_)
+InnerModelLaser::InnerModelLaser(std::string id_, uint32_t _port, uint32_t _min, uint32_t _max, float _angle, uint32_t _measures, std::string _ifconfig, InnerModel *innermodel_, std::shared_ptr<InnerModelNode> parent_) :  InnerModelNode(id_, parent_) , innermodel(innermodel_)
 {
 	
  #if FCL_SUPPORT==1
@@ -38,9 +38,7 @@ void InnerModelLaser::save(QTextStream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
 
-	out << "<laser id=\"" << id <<"\" port=\""<<port<<"\" min=\""<< QString::number(min,'g',10)<<"\" max=\""<<QString::number(max,'g',10)
-	<<"\" measures=\""<<QString::number(measures,'g',10)<<"\" angle=\""<<QString::number(angle,'g',10)
-	<<"\" ifconfig=\""<<ifconfig<< "\" />\n";
+	out << "<laser id=\"" << id.c_str() <<"\" port=\""<<port<<"\" min=\""<<  std::to_string(min).c_str()<<"\" max=\""<< std::to_string(max).c_str() <<"\" measures=\""<< std::to_string(measures).c_str()<<"\" angle=\""<< std::to_string(angle).c_str() <<"\" ifconfig=\""<<ifconfig.c_str()<< "\" />\n";
 }
 
 void InnerModelLaser::print(bool verbose)
@@ -56,9 +54,9 @@ void InnerModelLaser::update()
 	updateChildren();
 }
 
-InnerModelNode * InnerModelLaser::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelLaser::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelLaser *ret = new InnerModelLaser(id, port, min, max, angle, measures, ifconfig, innermodel, parent);
+	std::shared_ptr<InnerModelLaser> ret(new InnerModelLaser(id, port, min, max, angle, measures, ifconfig, innermodel, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -68,21 +66,12 @@ InnerModelNode * InnerModelLaser::copyNode(QHash<QString, InnerModelNode *> &has
 
 	ret->innerModel = parent->innerModel;
 
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator: children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;
-}
-
-QVec InnerModelLaser::laserTo(const QString &dest, float r, float alpha)
-{
-	QVec p(3);
-	p(0) = r * sin(alpha);
-	p(1) = 0;
-	p(2) = r * cos(alpha);
-	return innermodel->transform(dest, p, this->id);
 }
 
 QVec InnerModelLaser::laserTo(const std::string &dest, float r, float alpha)
@@ -91,5 +80,5 @@ QVec InnerModelLaser::laserTo(const std::string &dest, float r, float alpha)
 	p(0) = r * sin(alpha);
 	p(1) = 0;
 	p(2) = r * cos(alpha);
-	return innermodel->transformS(dest, p, this->id.toStdString());
+	return innermodel->transform(dest, p, this->id);
 }

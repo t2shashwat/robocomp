@@ -45,9 +45,7 @@ InnerModel::InnerModel(std::string xmlFilePath)
 	root = NULL;
 	if (not InnerModelReader::load(QString::fromStdString(xmlFilePath), this))
 	{
-		QString error;
-		error.sprintf("InnerModelReader::load error using file %s\n", xmlFilePath.c_str());
-		throw error;
+		throw std::string("InnerModelReader::load error using file " + xmlFilePath);
 	}
 }
 
@@ -56,23 +54,22 @@ InnerModel::InnerModel()
 	// Set Mutex
 	
 	// Set Root node
-	InnerModelTransform *root = new InnerModelTransform("root", "static", 0, 0, 0, 0, 0, 0, 0);
+	auto root = newNode<InnerModelTransform>("root", "static", 0, 0, 0, 0, 0, 0, 0);
 	root->parent = NULL;
 	setRoot(root);
 	root->innerModel = this;
-	hash["root"] = root;
+	hash.insert(std::pair<std::string,std::shared_ptr<InnerModelNode>>("root", root));
 }
 
 InnerModel::InnerModel(const InnerModel &original)
 {
-	
-	root = new InnerModelTransform("root", "static", 0, 0, 0, 0, 0, 0, 0);
+	auto root = newNode<InnerModelTransform>("root", "static", 0, 0, 0, 0, 0, 0, 0);
 	setRoot(root);
 	root->innerModel = this;
-	hash["root"] = root;
+	hash.insert(std::pair<std::string,std::shared_ptr<InnerModelNode>>("root", root));
 
-	QList<InnerModelNode *>::iterator i;
-	for (i=original.root->children.begin(); i!=original.root->children.end(); i++)
+	//QList<std::shared_ptr<InnerModelNode>>::iterator i;
+	for (auto i=original.root->children.begin(); i!=original.root->children.end(); i++)
 	{
 		root->addChild((*i)->copyNode(hash, root));
 	}
@@ -81,13 +78,13 @@ InnerModel::InnerModel(const InnerModel &original)
 InnerModel::InnerModel(InnerModel &original)
 {
 	
-	root = new InnerModelTransform("root", "static", 0, 0, 0, 0, 0, 0, 0);
+	auto root = newNode<InnerModelTransform>("root", "static", 0, 0, 0, 0, 0, 0, 0);
 	setRoot(root);
 	root->innerModel = this;
-	hash["root"] = root;
+	hash.insert(std::pair<std::string,std::shared_ptr<InnerModelNode>>("root", root));
 
-	QList<InnerModelNode *>::iterator i;
-	for (i=original.root->children.begin(); i!=original.root->children.end(); i++)
+	//QList<std::shared_ptr<InnerModelNode>>::iterator i;
+	for (auto i=original.root->children.begin(); i!=original.root->children.end(); i++)
 	{
 		root->addChild((*i)->copyNode(hash, root));
 	}
@@ -96,13 +93,13 @@ InnerModel::InnerModel(InnerModel &original)
 InnerModel::InnerModel(InnerModel *original)
 {
 	
-	root = new InnerModelTransform("root", "static", 0, 0, 0, 0, 0, 0, 0);
+	auto root = newNode<InnerModelTransform>("root", "static", 0, 0, 0, 0, 0, 0, 0);
 	setRoot(root);
 	root->innerModel = this;
-	hash["root"] = root;
+	hash.insert(std::pair<std::string,std::shared_ptr<InnerModelNode>>("root", root));
 
-	QList<InnerModelNode *>::iterator i;
-	for (i=original->root->children.begin(); i!=original->root->children.end(); i++)
+	//QList<std::shared_ptr<InnerModelNode>>::iterator i;
+	for (auto i=original->root->children.begin(); i!=original->root->children.end(); i++)
 	{
 		root->addChild((*i)->copyNode(hash, root));
 	}
@@ -110,11 +107,6 @@ InnerModel::InnerModel(InnerModel *original)
 
 InnerModel::~InnerModel()
 {
-	foreach (QString id, getIDKeys())
-	{
-		InnerModelNode *dd = hash[id];
-		delete dd;
-	}
 	hash.clear();
 	localHashRot.clear();
 	localHashTr.clear();
@@ -125,17 +117,14 @@ InnerModel::~InnerModel()
 InnerModel* InnerModel::copy()
 {
 	InnerModel *inner = new InnerModel();
-	QList<InnerModelNode *>::iterator i;
-	for (i=root->children.begin(); i!=root->children.end(); i++)
+	for (auto i=root->children.begin(); i!=root->children.end(); i++)
 		inner->root->addChild((*i)->copyNode(inner->hash, inner->root));
 	return inner;
 }
 
-void InnerModel::removeNode(const QString & id)
+void InnerModel::removeNode(const std::string & id)
 {
-	InnerModelNode *dd = hash[id];
-	delete dd;
-	hash.remove(id);
+	hash.erase(id);
 }
 
 bool InnerModel::open(std::string xmlFilePath)
@@ -143,15 +132,14 @@ bool InnerModel::open(std::string xmlFilePath)
 	return InnerModelReader::load(QString::fromStdString(xmlFilePath), this);
 }
 
-void InnerModel::removeSubTree(InnerModelNode *node, QStringList *l)
+void InnerModel::removeSubTree(std::shared_ptr<InnerModelNode> node, std::list<std::string> *l)
 {
-	QList<InnerModelNode*>::iterator i;
-	for (i=node->children.begin(); i!=node->children.end(); i++)
+	for (auto i=node->children.begin(); i!=node->children.end(); i++)
 	{
 		removeSubTree(*i,l);
 	}
-	node->parent->children.removeOne(node);
-	l->append(node->id);
+	node->parent->children.remove(node);
+	l->push_back(node->id);
 	removeNode(node->id);
 }
 
@@ -162,22 +150,20 @@ void InnerModel::removeSubTree(InnerModelNode *node, QStringList *l)
  * @param l pointer to QStringList
  * @return void
  */
-void InnerModel::getSubTree(InnerModelNode *node, QStringList *l)
+void InnerModel::getSubTree(std::shared_ptr<InnerModelNode> node, std::list<std::string> *l)
 {
-	QList<InnerModelNode*>::iterator i;
-	for (i=node->children.begin(); i!=node->children.end(); i++)
+	for (auto i=node->children.begin(); i!=node->children.end(); i++)
 	{
 		getSubTree(*i,l);
 	}
-	l->append(node->id);
+	l->push_back(node->id);
 }
 
-void InnerModel::getSubTree(InnerModelNode *node, QList<InnerModelNode *> *l)
+void InnerModel::getSubTree(std::shared_ptr<InnerModelNode> node, std::list<std::shared_ptr<InnerModelNode> > *l)
 {
-	QList<InnerModelNode*>::iterator i;
-	for (i=node->children.begin(); i!=node->children.end(); i++)
+	for (auto i=node->children.begin(); i!=node->children.end(); i++)
 	{
-		l->append((*i));
+		l->push_back((*i));
 		getSubTree(*i,l);
 	}
 }
@@ -189,30 +175,29 @@ void InnerModel::getSubTree(InnerModelNode *node, QList<InnerModelNode *> *l)
  * @param l pointer to QStringList
  * @return void
  */
-void InnerModel::moveSubTree(InnerModelNode *nodeSrc, InnerModelNode *nodeDst)
+void InnerModel::moveSubTree(std::shared_ptr<InnerModelNode> nodeSrc,std::shared_ptr<InnerModelNode> nodeDst)
 {
-	nodeSrc->parent->children.removeOne(nodeSrc);
+	nodeSrc->parent->children.remove(nodeSrc);
 	nodeDst->addChild(nodeSrc);
 	nodeSrc->setParent(nodeDst);
 	computeLevels(nodeDst);
 }
 
-void InnerModel::computeLevels(InnerModelNode *node)
+void InnerModel::computeLevels(std::shared_ptr<InnerModelNode> node)
 {
 	if (node->parent != NULL )
 	{
 		node->level=node->parent->level+1;
 	}
-	QList<InnerModelNode*>::iterator i;
-	for (i=node->children.begin(); i!=node->children.end(); i++)
+	for (auto i=node->children.begin(); i!=node->children.end(); i++)
 	{
 		computeLevels(*i);
 	}
 }
 
-bool InnerModel::save(QString path)
+bool InnerModel::save(std::string path)
 {
-	QFile file(path);
+	QFile file(QString::fromStdString(path));
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
 		return false;
 
@@ -226,7 +211,7 @@ bool InnerModel::save(QString path)
 /// Auto update method
 void InnerModel::update()
 {
-	root->update();
+//	root->update();
 	cleanupTables();
 }
 
@@ -236,18 +221,17 @@ void InnerModel::cleanupTables()
 		localHashRot.clear();
 }
 
-void InnerModel::ChangeHash(QString new_id, InnerModelNode *node)
+void InnerModel::ChangeHash(std::string new_id, std::shared_ptr<InnerModelNode> node)
 {
-	hash[new_id] = node;
+	hash.insert(std::pair<std::string,std::shared_ptr<InnerModelNode>>(new_id, node));
 }
 
-void InnerModel::setUpdateRotationPointers(QString rotationId, float *x, float *y, float *z)
+/*void InnerModel::setUpdateRotationPointers(QString rotationId, float *x, float *y, float *z)
 {
-	
-	InnerModelTransform *aux;
-	if ((aux=dynamic_cast<InnerModelTransform *>(hash[rotationId])) != NULL)
+	std::shared_ptr<InnerModelTransform> aux = getNode<InnerModelTransform>(rotationId);
+	if (aux != NULL)
 		aux->setUpdateRotationPointers(x, y, z);
-	else if (hash[rotationId] == NULL)
+	else if (not hash.contains(rotationId))
 		qDebug() << "There is no such" << rotationId << "node";
 	else
 		qDebug() << "Dynamic cast error from" << rotationId << "to InnerModelTransform. " << typeid(hash[rotationId]).name();
@@ -256,11 +240,10 @@ void InnerModel::setUpdateRotationPointers(QString rotationId, float *x, float *
 
 void InnerModel::setUpdateTranslationPointers(QString translationId, float *x, float *y, float *z)
 {
-	
-	InnerModelTransform *aux;
-	if ((aux=dynamic_cast<InnerModelTransform *>(hash[translationId])) != NULL)
+	std::shared_ptr<InnerModelTransform> aux = getNode<InnerModelTransform>(translationId);
+	if (aux != NULL)
 		aux->setUpdateTranslationPointers(x, y, z);
-	else if (hash[translationId] == NULL)
+	else if (not hash.contains(translationId))
 		qDebug() << "There is no such" << translationId << "node";
 	else
 		qDebug() << "Dynamic cast error from" << translationId << "to InnerModelTransform. " << typeid(hash[translationId]).name();
@@ -268,29 +251,29 @@ void InnerModel::setUpdateTranslationPointers(QString translationId, float *x, f
 
 void InnerModel::setUpdateTransformPointers(QString transformId, float *tx, float *ty, float *tz, float *rx, float *ry, float *rz)
 {
-	
-	InnerModelTransform *aux;
-	if ((aux=dynamic_cast<InnerModelTransform *>(hash[transformId])) != NULL)
+	std::shared_ptr<InnerModelTransform> aux = getNode<InnerModelTransform>(transformId);
+	if (aux != NULL)
 		aux->setUpdatePointers(tx, ty, tz,rx,ry,rz);
-	else if (hash[transformId] == NULL)
+	else if (not hash.contains(transformId))
 		qDebug() << "There is no such" << transformId << "node";
+	else
+		qDebug() << "Dynamic cast error from" << transformId << "to InnerModelTransform. " << typeid(hash[transformId]).name();
 }
 
 void InnerModel::setUpdatePlanePointers(QString planeId, float *nx, float *ny, float *nz, float *px, float *py, float *pz)
 {
-	
-	InnerModelPlane *aux;
-	if ((aux=dynamic_cast<InnerModelPlane *>(hash[planeId])) != NULL)
+	std::shared_ptr<InnerModelTransform> aux = getNode<InnerModelTransform>(planeId);
+	if (aux != NULL)
 		aux->setUpdatePointers(nx, ny, nz, px, py, pz);
-	else if (hash[planeId] == NULL)
+	else if (hash.contains(planeId))
 		qDebug() << "There is no such" << planeId << "node";
 	else
-		qDebug() << "Dynamic cast error from" << planeId << "to InnerModelPlane";
+		qDebug() << "Dynamic cast error from" << planeId << "to InnerModelPlane" << typeid(hash[planeId]).name();
 }
-
+/*
 void InnerModel::updateTransformValues(QString transformId, float tx, float ty, float tz, float rx, float ry, float rz, QString parentId)
 {
-	
+	/*
 	cleanupTables();
 
 	InnerModelTransform *aux = dynamic_cast<InnerModelTransform *>(hash[transformId]);
@@ -331,9 +314,29 @@ void InnerModel::updateTransformValues(QString transformId, float tx, float ty, 
 	else if (hash[transformId] == NULL)
 	{
 		qDebug() << "There is no such" << transformId << "node";
+	}*/
+/* //This	
+	cleanupTables();
+	if(transformId == "root") return;   										///CHECK THIS
+	
+	auto aux = getNode<InnerModelTransform>(transformId);
+	if(aux == nullptr) return;
+	
+	auto auxParent = getNode<InnerModelTransform>(aux->parent->id);
+	if(auxParent == nullptr) return;
+	
+	auto parent = getNode<InnerModelTransform>(parentId);
+	if(parent != nullptr)
+	{
+		try { 
+			aux->transformValues(getTransformationMatrix(aux->parent->id,parentId), tx, ty, tz, rx, ry, rz, parent);
+		} 
+		catch(const InnerModelException &e){ throw e;};
 	}
-}
-
+	else
+		aux->update(tx,ty,tz,rx,ry,rz);
+}*/
+/*
 void InnerModel::updateTransformValuesS(std::string transformId, float tx, float ty, float tz, float rx, float ry, float rz, std::string parentId)
 {
 		updateTransformValues(QString::fromStdString(transformId), tx, ty, tz, rx, ry, rz, QString::fromStdString(parentId));
@@ -352,7 +355,7 @@ void InnerModel::updateTransformValues(QString transformId, QVec v, QString pare
 
 void InnerModel::updatePlaneValues(QString planeId, float nx, float ny, float nz, float px, float py, float pz)
 {
-	
+	/*
 	cleanupTables();
 
 	InnerModelPlane *plane = dynamic_cast<InnerModelPlane *>(hash[planeId]);
@@ -363,13 +366,21 @@ void InnerModel::updatePlaneValues(QString planeId, float nx, float ny, float nz
 	else if (hash[planeId] == NULL)
 		qDebug() << "There is no such" << planeId << "node";
 	else
-		qDebug() << "?????";
+		qDebug() << "?????";*/
+/*//this	
+	cleanupTables();
+	auto plane = getNode<InnerModelPlane>(planeId);
+	//InnerModelPlane *plane = dynamic_cast<InnerModelPlane *>(hash[planeId]);
+	if (plane == nullptr)
+		throw InnerModelException("InnerModel::updatePlaneValues Error: node not found " + planeId.toStdString());
+	
+	plane->update(nx, ny, nz, px, py, pz);
 }
 
 void InnerModel::updateTranslationValues(QString transformId, float tx, float ty, float tz, QString parentId)
 {
 	
-	cleanupTables();
+	/*cleanupTables();
 
 	InnerModelTransform *aux = dynamic_cast<InnerModelTransform *>(hash[transformId]);
 	if (aux != NULL)
@@ -382,13 +393,27 @@ void InnerModel::updateTranslationValues(QString transformId, float tx, float ty
 	else if (hash[transformId] == NULL)
 		qDebug() << "There is no such" << transformId << "node";
 	else
-		qDebug() << "?????";
+		qDebug() << "?????";*/
+/*/This	
+	cleanupTables();
+	if(transformId == "root") return;   												///CHECK THIS
+	auto aux = getNode<InnerModelTransform>(transformId);
+	if(aux == nullptr) return;
+
+	auto auxParent = getNode<InnerModelTransform>(aux->parent->id);
+	if(auxParent == nullptr) return;
+
+	auto parent = getNode<InnerModelTransform>(parentId);
+	if(parent != nullptr)
+		aux->translateValues(getTransformationMatrix(aux->parent->id,parentId), tx, ty, tz, parent);
+	else
+		aux->updateT(tx,ty,tz);
 }
 
 void InnerModel::updateRotationValues(QString transformId, float rx, float ry, float rz, QString parentId)
 {
 	
-	cleanupTables();
+	/*cleanupTables();
 
 	InnerModelTransform *aux = dynamic_cast<InnerModelTransform *>(hash[transformId]);
 	if (aux != NULL)
@@ -403,13 +428,27 @@ void InnerModel::updateRotationValues(QString transformId, float rx, float ry, f
 	else if (hash[transformId] == NULL)
 		qDebug() << "There is no such" << transformId << "node";
 	else
-		qDebug() << "?????";
+		qDebug() << "?????";*/
+/*this	
+	cleanupTables();
+	if(transformId == "root") return;   												///CHECK THIS
+	auto aux = getNode<InnerModelTransform>(transformId);
+	if(aux == nullptr) return;
+
+	auto auxParent = getNode<InnerModelTransform>(aux->parent->id);
+	if(auxParent == nullptr) return;
+	
+	auto parent = getNode<InnerModelTransform>(parentId);
+	if(parent != nullptr)
+		aux->rotateValues(getTransformationMatrix(aux->parent->id,parentId), rx, ry, rz, parent);
+	else
+		aux->updateR(rx,ry,rz);
 }
 
 void InnerModel::updateJointValue(QString jointId, float angle, bool force)
 {
 	
-	cleanupTables();
+	/*cleanupTables();
 
 	InnerModelJoint *j = dynamic_cast<InnerModelJoint *>(hash[jointId]);
 	if (j != NULL)
@@ -419,13 +458,20 @@ void InnerModel::updateJointValue(QString jointId, float angle, bool force)
 	else if (hash[jointId] == NULL)
 		qDebug() << "There is no such" << jointId << "node";
 	else
-		qDebug() << "?????";
+		qDebug() << "?????";*/
+/*this	
+	cleanupTables();
+	auto j = getNode<InnerModelJoint>(jointId);
+	if(j == nullptr) 
+		throw InnerModelException("InnerModel::updateJointValue Error: node not found " + jointId.toStdString());
+	
+	j->setAngle(angle, force);
 }
 
 void InnerModel::updatePrismaticJointPosition(QString jointId, float pos)
 {
 	
-	cleanupTables();
+	/*cleanupTables();
 
 	InnerModelPrismaticJoint *j = dynamic_cast<InnerModelPrismaticJoint *>(hash[jointId]);
 	if (j != NULL)
@@ -435,11 +481,18 @@ void InnerModel::updatePrismaticJointPosition(QString jointId, float pos)
 	else if (hash[jointId] == NULL)
 		qDebug() << "There is no such" << jointId << "node";
 	else
-		qDebug() << "?????";
-}
+		qDebug() << "?????";*/
+/*this
+	cleanupTables();
+	auto j = getNode<InnerModelPrismaticJoint>(jointId);
+	if (j == nullptr)
+		throw InnerModelException("InnerModel::updateJointValue Error: node not found " + jointId.toStdString());
 
+	j->setPosition(pos);
+}
+*/
 /// Model construction methods
-void InnerModel::setRoot(InnerModelNode *node)
+void InnerModel::setRoot(std::shared_ptr<InnerModelNode> node)
 {
 	
 	root = node;
@@ -447,7 +500,22 @@ void InnerModel::setRoot(InnerModelNode *node)
 	root->parent=NULL;
 }
 
-InnerModelJoint *InnerModel::newJoint(QString id, InnerModelTransform *parent,float lx, float ly, float lz,float hx, float hy, float hz, float tx, float ty, float tz, float rx, float ry, float rz, float min, float max, uint32_t port,std::string axis, float home)
+/// New constructor
+template<typename T, typename... Ts>
+std::shared_ptr<T> InnerModel::newNode(Ts&&... params)
+{
+	auto t = std::make_tuple(params...);
+	std::string id = std::string(std::get<0>(t));
+	if(hash.find(id) == hash.end())
+		throw InnerModelException("InnerModel::newNode Error: Cannot insert new node with already existing name" + id);
+
+	std::shared_ptr<T> node(new T(std::forward<Ts>(params)...)); 
+	hash.insert(std::pair<std::string,std::shared_ptr<InnerModelNode>>(id, std::static_pointer_cast<InnerModelNode>(node)));
+	return node;
+}
+
+///TODO REMOVE
+/*InnerModelJoint *InnerModel::newJoint(QString id, InnerModelTransform *parent,float lx, float ly, float lz,float hx, float hy, float hz, float tx, float ty, float tz, float rx, float ry, float rz, float min, float max, uint32_t port,std::string axis, float home)
 {
 	
 	if (hash.contains(id))
@@ -671,14 +739,14 @@ InnerModelTransform *InnerModel::newTransform(QString id, QString engine, InnerM
 // 	std::cout << (void *)newnode << "  " << (uint64_t)newnode << std::endl;
 // 	parent->addChild(newnode);
 	return newnode;
-}
+}*/
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /// Information retrieval methods
 //////////////////////////////////////////////////////////////////////////////////////////
 
-QVec InnerModel::transform(const QString &destId, const QVec &initVec, const QString &origId)
+QVec InnerModel::transform(const std::string &destId, const QVec &initVec, const std::string &origId)
 {
 	
 	if (initVec.size()==3)
@@ -707,99 +775,98 @@ QVec InnerModel::transform(const QString &destId, const QVec &initVec, const QSt
 	}
 }
 
-QVec InnerModel::transformS(const std::string & destId, const QVec &origVec, const std::string & origId)
+/*QVec InnerModel::transformS(const std::string & destId, const QVec &origVec, const std::string & origId)
 {
 		return transform(QString::fromStdString(destId), origVec, QString::fromStdString(origId));
-}
+}*/
 
-QVec InnerModel::rotationAngles(const QString & destId, const QString & origId)
+QVec InnerModel::rotationAngles(const std::string & destId, const std::string & origId)
 {
 	return getTransformationMatrix(destId, origId).extractAnglesR();
 }
 
 
 /// Matrix transformation retrieval methods
-RTMat InnerModel::getTransformationMatrix(const QString &to, const QString &from)
+RTMat InnerModel::getTransformationMatrix(const std::string &to, const std::string &from)
 {
 	RTMat ret;
 
 	
-	if (localHashTr.contains(QPair<QString, QString>(to, from)))
+	if (localHashTr.find(std::pair<std::string, std::string>(to, from)) != localHashTr.end())
 	{
-		ret = localHashTr[QPair<QString, QString>(to, from)];
+		ret = localHashTr[std::pair<std::string, std::string>(to, from)];
 	}
 	else
 	{
 		setLists(from, to);
-		foreach (InnerModelNode *i, listA)
+		foreach (auto i, listA)
 		{
 			ret = ((RTMat)(*i)).operator*(ret);
 		}
-		foreach (InnerModelNode *i, listB)
+		foreach (auto i, listB)
 		{
 			ret = i->invert() * ret;
 		}
-		localHashTr[QPair<QString, QString>(to, from)] = ret;
+		localHashTr[std::pair<std::string, std::string>(to, from)] = ret;
 	}
 	return RTMat(ret);
 }
 
-RTMat InnerModel::getTransformationMatrixS(const std::string &destId, const std::string &origId)
+/*RTMat InnerModel::getTransformationMatrixS(const std::string &destId, const std::string &origId)
 {
 	return getTransformationMatrix(QString::fromStdString(destId), QString::fromStdString(origId));
-}
+}*/
 
 
-QMat InnerModel::getRotationMatrixTo(const QString &to, const QString &from)
+QMat InnerModel::getRotationMatrixTo(const std::string &to, const std::string &from)
 {
 	QMat rret = QMat::identity(3);
 
 	
 
-	if (localHashRot.contains(QPair<QString, QString>(to, from)))
+	if (localHashRot.find(std::pair<std::string, std::string>(to, from)) != localHashRot.end())
 	{
-		rret = localHashRot[QPair<QString, QString>(to, from)];
+		rret = localHashRot[std::pair<std::string, std::string>(to, from)];
 	}
 	else
 	{
 		setLists(from, to);
 		InnerModelTransform *tf=NULL;
 
-		foreach (InnerModelNode *i, listA)
+		foreach (auto i, listA)
 		{
-			if ((tf=dynamic_cast<InnerModelTransform *>(i))!=NULL)
+			if ((tf=dynamic_cast<InnerModelTransform *>(i.get()))!=NULL)
 			{
 				rret = tf->getR() * rret;
 			}
 		}
-		foreach (InnerModelNode *i, listB)
+		foreach (auto i, listB)
 		{
-			if ((tf=dynamic_cast<InnerModelTransform *>(i))!=NULL)
+			if ((tf=dynamic_cast<InnerModelTransform *>(i.get()))!=NULL)
 			{
 				rret = tf->getR().transpose() * rret;
 			}
 		}
-		localHashRot[QPair<QString, QString>(to, from)] = rret;
+		localHashRot[std::pair<std::string, std::string>(to, from)] = rret;
 	}
 	return rret;
 }
 
-QVec InnerModel::getTranslationVectorTo(const QString &to, const QString &from)
+QVec InnerModel::getTranslationVectorTo(const std::string &to, const std::string &from)
 {
 	QMat m = this->getTransformationMatrix(to, from);
 	return m.getCol(3);
 }
 
 
-void InnerModel::setLists(const QString & origId, const QString & destId)
+void InnerModel::setLists(const std::string & origId, const std::string & destId)
 {
-	
-	InnerModelNode *a=hash[origId], *b=hash[destId];
-	if (!a)
-		throw InnerModelException("Cannot find node: \""+ origId.toStdString()+"\"");
-	if (!b)
-		throw InnerModelException("Cannot find node: "+ destId.toStdString()+"\"");
+	if (hash.find(origId) == hash.end())
+		throw InnerModelException("Cannot find node: \"" + origId + "\"");
+	if (hash.find(destId) == hash.end())
+		throw InnerModelException("Cannot find node: " + destId + "\"");
 
+	std::shared_ptr<InnerModelNode> a=hash[origId], b=hash[destId];
 	int minLevel = a->level<b->level? a->level : b->level;
 	listA.clear();
 	while (a->level >= minLevel)
@@ -838,17 +905,17 @@ void InnerModel::setLists(const QString & origId, const QString & destId)
 // ----------------------------------------------------------------------------------------
 
 
-bool InnerModel::collidable(const QString &a)
+bool InnerModel::collidable(const std::string &a)
 {
 	
-	InnerModelNode *node;
+	std::shared_ptr<InnerModelNode> node;
 	try
 	{
 		node = hash[a];
 	}
 	catch(...)
 	{
-		qDebug() <<__FUNCTION__ << "No node" << a;
+		std::cout <<__FUNCTION__ << "No node" << a << std::endl;
 	}
 	if (node)
 	{
@@ -859,11 +926,11 @@ bool InnerModel::collidable(const QString &a)
 	return false;
 }
 
-bool InnerModel::collide(const QString &a, const QString &b)
+bool InnerModel::collide(const std::string &a, const std::string &b)
 {
 	
 #if FCL_SUPPORT==1
-	InnerModelNode *n1 = getNode(a);
+	std::shared_ptr<InnerModelNode> n1 = getNode<InnerModelNode>(a);
 	if (not n1) throw 1;
 	QMat r1q = getRotationMatrixTo("root", a);
 	fcl::Matrix3f R1( r1q(0,0), r1q(0,1), r1q(0,2), r1q(1,0), r1q(1,1), r1q(1,2), r1q(2,0), r1q(2,1), r1q(2,2) );
@@ -871,7 +938,7 @@ bool InnerModel::collide(const QString &a, const QString &b)
 	fcl::Vec3f T1( t1v(0), t1v(1), t1v(2) );
 	n1->collisionObject->setTransform(R1, T1);
 
-	InnerModelNode *n2 = getNode(b);
+	std::shared_ptr<InnerModelNode> n2 = getNode<InnerModelNode>(b);
 	if (not n1) throw 2;
 	QMat r2q = getRotationMatrixTo("root", b);
 	fcl::Matrix3f R2( r2q(0,0), r2q(0,1), r2q(0,2), r2q(1,0), r2q(1,1), r2q(1,2), r2q(2,0), r2q(2,1), r2q(2,2) );
@@ -918,10 +985,10 @@ bool InnerModel::collide(const QString &a, const QString &b)
  * @return bool
  */
 #if FCL_SUPPORT==1
-bool InnerModel::collide(const QString &a, const fcl::CollisionObject *obj)
+bool InnerModel::collide(const std::string &a, const fcl::CollisionObject *obj)
 {
 	
-	InnerModelNode *n1 = getNode(a);
+	std::shared_ptr<InnerModelNode> n1 = getNode<InnerModelNode>(a);
 	if (not n1) throw 1;
 	QMat r1q = getRotationMatrixTo("root", a);
 	fcl::Matrix3f R1( r1q(0,0), r1q(0,1), r1q(0,2), r1q(1,0), r1q(1,1), r1q(1,2), r1q(2,0), r1q(2,1), r1q(2,2) );
@@ -949,18 +1016,23 @@ QMat InnerModel::jacobian(QStringList &listaJoints, const QVec &motores, const Q
 	QVec zero = QVec::zeros(3);
 	int j=0; //índice de columnas de la matriz: MOTORES
 
-	foreach(QString linkName, listaJoints)
+	foreach(QString linkNam, listaJoints)
 	{
+		std::string linkName = linkNam.toStdString();
 		if(motores[j] == 0)
 		{
-			QString frameBase = listaJoints.last();
+			QString frameBas = listaJoints.last();
+			std::string frameBase = frameBas.toStdString();
 
 			// TRASLACIONES: con respecto al último NO traslada
-			QVec axisTip = getJoint(linkName)->unitaryAxis(); 		//vector de ejes unitarios
+			std::shared_ptr<InnerModelJoint> joint = getNode<InnerModelJoint>(linkName);
+			if (joint == nullptr)
+				throw InnerModelException("InnerModel::jacobian Error: node not found " + linkName);
+			QVec axisTip = joint->unitaryAxis(); 		//vector de ejes unitarios
 			axisTip = transform(frameBase, axisTip, linkName);
 			QVec axisBase = transform(frameBase, zero, linkName);
 			QVec axis = axisBase - axisTip;
-			QVec toEffector = (axisBase - transform(frameBase, zero, endEffector) );
+			QVec toEffector = (axisBase - transform(frameBase, zero, endEffector.toStdString()) );
 			QVec res = toEffector.crossProduct(axis);
 
 			jacob(0,j) = res.x();
@@ -968,7 +1040,10 @@ QMat InnerModel::jacobian(QStringList &listaJoints, const QVec &motores, const Q
 			jacob(2,j) = res.z();
 
 			// ROTACIONES
-			QVec axisTip2 = getJoint(linkName)->unitaryAxis(); 		//vector de ejes unitarios en el que gira
+			std::shared_ptr<InnerModelJoint> joint2 = getNode<InnerModelJoint>(linkName);
+			if (joint2 == nullptr)
+				throw InnerModelException("InnerModel::jacobian Error: node not found " + linkName);
+			QVec axisTip2 = joint->unitaryAxis(); 		//vector de ejes unitarios en el que gira
 			axisTip2 = transform(frameBase, axisTip2, linkName); 		//vector de giro pasado al hombro.
 			QVec axisBase2 = transform(frameBase, zero, linkName); 	//motor al hombro
 			QVec axis2 = axisBase2 - axisTip2; 				//vector desde el eje de giro en el sist. hombro, hasta la punta del eje de giro en el sist. hombro.
@@ -982,31 +1057,31 @@ QMat InnerModel::jacobian(QStringList &listaJoints, const QVec &motores, const Q
 	return jacob;
 }
 
-QString InnerModel::getParentIdentifier(QString id)
+std::string InnerModel::getParentIdentifier(std::string id)
 {
 	
-	InnerModelNode *n = getNode(id);
+	std::shared_ptr<InnerModelNode> n = getNode<InnerModelNode>(id);
 	if (n)
 	{
 		if (n->parent)
 			return n->parent->id;
 		else
-			return QString("");
+			return std::string("");
 	}
-	return QString("");
+	return std::string("");
 }
 
-std::string InnerModel::getParentIdentifierS(std::string id)
+/*std::string InnerModel::getParentIdentifierS(std::string id)
 {
 	return getParentIdentifier(QString::fromStdString(id)).toStdString();
-}
+}*/
 
 
 
-float InnerModel::distance(const QString &a, const QString &b)
+float InnerModel::distance(const std::string &a, const std::string &b)
 {
 #if FCL_SUPPORT==1
-	InnerModelNode *n1 = getNode(a);
+	std::shared_ptr<InnerModelNode> n1 = getNode<InnerModelNode>(a);
 	if (not n1) throw 1;
 	QMat r1q = getRotationMatrixTo("root", a);
 	fcl::Matrix3f R1( r1q(0,0), r1q(0,1), r1q(0,2), r1q(1,0), r1q(1,1), r1q(1,2), r1q(2,0), r1q(2,1), r1q(2,2) );
@@ -1014,7 +1089,7 @@ float InnerModel::distance(const QString &a, const QString &b)
 	fcl::Vec3f T1( t1v(0), t1v(1), t1v(2) );
 	n1->collisionObject->setTransform(R1, T1);
 
-	InnerModelNode *n2 = getNode(b);
+	std::shared_ptr<InnerModelNode> n2 = getNode<InnerModelNode>(b);
 	if (not n1) throw 2;
 	QMat r2q = getRotationMatrixTo("root", b);
 	fcl::Matrix3f R2( r2q(0,0), r2q(0,1), r2q(0,2), r2q(1,0), r2q(1,1), r2q(1,2), r2q(2,0), r2q(2,1), r2q(2,2) );

@@ -17,7 +17,7 @@
 
 #include "innermodelnode.h"
 
-InnerModelNode::InnerModelNode(QString id_, InnerModelNode *parent_) : RTMat()
+InnerModelNode::InnerModelNode(std::string id_, std::shared_ptr<InnerModelNode> parent_) : RTMat()
 {
 	collidable = false;
 	#if FCL_SUPPORT==1
@@ -45,39 +45,33 @@ InnerModelNode::~InnerModelNode()
 	#endif
 }
 
-void InnerModelNode::treePrint(QString s, bool verbose)
+void InnerModelNode::treePrint(std::string s, bool verbose)
 {
-	printf("%s%s l(%d) [%d]\n", qPrintable(s), qPrintable(id), level, children.size());
-	QList<InnerModelNode*>::iterator i;
-	for (i=children.begin(); i!=children.end(); i++)
+ 	std::cout << s << id << "l(" << level << ") [" << children.size() <<"]\n";
+	for (auto i=children.begin(); i!=children.end(); i++)
 	{
 		if (verbose)
 			(*i)->print(verbose);
-		(*i)->treePrint(s+QString("  "), verbose);
+		(*i)->treePrint(s + "  ", verbose);
 
 	}
 }
 
-void InnerModelNode::setParent(InnerModelNode *parent_)
+void InnerModelNode::setParent(std::shared_ptr<InnerModelNode> parent_)
 {
 	parent = parent_;
 	level = parent->level + 1;
 }
 
-void InnerModelNode::addChild(InnerModelNode *child)
+void InnerModelNode::addChild(std::shared_ptr<InnerModelNode> child)
 {
-	if (child->parent != this and child->parent != NULL)
-	{
-		//printf("InnerModelNode::addChild this is weird\n");
-	}
-
 	child->innerModel = innerModel;
 	
-	if (not children.contains(child))
+	if (std::find(children.begin(), children.end(),child) == children.end())
 	{
-		children.append(child);
+		children.push_back(child);
 	}
-	child->parent = this;
+	child->parent.reset(this);  //MIRAR
 }
 
 void InnerModelNode::setFixed(bool f)
@@ -92,6 +86,7 @@ bool InnerModelNode::isFixed()
 
 void InnerModelNode::updateChildren()
 {
-	foreach(InnerModelNode *i, children)
-		i->update();
+	std::cout << "NOT IMPLEMENTED CHECK!";
+//	foreach(auto child, children)
+//		child->update();
 }

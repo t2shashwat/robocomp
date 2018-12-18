@@ -140,8 +140,8 @@ class InnerModelViewer : public osg::Switch
 		enum CameraView { BACK_POV, FRONT_POV, LEFT_POV, RIGHT_POV, TOP_POV };
 
 		//explicit InnerModelViewer(const InnerModelMgr &im, QString root="root", osg::Group *parent=NULL, bool ignoreCameras=false);	
-		explicit InnerModelViewer(const std::shared_ptr<InnerModel> &im, QString root="root", osg::Group *parent=NULL, bool ignoreCameras=false);
-		explicit InnerModelViewer(InnerModel *im, QString root="root", osg::Group *parent=NULL, bool ignoreCameras=false);
+		explicit InnerModelViewer(const std::shared_ptr<InnerModel> &im, std::string root="root", osg::Group *parent=NULL, bool ignoreCameras=false);
+		explicit InnerModelViewer(InnerModel *im, std::string root="root", osg::Group *parent=NULL, bool ignoreCameras=false);
 		~InnerModelViewer();
 		void update();
 		void recursiveConstructor(InnerModelNode* node, osg::Group* parent, QHash< QString, osg::MatrixTransform* >& mtsHash, QHash< QString, IMVMesh >& meshHash, bool ignoreCameras=false);
@@ -174,7 +174,7 @@ class InnerModelViewer : public osg::Switch
 		
 	private:
     QVec eye, up, to;
-		void reloadMesh(QString id);	
+		void reloadMesh(std::string id);	
 	
 		// Returns geode if 'id' corresponds to a geode, null otherwise.
 		osg::Geode* getGeode(QString id);

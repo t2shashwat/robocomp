@@ -38,27 +38,33 @@ class InnerModelTransform : public InnerModelNode
 		 * @param mass_ ...
 		 * @param parent_ ...
 		 */
-		InnerModelTransform(QString id_, QString engine_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float mass_, InnerModelNode *parent_=NULL);
+		InnerModelTransform(std::string id_, std::string engine_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float mass_, std::shared_ptr<InnerModelNode> parent_=nullptr);
 		virtual ~InnerModelTransform();
 
 		void print(bool verbose);
 		void save(QTextStream &out, int tabs);
-		void setUpdatePointers(float *tx_, float *ty_, float *tz_, float *rx_, float *ry_, float *rz_);
-		void setUpdateTranslationPointers(float *tx_, float *ty_, float *tz_);
-		void setUpdateRotationPointers(float *rx_, float *ry_, float *rz_);
-		void update();
+//		void setUpdatePointers(float *tx_, float *ty_, float *tz_, float *rx_, float *ry_, float *rz_);
+//		void setUpdateTranslationPointers(float *tx_, float *ty_, float *tz_);
+//		void setUpdateRotationPointers(float *rx_, float *ry_, float *rz_);
+//		void update();
 		void update(float tx_, float ty_, float tz_, float rx_, float ry_, float rz_);
+		void updateT(float tx_, float ty_, float tz_);
+		void updateR(float rx_, float ry_, float rz_);
 		
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
-		float *tx, *ty, *tz;
-		float *rx, *ry, *rz;
+		void transformValues(const RTMat &Tpb, float tx, float ty, float tz, float rx, float ry, float rz, const std::shared_ptr<InnerModelTransform> parentNode);
+		void translateValues(const RTMat &Tpb, float tx, float ty, float tz, const std::shared_ptr<InnerModelTransform> parentNode);
+		void rotateValues(const RTMat &Tpb, float rx, float ry, float rz, const std::shared_ptr<InnerModelTransform> parentNode);
+		
+//		float *tx, *ty, *tz;
+//		float *rx, *ry, *rz;
 		float mass;
 		float backtX, backtY, backtZ;
 		float backrX, backrY, backrZ;
 		bool gui_translation, gui_rotation;
-		QString engine;
-		QMutex *mutex;
+		std::string engine;
+//		QMutex *mutex;
 };
 	
 

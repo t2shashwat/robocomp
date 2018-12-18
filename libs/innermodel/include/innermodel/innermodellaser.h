@@ -25,11 +25,11 @@ class InnerModel;
 class InnerModelLaser : public InnerModelNode
 {
 	public:
-		InnerModelLaser(QString id_, uint32_t _port, uint32_t _min, uint32_t _max, float _angle, uint32_t _measures, QString _ifconfig, InnerModel *innermodel_, InnerModelNode *parent_=NULL);
+		InnerModelLaser(std::string id_, uint32_t _port, uint32_t _min, uint32_t _max, float _angle, uint32_t _measures, std::string _ifconfig, InnerModel *innermodel_, std::shared_ptr<InnerModelNode> parent_=nullptr);
 		void save(QTextStream &out, int tabs);
 		void print(bool verbose);
 		void update();
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 		
 		/**
 		* \brief Local laser measure of range r and angle alfa is converted to Any RS
@@ -37,14 +37,13 @@ class InnerModelLaser : public InnerModelNode
 		* @param alfa angle measure
 		* @return 3-vector of x,y,z coordinates un WRS
 		*/
-		QVec laserTo(const QString& dest, float r, float alpha);
 		QVec laserTo(const std::string& dest, float r, float alpha);
 		
 		uint32_t port;
 		uint32_t min, max;
 		float angle;
 		uint32_t measures;
-		QString ifconfig;
+		std::string ifconfig;
 		
 		mutable QMutex mutex;
 	

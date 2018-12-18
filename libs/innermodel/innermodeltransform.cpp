@@ -17,7 +17,7 @@
 
 #include "innermodeltransform.h"
 
-InnerModelTransform::InnerModelTransform(QString id_, QString engine_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float mass_, InnerModelNode *parent_) : InnerModelNode(id_, parent_)
+InnerModelTransform::InnerModelTransform(std::string id_, std::string engine_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float mass_, std::shared_ptr<InnerModelNode> parent_) : InnerModelNode(id_, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -31,7 +31,7 @@ InnerModelTransform::InnerModelTransform(QString id_, QString engine_, float tx_
 	backrX = rx_;
 	backrY = ry_;
 	backrZ = rz_;
-	rx = ry = rz = tx = ty = tz = NULL;
+//	rx = ry = rz = tx = ty = tz = NULL;
 	gui_translation = gui_rotation = true;
 }
 
@@ -42,41 +42,43 @@ InnerModelTransform::~InnerModelTransform()
 
 void InnerModelTransform::print(bool verbose)
 {
-	printf("Transform: %s\n", qPrintable(id));
+	std::cout << "Transform: " << id << std::endl;
 	if (verbose)
 	{
-		((QMat *)this)->print(qPrintable(id));
-		getTr().print(id+"_T");
+		((QMat *)this)->print(QString::fromStdString(id));
+		getTr().print(QString::fromStdString(id + "_T"));
 		//extractAnglesR().print(id+"_R");
 	}
 }
 
 void InnerModelTransform::save(QTextStream &out, int tabs)
 {
-	QList<InnerModelNode*>::iterator c;
-
 	if (id == "root")
 	{
-		for (int i=0; i<tabs; i++) out << "\t";
+		for (int i=0; i<tabs; i++) 
+			out << "\t";
 		out << "<innermodel>\n";
-		for (c=children.begin(); c!=children.end(); c++) (*c)->save(out, tabs+1);
-		for (int i=0; i<tabs; i++) out << "\t";
+		for (auto c=children.begin(); c!=children.end(); c++)
+			(*c)->save(out, tabs+1);
+		for (int i=0; i<tabs; i++) 
+			out << "\t";
 		out << "</innermodel>\n";
 	}
 	else
 	{
 		for (int i=0; i<tabs; i++) out << "\t";
 		if (gui_translation and not gui_rotation)
-			out << "<translation id=\"" << id << "\" tx=\""<< QString::number(backtX, 'g', 10) <<"\" ty=\""<< QString::number(backtY, 'g', 10) <<"\" tz=\""<< QString::number(backtZ, 'g', 10) <<"\">\n";
+			out << "<translation id=\"" << id.c_str() << "\" tx=\""<< std::to_string(backtX).c_str() <<"\" ty=\""<< std::to_string(backtY).c_str() <<"\" tz=\""<< std::to_string(backtZ).c_str() <<"\">\n";
 		else if (gui_rotation and not gui_translation)
-			out << "<rotation id=\"" << id << "\" rx=\""<< QString::number(backrX, 'g', 10) <<"\" ry=\""<< QString::number(backrY, 'g', 10) <<"\" rz=\""<< QString::number(backrZ, 'g', 10) <<"\">\n";
+			out << "<rotation id=\"" << id.c_str() << "\" rx=\""<< std::to_string(backrX).c_str() <<"\" ry=\""<< std::to_string(backrY).c_str() <<"\" rz=\""<< std::to_string(backrZ).c_str() <<"\">\n";
 		else
-			out << "<transform id=\"" << id << "\" tx=\""<< QString::number(backtX, 'g', 10) <<"\" ty=\""<< QString::number(backtY, 'g', 10) <<"\" tz=\""<< QString::number(backtZ, 'g', 10) <<"\"  rx=\""<< QString::number(backrX, 'g', 10) <<"\" ry=\""<< QString::number(backrY, 'g', 10) <<"\" rz=\""<< QString::number(backrZ, 'g', 10) <<"\">\n";
+			out << "<transform id=\"" << id.c_str() << "\" tx=\""<< std::to_string(backtX).c_str() <<"\" ty=\""<< std::to_string(backtY).c_str() <<"\" tz=\""<< std::to_string(backtZ).c_str() <<"\"  rx=\""<< std::to_string(backrX).c_str() <<"\" ry=\""<< std::to_string(backrY).c_str() <<"\" rz=\""<< std::to_string(backrZ).c_str() <<"\">\n";
 
-		for (c=children.begin(); c!=children.end(); c++)
+		for (auto c=children.begin(); c!=children.end(); c++)
 			(*c)->save(out, tabs+1);
 
-		for (int i=0; i<tabs; i++) out << "\t";
+		for (int i=0; i<tabs; i++) 
+			out << "\t";
 		if (gui_translation and not gui_rotation )
 			out << "</translation>\n";
 		else if (gui_rotation and not gui_translation)
@@ -86,7 +88,7 @@ void InnerModelTransform::save(QTextStream &out, int tabs)
 	}
 }
 
-void InnerModelTransform::setUpdatePointers(float *tx_, float *ty_, float *tz_, float *rx_, float *ry_, float *rz_)
+/*void InnerModelTransform::setUpdatePointers(float *tx_, float *ty_, float *tz_, float *rx_, float *ry_, float *rz_)
 {
 	tx = tx_;
 	ty = ty_;
@@ -130,7 +132,7 @@ void InnerModelTransform::update()
 	}
 	updateChildren();
 }
-
+*/
 /**
  * @brief Updates the internal values of the node from the values passed in the parameters
  *
@@ -144,29 +146,76 @@ void InnerModelTransform::update()
  */
 void InnerModelTransform::update(float tx_, float ty_, float tz_, float rx_, float ry_, float rz_)
 {
+	//Lock lock(mutex);
 	backrX = rx_; backrY = ry_; backrZ = rz_;
 	backtX = tx_; backtY = ty_; backtZ = tz_;
 	set(backrX, backrY, backrZ, backtX, backtY, backtZ);
 	fixed = true;
 }
-
-
-InnerModelNode * InnerModelTransform::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+void InnerModelTransform::updateT(float tx_, float ty_, float tz_)
 {
-	InnerModelTransform *ret = new InnerModelTransform(id, engine, backtX, backtY, backtZ, backrX, backrY, backrZ, mass, parent);
+	//Lock lock(mutex);
+	backtX = tx_; backtY = ty_; backtZ = tz_;
+	set(backrX, backrY, backrZ, backtX, backtY, backtZ);
+	fixed = true;
+}
+	
+void InnerModelTransform::updateR(float rx_, float ry_, float rz_)
+{
+	//Lock lock(mutex);
+	backrX = rx_; backrY = ry_; backrZ = rz_;
+	set(backrX, backrY, backrZ, backtX, backtY, backtZ);
+	fixed = true;
+} 
+
+std::shared_ptr<InnerModelNode> InnerModelTransform::copyNode(std::map<std::string,std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+{
+	std::shared_ptr<InnerModelTransform> ret( new InnerModelTransform(id, engine, backtX, backtY, backtZ, backrX, backrY, backrZ, mass, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
 	ret->attributes.clear();
-	hash[id] = ret;
-	ret->innerModel = parent->innerModel;
-
-
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	hash.insert(std::pair<std::string, std::shared_ptr<InnerModelNode>>(id,std::dynamic_pointer_cast<InnerModelNode>(ret)));
+ 
+	for (auto i=children.begin(); i!=children.end(); i++)
 	{
 		ret->addChild((*i)->copyNode(hash, ret));
 	}
 
-	return ret;
+	return std::static_pointer_cast<InnerModelNode>(ret);
+}
+void InnerModelTransform::transformValues(const RTMat &Tpb, float tx, float ty, float tz, float rx, float ry, float rz, const std::shared_ptr<InnerModelTransform> parentNode)
+{	
+	RTMat Tbi;
+	Tbi.setTr(tx,ty,tz);
+	Tbi.setR (rx,ry,rz);
+	RTMat Tpi = Tpb*Tbi;
+	QVec angles = Tpi.extractAnglesR();
+	QVec tr = Tpi.getTr();
+
+	update(angles.x(),angles.y(),angles.z(),tr.x(),tr.y(),tr.z());
 }
 
+void InnerModelTransform::translateValues(const RTMat &Tpb, float tx, float ty, float tz, const std::shared_ptr<InnerModelTransform> parentNode)
+{
+	RTMat Tbi;
+	Tbi.setTr(tx,ty,tz);
+	RTMat Tpi = Tpb*Tbi;
+	QVec tr = Tpi.getTr();
+	tx = tr.x();
+	ty = tr.y();
+	tz = tr.z();
+	updateT(tx,ty,tz);
+}
+
+void InnerModelTransform::rotateValues(const RTMat &Tpb, float rx, float ry, float rz, const std::shared_ptr<InnerModelTransform> parentNode)
+{
+	RTMat Tbi;
+	Tbi.setR (rx,ry,rz);
+	RTMat Tpi = Tpb*Tbi;
+	QVec angles = Tpi.extractAnglesR();
+	rx = angles.x();
+	ry = angles.y();
+	rz = angles.z();
+	updateR(rx,ry,rz);
+}

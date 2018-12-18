@@ -25,13 +25,13 @@ class InnerModelPrismaticJoint : public InnerModelTransform
 	public:
 		friend class InnerModel;
 		friend class InnerModelReader;		
-		InnerModelPrismaticJoint(QString id_, float min_, float max_, float val_, float offset_, uint32_t port_=0, std::string axis_="z", float home_=0, InnerModelTransform *parent_=NULL);
+		InnerModelPrismaticJoint(std::string id_, float min_, float max_, float val_, float offset_, uint32_t port_=0, std::string axis_="z", float home_=0, std::shared_ptr<InnerModelTransform> parent_=nullptr);
 		void print(bool verbose);
 		void save(QTextStream &out, int tabs);
 		void update();
 		float getPosition();
 		float setPosition(float v);
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		float value, offset;
 		float min, max;

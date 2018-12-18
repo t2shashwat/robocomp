@@ -18,7 +18,7 @@
 #include "innermodelcamera.h"
 #include <innermodel/innermodel.h>
 
-InnerModelCamera::InnerModelCamera(QString id_, float width_, float height_, float focal_, InnerModel *innermodel_, InnerModelNode *parent_) 
+InnerModelCamera::InnerModelCamera(std::string id_, float width_, float height_, float focal_, InnerModel *innermodel_, std::shared_ptr<InnerModelNode> parent_) 
 : InnerModelNode(id_, parent_), innermodel(innermodel_)
 {
 #if FCL_SUPPORT==1
@@ -33,7 +33,7 @@ InnerModelCamera::InnerModelCamera(QString id_, float width_, float height_, flo
 
 void InnerModelCamera::print(bool verbose)
 {
-	if (verbose) camera.print(QString("Camera: ")+id);
+	if (verbose) camera.print(QString::fromStdString("Camera: "+id));
 }
 
 void InnerModelCamera::update()
@@ -47,12 +47,12 @@ void InnerModelCamera::update()
 void InnerModelCamera::save(QTextStream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
-	out << "<camera id=\"" << id << "\" width=\"" << QString::number(width, 'g', 10) << "\" height=\"" << QString::number(height, 'g', 10) << "\" focal=\"" << QString::number(camera.getFocal(), 'g', 10) << "\" />\n";
+	out << "<camera id=\"" << id.c_str() << "\" width=\"" << std::to_string(width).c_str() << "\" height=\"" << std::to_string(height).c_str() << "\" focal=\"" << std::to_string(camera.getFocal()).c_str() << "\" />\n";
 }
 
-InnerModelNode * InnerModelCamera::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelCamera::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelCamera *ret = new InnerModelCamera(id, width, height, focal, innermodel, parent);
+	std::shared_ptr<InnerModelCamera> ret(new InnerModelCamera(id, width, height, focal, innermodel, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -64,15 +64,15 @@ InnerModelNode * InnerModelCamera::copyNode(QHash<QString, InnerModelNode *> &ha
 
 	ret->camera = camera;
 
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator: children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;
 }
 
-QVec InnerModelCamera::project(QString reference, QVec origVec)
+QVec InnerModelCamera::project(std::string reference, QVec origVec)
 {
 	origVec = innermodel->transform(id, origVec, reference);
 	return project(origVec);
@@ -92,12 +92,12 @@ QVec InnerModelCamera::project(const QVec &origVec)
  * @param coord  point in image coordinates
  * @return a line en camera reference system that can be parametrized by the depth s
  */
-QVec InnerModelCamera::backProject( const QString &cameraId, const QVec &	coord) //const
+QVec InnerModelCamera::backProject( const std::string &cameraId, const QVec &	coord) //const
 {
 	return camera.getRayHomogeneous(coord);
 }
 
-void InnerModelCamera::imageCoordToAngles(const QString &cameraId, QVec coord, float &pan, float &tilt, const QString & anglesRefS)
+void InnerModelCamera::imageCoordToAngles(const std::string &cameraId, QVec coord, float &pan, float &tilt, const std::string & anglesRefS)
 {
 	QVec ray = backProject(cameraId, coord);
 
@@ -108,7 +108,7 @@ void InnerModelCamera::imageCoordToAngles(const QString &cameraId, QVec coord, f
 
 }
 
-QVec InnerModelCamera::anglesToImageCoord(const QString &cameraId, float pan, float tilt, const QString & anglesRefS)
+QVec InnerModelCamera::anglesToImageCoord(const std::string &cameraId, float pan, float tilt, const std::string & anglesRefS)
 {
 	QVec p(3), ray(3);
 
@@ -124,7 +124,7 @@ QVec InnerModelCamera::anglesToImageCoord(const QString &cameraId, float pan, fl
 	return project(cameraId, ray);
 }
 
-QVec InnerModelCamera::imageCoordPlusDepthTo(QString cameraId, QVec coord, float depth, QString reference)
+QVec InnerModelCamera::imageCoordPlusDepthTo(std::string cameraId, QVec coord, float depth, std::string reference)
 {
 	//We obtain a 3D line (a,b,1) in camera reference system that can be parametrized in depth to obtain a point at "depth" from the camera.
 	QVec p = backProject( cameraId, coord ) * depth;
@@ -134,7 +134,7 @@ QVec InnerModelCamera::imageCoordPlusDepthTo(QString cameraId, QVec coord, float
 	return p;
 }
 
-QVec InnerModelCamera::projectFromCameraToPlane(const QString &to, const QVec &coord, const QString &cameraId, const QVec &vPlane, const float &dist)
+QVec InnerModelCamera::projectFromCameraToPlane(const std::string &to, const QVec &coord, const std::string &cameraId, const QVec &vPlane, const float &dist)
 {
 	QMat mSystem(3,3);
 	QVec tIndep(3);
@@ -189,13 +189,13 @@ QVec InnerModelCamera::projectFromCameraToPlane(const QString &to, const QVec &c
  * else printf("Regular horizon.\n");
  * </p>
  */
-QVec InnerModelCamera::horizonLine(QString planeId, QString cameraId, float heightOffset)
+QVec InnerModelCamera::horizonLine(std::string planeId, std::string cameraId, float heightOffset)
 {
 	
 	// 	printf("-------------------------------------- cam:%s plane:%s\n", qPrintable(cameraId), qPrintable(planeId));
 	// Get camera and plane pointers
-	InnerModelPlane *plane = innermodel->getNode<InnerModelPlane>(planeId);
-	InnerModelCamera *camera = innermodel->getNode<InnerModelCamera>(cameraId);
+	std::shared_ptr<InnerModelPlane> plane = innermodel->getNode<InnerModelPlane>(planeId);
+	std::shared_ptr<InnerModelCamera> camera = innermodel->getNode<InnerModelCamera>(cameraId);
 	// Transform rotate plane normal vector to camera reference system
 	QMat rtm = innermodel->getRotationMatrixTo(cameraId, planeId);
 	QVec vec = QVec::vec3(plane->normal(0), plane->normal(1), plane->normal(2));
@@ -223,9 +223,7 @@ QVec InnerModelCamera::horizonLine(QString planeId, QString cameraId, float heig
 	{
 		if (abs(dy) <= 1)
 		{
-			QString error;
-			error.sprintf("Degenerated camera");
-			throw error;
+			throw std::string("Degenerated camera");
 		}
 		return QVec::vec3(-1, 0, p1(0));
 	}
@@ -235,7 +233,7 @@ QVec InnerModelCamera::horizonLine(QString planeId, QString cameraId, float heig
 	}
 }
 
-QMat InnerModelCamera::getHomographyMatrix(QString virtualCamera, QString plane, QString sourceCamera)
+QMat InnerModelCamera::getHomographyMatrix(std::string virtualCamera, std::string plane, std::string sourceCamera)
 {
 	
 
@@ -253,10 +251,8 @@ QMat InnerModelCamera::getHomographyMatrix(QString virtualCamera, QString plane,
 	return H;
 }
 
-QMat InnerModelCamera::getAffineHomographyMatrix(QString virtualCamera, QString plane, QString sourceCamera)
+QMat InnerModelCamera::getAffineHomographyMatrix(std::string virtualCamera, std::string plane, std::string sourceCamera)
 {
-	
-
 	QVec planeN = innermodel->getNode<InnerModelPlane>(plane)->normal;
 	planeN = innermodel->getRotationMatrixTo(sourceCamera, plane)*planeN;
 	QVec planePoint = innermodel->transform(sourceCamera, innermodel->getNode<InnerModelPlane>(plane)->point, plane);
@@ -274,7 +270,7 @@ QMat InnerModelCamera::getAffineHomographyMatrix(QString virtualCamera, QString 
 	return H;
 }
 
-QMat InnerModelCamera::getPlaneProjectionMatrix(QString virtualCamera, QString plane, QString sourceCamera)
+QMat InnerModelCamera::getPlaneProjectionMatrix(std::string virtualCamera, std::string plane, std::string sourceCamera)
 {
 	
 	QVec planeN = innermodel->getNode<InnerModelPlane>(plane)->normal;
@@ -297,7 +293,7 @@ QMat InnerModelCamera::getPlaneProjectionMatrix(QString virtualCamera, QString p
 	return HFinal;
 }
 
-QVec InnerModelCamera::compute3DPointFromImageCoords(const QString &firstCamera, const QVec &left, const QString &secondCamera, const QVec &right, const QString &refSystem)
+QVec InnerModelCamera::compute3DPointFromImageCoords(const std::string &firstCamera, const QVec &left, const std::string &secondCamera, const QVec &right, const std::string &refSystem)
 {
 	
 	QVec pI(3), pD(3), n(3), ray(3), T(3), TI(3), TD(3), pR(0), abc(3);
@@ -334,7 +330,7 @@ QVec InnerModelCamera::compute3DPointFromImageCoords(const QString &firstCamera,
 	return pR;
 }
 
-QVec InnerModelCamera::compute3DPointFromImageAngles(const QString &firstCamera , const QVec & left, const QString & secondCamera , const QVec & right, const QString & refSystem)
+QVec InnerModelCamera::compute3DPointFromImageAngles(const std::string &firstCamera , const QVec & left, const std::string & secondCamera , const QVec & right, const std::string & refSystem)
 {
 	
 	QVec pI(3), pD(3), n(3), ray(3), T(3), TI(3), TD(3), pR(0), abc(3);

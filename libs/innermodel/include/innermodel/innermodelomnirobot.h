@@ -23,9 +23,9 @@
 class InnerModelOmniRobot : public InnerModelTransform
 {
 	public:
-		InnerModelOmniRobot(QString id_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, uint32_t port_=0, float noise=0, bool collide=false, InnerModelTransform *parent_=NULL);
+		InnerModelOmniRobot(std::string id_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, uint32_t port_=0, float noise=0, bool collide=false, std::shared_ptr<InnerModelTransform> parent_=nullptr);
 	public:
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 public:
 	uint32_t port;

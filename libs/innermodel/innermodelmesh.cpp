@@ -18,7 +18,7 @@
 #include "innermodelmesh.h"
 
 
-InnerModelMesh::InnerModelMesh(QString id_, QString meshPath_, float scale, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable,  InnerModelNode *parent_) : InnerModelNode(id_, parent_)
+InnerModelMesh::InnerModelMesh(std::string id_, std::string meshPath_, float scale, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable,  std::shared_ptr<InnerModelNode> parent_) : InnerModelNode(id_, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -26,7 +26,7 @@ InnerModelMesh::InnerModelMesh(QString id_, QString meshPath_, float scale, Rend
 	InnerModelMesh(id_,meshPath_,scale,scale,scale,render_,tx_,ty_,tz_,rx_,ry_,rz_, collidable, parent_);
 }
 
-InnerModelMesh::InnerModelMesh(QString id_, QString meshPath_, float scalex_, float scaley_, float scalez_, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable_, InnerModelNode *parent_) : InnerModelNode(id_, parent_)
+InnerModelMesh::InnerModelMesh(std::string id_, std::string meshPath_, float scalex_, float scaley_, float scalez_, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable_, std::shared_ptr<InnerModelNode> parent_) : InnerModelNode(id_, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -48,8 +48,8 @@ InnerModelMesh::InnerModelMesh(QString id_, QString meshPath_, float scalex_, fl
 #if FCL_SUPPORT==1
 	// Get to the OSG geode
 	//osg::Node *osgnode_ = osgDB::readNodeFile(meshPath.toStdString());
-	osg::ref_ptr<osg::Node> osgnode_ = osgDB::readNodeFile(meshPath.toStdString()); 
-	if (not osgnode_) printf("Could not open: '%s'.\n", meshPath.toStdString().c_str());
+	osg::ref_ptr<osg::Node> osgnode_ = osgDB::readNodeFile(meshPath); 
+	if (not osgnode_) printf("Could not open: '%s'.\n", meshPath.c_str());
 	if (osgnode_ != NULL)
 	{
 		// Instanciate the vector of vertices and triangles (that's what we are looking for)
@@ -106,9 +106,7 @@ InnerModelMesh::InnerModelMesh(QString id_, QString meshPath_, float scalex_, fl
 	}
 	else
 	{
-		QString error;
-		error.sprintf("Failed to read mesh \"%s\" for collision support!\n", meshPath.toStdString().c_str());
-		throw error;
+		throw std::string("Failed to read mesh " + meshPath +" for collision support!\n");
 	}
 #endif
 }
@@ -116,16 +114,17 @@ InnerModelMesh::InnerModelMesh(QString id_, QString meshPath_, float scalex_, fl
 void InnerModelMesh::save(QTextStream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
-	out << "<mesh id=\""<<id<<"\"" <<" file=\"" << meshPath 
-	<< "\" scale=\"" << QString::number(scalex, 'g', 10) << ","<< QString::number(scaley, 'g', 10)<< ","<< QString::number(scalez, 'g', 10) 
-	<< "\" tx=\"" << QString::number(tx, 'g', 10) << "\" ty=\"" << QString::number(ty, 'g', 10) << "\" tz=\"" << QString::number(tz, 'g', 10) 
-	<< "\" rx=\"" << QString::number(rx, 'g', 10) << "\" ry=\"" << QString::number(ry, 'g', 10) << "\" rz=\"" << QString::number(rz, 'g', 10) 
-	<<"\" collide=\""<< QString::number(collidable,'g',10)<< "\" />\n";
+	out << "<mesh id=\""<<id.c_str()<<"\"" <<" file=\"" << meshPath.c_str()
+	<< "\" scale=\"" << std::to_string(scalex).c_str() << ","<< std::to_string(scaley).c_str()<< ","<< std::to_string(scalez) .c_str()
+	<< "\" tx=\"" << std::to_string(tx).c_str() << "\" ty=\"" << std::to_string(ty).c_str() << "\" tz=\"" << std::to_string(tz).c_str()
+	<< "\" rx=\"" << std::to_string(rx).c_str() << "\" ry=\"" << std::to_string(ry).c_str() << "\" rz=\"" << std::to_string(rz).c_str() 
+	<<"\" collide=\""<< std::to_string(collidable).c_str()<< "\" />\n";
 }
 
 void InnerModelMesh::print(bool verbose)
 {
-	if (verbose) printf("Mesh: %s\n", qPrintable(id));
+	if (verbose) 
+		std::cout<< "Mesh: "<<id <<std::endl;
 }
 
 
@@ -134,14 +133,6 @@ void InnerModelMesh::setScale(float x, float y, float z)
 	scalex=x;
 	scaley=y;
 	scalez=z;
-}
-
-void InnerModelMesh::update()
-{
-	if (fixed)
-	{
-	}
-	updateChildren();
 }
 
 bool InnerModelMesh::normalRendering() const
@@ -153,9 +144,9 @@ bool InnerModelMesh::wireframeRendering() const {
 	return render == WireframeRendering;
 }
 
-InnerModelNode * InnerModelMesh::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelMesh::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelMesh *ret = new InnerModelMesh(id, meshPath, scalex, scaley, scalez, render, tx, ty, tz, rx, ry, rz, parent);
+	std::shared_ptr<InnerModelMesh> ret(new InnerModelMesh(id, meshPath, scalex, scaley, scalez, render, tx, ty, tz, rx, ry, rz, collidable, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -170,9 +161,9 @@ InnerModelNode * InnerModelMesh::copyNode(QHash<QString, InnerModelNode *> &hash
 #endif
 
 
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator: children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;

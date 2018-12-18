@@ -25,11 +25,11 @@ class InnerModel;
 class InnerModelCamera : public InnerModelNode
 {
 	public:
-		InnerModelCamera(QString id_, float width_, float height_, float focal_, InnerModel *innermodel_, InnerModelNode *parent_= NULL);
+		InnerModelCamera(std::string id_, float width_, float height_, float focal_, InnerModel* innermodel_, std::shared_ptr<InnerModelNode> parent_= NULL);
 		void print(bool verbose);
 		void save(QTextStream &out, int tabs);
 		void update();
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		Cam camera;
 		float width, height, focal;
@@ -39,23 +39,23 @@ class InnerModelCamera : public InnerModelNode
 		float getSize()   const { return getWidth()*getHeight(); }
 		void updateValues(float width_, float height_, float focal_);
 		
-		QVec project(QString reference, QVec origVec);
+		QVec project(std::string reference, QVec origVec);
 		QVec project(const QVec &origVec);
-		QVec backProject(const QString &cameraId, const QVec &coord) ;//const;
-		void imageCoordToAngles(const QString &cameraId, QVec coord, float &pan, float &tilt, const QString & anglesRefS);
-		QVec anglesToImageCoord(const QString &cameraId, float pan, float tilt, const QString & anglesRefS);
-		QVec imageCoordPlusDepthTo(QString cameraId, QVec coord, float depth, QString to);
-		QVec projectFromCameraToPlane(const QString &to, const QVec &coord, const QString &cameraId, const QVec &vPlane, const float &dist);
-		QVec horizonLine(QString planeId, QString cameraId, float heightOffset=0.);
-		QMat getHomographyMatrix(QString destCamera, QString plane, QString sourceCamera);
-		QMat getAffineHomographyMatrix(QString destCamera, QString plane, QString sourceCamera);
-		QMat getPlaneProjectionMatrix(QString virtualCamera, QString plane, QString sourceCamera);
+		QVec backProject(const std::string &cameraId, const QVec &coord) ;//const;
+		void imageCoordToAngles(const std::string &cameraId, QVec coord, float &pan, float &tilt, const std::string & anglesRefS);
+		QVec anglesToImageCoord(const std::string &cameraId, float pan, float tilt, const std::string & anglesRefS);
+		QVec imageCoordPlusDepthTo(std::string cameraId, QVec coord, float depth, std::string to);
+		QVec projectFromCameraToPlane(const std::string &to, const QVec &coord, const std::string &cameraId, const QVec &vPlane, const float &dist);
+		QVec horizonLine(std::string planeId, std::string cameraId, float heightOffset=0.);
+		QMat getHomographyMatrix(std::string destCamera, std::string plane, std::string sourceCamera);
+		QMat getAffineHomographyMatrix(std::string destCamera, std::string plane, std::string sourceCamera);
+		QMat getPlaneProjectionMatrix(std::string virtualCamera, std::string plane, std::string sourceCamera);
 		/// Stereo computations
-		void updateStereoGeometry( const QString &firstCam, const QString & secondCam );
-		QVec compute3DPointInCentral(const QString &firstCamera , const QVec & left, const QString & secondCamera , const QVec & right);
-		QVec compute3DPointInRobot(const QString &firstCamera , const QVec & left, const QString & secondCamera , const QVec & right);
-		QVec compute3DPointFromImageCoords(const QString &firstCamera , const QVec & left, const QString & secondCamera , const QVec & right, const QString & refSystem);
-		QVec compute3DPointFromImageAngles(const QString &firstCamera , const QVec & left, const QString & secondCamera , const QVec & right, const QString & refSystem);
+		void updateStereoGeometry( const std::string &firstCam, const std::string & secondCam );
+		QVec compute3DPointInCentral(const std::string &firstCamera , const QVec & left, const std::string & secondCamera , const QVec & right);
+		QVec compute3DPointInRobot(const std::string &firstCamera , const QVec & left, const std::string & secondCamera , const QVec & right);
+		QVec compute3DPointFromImageCoords(const std::string &firstCamera , const QVec & left, const std::string & secondCamera , const QVec & right, const std::string & refSystem);
+		QVec compute3DPointFromImageAngles(const std::string &firstCamera , const QVec & left, const std::string & secondCamera , const QVec & right, const std::string & refSystem);
 		/// Frustrum
 		struct TPlane { QVec n; float d; };
 		struct TFrustrum { TPlane left; TPlane top; TPlane right; TPlane down; TPlane near; TPlane far;};

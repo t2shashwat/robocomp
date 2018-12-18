@@ -18,7 +18,7 @@
 #include "innermodelrgbd.h"
 #include <innermodel/innermodel.h>
 
-InnerModelRGBD::InnerModelRGBD(QString id_, float width, float height, float focal, float _noise, uint32_t _port, QString _ifconfig, InnerModel *innermodel_, InnerModelNode *parent_) 
+InnerModelRGBD::InnerModelRGBD(std::string id_, float width, float height, float focal, float _noise, uint32_t _port, std::string _ifconfig, InnerModel *innermodel_, std::shared_ptr<InnerModelNode> parent_) 
 : InnerModelCamera(id_, width, height, focal, innermodel_, parent_)
 {
 #if FCL_SUPPORT==1
@@ -36,14 +36,13 @@ void InnerModelRGBD::save(QTextStream &out, int tabs)
 	
 // 	<rgbd id="laser" focal="120" width="160" height="120" port="10097" ifconfig="10068,10004" />
 	for (int i=0; i<tabs; i++) out << "\t";
-	out << "<rgbd id=\"" << id << "\" width=\"" <<QString::number( width, 'g', 10) << "\" height=\"" <<QString::number(  height, 'g', 10)  << "\" focal=\"" << QString::number(camera.getFocal(), 'g', 10)
-	<<"\" port=\""<<port<<"\" ifconfig=\""<<ifconfig<<"\" noise=\""<<QString::number(noise, 'g', 10)<< "\" />\n";
+	out << "<rgbd id=\"" << id.c_str() << "\" width=\"" << std::to_string(width).c_str() << "\" height=\"" << std::to_string(height).c_str()  << "\" focal=\"" << std::to_string(camera.getFocal()).c_str() <<"\" port=\""<<port<<"\" ifconfig=\""<<ifconfig.c_str() <<"\" noise=\""<< std::to_string(noise).c_str() << "\" />\n";
 }
 
 
-InnerModelNode * InnerModelRGBD::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelRGBD::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelRGBD *ret = new InnerModelRGBD(id, width, height, focal, noise, port, ifconfig, innermodel, parent);
+	std::shared_ptr<InnerModelRGBD> ret (new InnerModelRGBD(id, width, height, focal, noise, port, ifconfig, innermodel, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -52,9 +51,9 @@ InnerModelNode * InnerModelRGBD::copyNode(QHash<QString, InnerModelNode *> &hash
 	ret->innerModel = parent->innerModel;
 
 	ret->innerModel = parent->innerModel;
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator: children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;

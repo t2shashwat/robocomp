@@ -24,7 +24,7 @@ class InnerModelJoint : public InnerModelTransform
 {
 	public:
 		InnerModelJoint();
-		InnerModelJoint(QString id_, float lx_, float ly_, float lz_, float hx_, float hy_, float hz_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float min_=-INFINITY, float max_=INFINITY, uint32_t port_=0,std::string axis_="z", float home_=0, InnerModelTransform *parent_=NULL);
+		InnerModelJoint(std::string id_, float lx_, float ly_, float lz_, float hx_, float hy_, float hz_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float min_=-INFINITY, float max_=INFINITY, uint32_t port_=0,std::string axis_="z", float home_=0, std::shared_ptr<InnerModelTransform> parent_=nullptr);
 
 		void print(bool verbose);
 		void save(QTextStream &out, int tabs);
@@ -32,7 +32,7 @@ class InnerModelJoint : public InnerModelTransform
 		float getAngle();
 		float setAngle(float angle, bool force=false);
 		QVec unitaryAxis();
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		float backl;
 		float backh;

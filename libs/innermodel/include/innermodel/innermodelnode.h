@@ -46,34 +46,34 @@ class InnerModelNode : public RTMat
 		friend class InnerModelReader;
 
 	public:
-		InnerModelNode(QString id_, InnerModelNode *parent_=NULL);
+		InnerModelNode(std::string id_, std::shared_ptr<InnerModelNode>parent_=nullptr);
 		virtual ~InnerModelNode();
 	
 		struct AttributeType
 		{
-			QString type;
-			QString value;
+			std::string type;
+			std::string value;
 		};
 		
-		void treePrint(QString s, bool verbose=false);
+		void treePrint(std::string s, bool verbose=false);
 		virtual void print(bool verbose) = 0;
-		virtual void update() = 0;
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent) = 0;
+//		virtual void update() = 0;
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent) = 0;
 		virtual void save(QTextStream &out, int tabs) = 0;
-		void setParent(InnerModelNode *parent_);
-		void addChild(InnerModelNode *child);
+		void setParent(std::shared_ptr<InnerModelNode>parent_);
+		void addChild(std::shared_ptr<InnerModelNode> child);
 		void setFixed(bool f=true);
 		bool isFixed();
 		void updateChildren();
 		
 		//protected:
-		QString id;
+		std::string id;
 		int level;
 		bool fixed;
 		InnerModel *innerModel;
-		InnerModelNode *parent;
-		QList<InnerModelNode *> children;
-		QHash<QString,AttributeType> attributes;
+		std::shared_ptr<InnerModelNode> parent;
+		std::list<std::shared_ptr<InnerModelNode>> children;
+		std::map<std::string, AttributeType> attributes;
 
 		// FCLModel
 		bool collidable;

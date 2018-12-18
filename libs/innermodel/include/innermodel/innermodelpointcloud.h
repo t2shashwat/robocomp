@@ -23,11 +23,10 @@
 class InnerModelPointCloud : public InnerModelNode
 {
 	public:
-		InnerModelPointCloud(QString id_, InnerModelNode *parent_=NULL);
+		InnerModelPointCloud(std::string id_, std::shared_ptr<InnerModelNode> parent_=nullptr);
 		void save(QTextStream &out, int tabs);
 		void print(bool verbose);
-		void update();
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 };
 
 

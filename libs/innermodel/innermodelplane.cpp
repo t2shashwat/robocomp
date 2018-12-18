@@ -17,7 +17,7 @@
 
 #include "innermodelplane.h"
 
-InnerModelPlane::InnerModelPlane(QString id_, QString texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable_, InnerModelNode *parent_) : InnerModelNode(id_, parent_)
+InnerModelPlane::InnerModelPlane(std::string id_, std::string texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable_, std::shared_ptr<InnerModelNode>parent_) : InnerModelNode(id_, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -116,7 +116,8 @@ InnerModelPlane::InnerModelPlane(QString id_, QString texture_, float width_, fl
 
 void InnerModelPlane::print(bool verbose)
 {
-	if (verbose) normal.print(QString("Plane: ")+id);
+	if (verbose) 
+		normal.print( QString::fromStdString("Plane: " + id));
 }
 
 void InnerModelPlane::update()
@@ -130,12 +131,9 @@ void InnerModelPlane::update()
 void InnerModelPlane::save(QTextStream &out, int tabs)
 {
 // 	float width, height, depth;
-	for (int i=0; i<tabs; i++) out << "\t";
-	out << "<plane id=\"" << id << "\" texture=\"" << texture << "\" size=\"" << QString::number(width,'g', 10)<<","<<QString::number( height,'g', 10)<<","
-	<<QString::number( depth,'g', 10) << "\" repeat=\"" << QString::number(repeat, 'g', 10) << "\" nx=\"" << QString::number(normal(0), 'g', 10) 
-	<< "\" ny=\"" << QString::number(normal(1), 'g', 10) << "\" nz=\"" 
-	<< QString::number(normal(2), 'g', 10) << "\" px=\"" << QString::number(point(0), 'g', 10) << "\" py=\"" << QString::number(point(1), 'g', 10) 
-	<< "\" pz=\"" << QString::number(point(2), 'g', 10) <<"\" collide=\""<< QString::number(collidable,'g',10)<< "\" />\n";
+	for (int i=0; i<tabs; i++) 
+		out << "\t";
+	out << "<plane id=\"" << id.c_str() << "\" texture=\"" << texture.c_str() << "\" size=\"" << std::to_string(width).c_str() <<","<<std::to_string(height).c_str() <<"," <<std::to_string(depth).c_str() << "\" repeat=\"" << std::to_string(repeat).c_str() << "\" nx=\"" << std::to_string(normal(0)).c_str() << "\" ny=\"" << std::to_string(normal(1)).c_str() << "\" nz=\"" << std::to_string(normal(2)).c_str() << "\" px=\"" <<std::to_string(point(0)).c_str() << "\" py=\"" << std::to_string(point(1)).c_str() << "\" pz=\"" << std::to_string(point(2)).c_str() <<"\" collide=\""<< std::to_string(collidable).c_str() << "\" />\n";
 }
 
 
@@ -166,9 +164,9 @@ void InnerModelPlane::update(float nx_, float ny_, float nz_, float px_, float p
 	fixed = true;
 }
 
-InnerModelNode * InnerModelPlane::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelPlane::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelPlane *ret = new InnerModelPlane(id, texture, width, height, depth, repeat, normal(0), normal(1), normal(2), point(0), point(1), point(2), parent);
+	std::shared_ptr<InnerModelPlane> ret(new InnerModelPlane(id, texture, width, height, depth, repeat, normal(0), normal(1), normal(2), point(0), point(1), point(2),collidable, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -177,9 +175,9 @@ InnerModelNode * InnerModelPlane::copyNode(QHash<QString, InnerModelNode *> &has
 	ret->innerModel = parent->innerModel;
 
 	ret->innerModel = parent->innerModel;
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator : children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;

@@ -23,11 +23,11 @@
 class InnerModelIMU : public InnerModelNode
 {
 	public:
-			InnerModelIMU(QString id_, uint32_t _port, InnerModelNode *parent_=NULL);
+		InnerModelIMU(std::string id_, uint32_t _port, std::shared_ptr<InnerModelNode> parent_=nullptr);
 		void save(QTextStream &out, int tabs);
 		void print(bool verbose);
 		void update();
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 	public:
 		uint32_t port;

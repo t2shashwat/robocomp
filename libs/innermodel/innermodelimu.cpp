@@ -17,7 +17,7 @@
 
 #include "innermodelimu.h"
 
-InnerModelIMU::InnerModelIMU(QString id_, uint32_t _port, InnerModelNode *parent_) : InnerModelNode(id_, parent_)
+InnerModelIMU::InnerModelIMU(std::string id_, uint32_t _port, std::shared_ptr<InnerModelNode> parent_) : InnerModelNode(id_, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -28,7 +28,7 @@ InnerModelIMU::InnerModelIMU(QString id_, uint32_t _port, InnerModelNode *parent
 void InnerModelIMU::save(QTextStream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
-	out << "<imu id=\"" << id << "\" />\n";
+	out << "<imu id=\"" << id.c_str() << "\" />\n";
 }
 
 void InnerModelIMU::print(bool verbose)
@@ -44,9 +44,9 @@ void InnerModelIMU::update()
 	updateChildren();
 }
 
-InnerModelNode * InnerModelIMU::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelIMU::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelIMU *ret = new InnerModelIMU(id, port, parent);
+	std::shared_ptr<InnerModelIMU> ret(new InnerModelIMU(id, port, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -54,9 +54,9 @@ InnerModelNode * InnerModelIMU::copyNode(QHash<QString, InnerModelNode *> &hash,
 	hash[id] = ret;
 	ret->innerModel = parent->innerModel;
 
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator: children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;

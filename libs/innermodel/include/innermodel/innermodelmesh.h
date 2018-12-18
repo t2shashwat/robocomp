@@ -127,18 +127,18 @@ class InnerModelMesh : public InnerModelNode
 {
 	public:
 			enum RenderingModes { NormalRendering=0, WireframeRendering=1};		
-			InnerModelMesh(QString id_, QString meshPath_, float scale, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable, InnerModelNode *parent_=NULL);
-			InnerModelMesh(QString id_, QString meshPath_, float scalex_, float scaley_, float scalez_, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable, InnerModelNode *parent_=NULL);
+			InnerModelMesh(std::string id_, std::string meshPath_, float scale, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable, std::shared_ptr<InnerModelNode> parent_=nullptr);
+			InnerModelMesh(std::string id_, std::string meshPath_, float scalex_, float scaley_, float scalez_, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable, std::shared_ptr<InnerModelNode> parent_=nullptr);
 			void save(QTextStream &out, int tabs);
 			void print(bool verbose);
 			void update();
 			void setScale(float x, float y, float z);
 			bool normalRendering() const;
 			bool wireframeRendering() const;
-			virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+			virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 			RenderingModes render;
-			QString meshPath;
+			std::string meshPath;
 			float scalex, scaley, scalez;
 			float tx, ty, tz;
 			float rx, ry, rz;

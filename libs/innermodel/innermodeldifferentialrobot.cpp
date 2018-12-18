@@ -17,7 +17,7 @@
 
 #include "innermodeldifferentialrobot.h"
 
-InnerModelDifferentialRobot::InnerModelDifferentialRobot(QString id_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, uint32_t port_, float noise_, bool collide_, InnerModelTransform *parent_) : InnerModelTransform(id_,QString("static"),tx_,ty_,tz_,rx_,ry_,rz_, 0, parent_)
+InnerModelDifferentialRobot::InnerModelDifferentialRobot(std::string id_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, uint32_t port_, float noise_, bool collide_, std::shared_ptr<InnerModelTransform> parent_) : InnerModelTransform(id_, "static",tx_,ty_,tz_,rx_,ry_,rz_, 0, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -27,9 +27,9 @@ InnerModelDifferentialRobot::InnerModelDifferentialRobot(QString id_, float tx_,
 	collide = collide_;
 }
 
-InnerModelNode * InnerModelDifferentialRobot::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelDifferentialRobot::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode>parent)
 {
-	InnerModelDifferentialRobot *ret = new InnerModelDifferentialRobot(id, backtX, backtY, backtZ, backrX, backrY, backrZ, port, noise, (InnerModelTransform *)parent);
+	std::shared_ptr<InnerModelDifferentialRobot> ret(new InnerModelDifferentialRobot(id, backtX, backtY, backtZ, backrX, backrY, backrZ, port, noise, collide, std::static_pointer_cast<InnerModelTransform>(parent)));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -39,9 +39,9 @@ InnerModelNode * InnerModelDifferentialRobot::copyNode(QHash<QString, InnerModel
 
 	ret->innerModel = parent->innerModel;
 
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator : children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;

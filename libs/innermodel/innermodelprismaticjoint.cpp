@@ -17,7 +17,7 @@
 
 #include "innermodelprismaticjoint.h"
 
-InnerModelPrismaticJoint::InnerModelPrismaticJoint(QString id_, float min_, float max_, float val_, float offset_, uint32_t port_, std::string axis_, float home_, InnerModelTransform *parent_) : InnerModelTransform(id_,QString("static"),0,0,0,0,0,0, 0, parent_)
+InnerModelPrismaticJoint::InnerModelPrismaticJoint(std::string id_, float min_, float max_, float val_, float offset_, uint32_t port_, std::string axis_, float home_, std::shared_ptr<InnerModelTransform> parent_) : InnerModelTransform(id_, "static" ,0,0,0,0,0,0, 0, parent_)
 {
 	#if FCL_SUPPORT==1
 		collisionObject = NULL;
@@ -34,11 +34,11 @@ InnerModelPrismaticJoint::InnerModelPrismaticJoint(QString id_, float min_, floa
 
 void InnerModelPrismaticJoint::print(bool verbose)
 {
-	printf("Prismatic Joint: %s\n", qPrintable(id));
+	std::cout << "Prismatic Joint: " << id <<std::endl;
 	if (verbose)
 	{
-		((QMat *)this)->print(qPrintable(id));
-		getTr().print(id+"_T");
+		((QMat *)this)->print(QString::fromStdString(id));
+		getTr().print(QString::fromStdString(id+"_T"));
 	}
 }
 
@@ -87,16 +87,14 @@ float InnerModelPrismaticJoint::setPosition(float v)
 	}
 	else
 	{
-		QString error;
-		error.sprintf("internal error, no such axis %s\n", axis.c_str());
-		throw error;
+		throw std::string("internal error, no such axis " + axis);
 	}
 	return ret;
 }
 
-InnerModelNode * InnerModelPrismaticJoint::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelPrismaticJoint::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelPrismaticJoint *ret = new InnerModelPrismaticJoint(id, min, max, value, offset, port, axis, home, (InnerModelTransform *) parent);
+	std::shared_ptr<InnerModelPrismaticJoint> ret (new InnerModelPrismaticJoint(id, min, max, value, offset, port, axis, home, std::static_pointer_cast<InnerModelTransform>(parent)));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -104,9 +102,9 @@ InnerModelNode * InnerModelPrismaticJoint::copyNode(QHash<QString, InnerModelNod
 	hash[id] = ret;
 	ret->innerModel = parent->innerModel;
 
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator : children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;

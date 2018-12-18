@@ -20,19 +20,19 @@
 
 class InnerModel;
 
-InnerModelJoint::InnerModelJoint() : InnerModelTransform("invalid",QString("static"), 0,0,0, 0,0,0, 0, NULL)
+InnerModelJoint::InnerModelJoint() : InnerModelTransform("invalid","static", 0,0,0, 0,0,0, 0, NULL)
 {
 	throw std::string("Can't actually build InnerModelJoint using the default constructor");
 }
 
-InnerModelJoint::InnerModelJoint(QString id_, float lx_, float ly_, float lz_, float hx_, float hy_, float hz_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float min_, float max_, uint32_t port_, std::string axis_, float home_, InnerModelTransform *parent_) : InnerModelTransform(id_,QString("static"),tx_,ty_,tz_,rx_,ry_,rz_, 0, parent_)
+InnerModelJoint::InnerModelJoint(std::string id_, float lx_, float ly_, float lz_, float hx_, float hy_, float hz_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float min_, float max_, uint32_t port_, std::string axis_, float home_, std::shared_ptr<InnerModelTransform> parent_) : InnerModelTransform(id_,"static" ,tx_,ty_,tz_,rx_,ry_,rz_, 0, parent_)
 {
 	
 	#if FCL_SUPPORT==1
 	collisionObject = NULL;
 	#endif
 
-		min = min_;
+	min = min_;
 	max = max_;
 	home = home_;
 	port = port_;
@@ -57,19 +57,17 @@ InnerModelJoint::InnerModelJoint(QString id_, float lx_, float ly_, float lz_, f
 	}
 	else
 	{
-		QString error;
-		error.sprintf("internal error, no such axis %s\n", axis.c_str());
-		throw error;
+		throw std::string("internal error, no such axis " + axis);
 	}
 }
 
 void InnerModelJoint::print(bool verbose)
 {
-	printf("Joint: %s\n", qPrintable(id));
+	std::cout <<"Joint: " << id <<std::endl;
 	if (verbose)
 	{
-		((QMat *)this)->print(qPrintable(id));
-		getTr().print(id+"_T");
+		((QMat *)this)->print(QString::fromStdString(id));
+		getTr().print(QString::fromStdString(id+"_T"));
 		//extractAnglesR().print(id+"_R");
 	}
 }
@@ -80,17 +78,17 @@ void InnerModelJoint::save(QTextStream &out, int tabs)
 	for (int i=0; i<tabs; i++)
 		out << "\t";
 
-	out << "<joint id=\"" << id << "\" port=\"" << port << "\" axis=\"" <<QString::fromStdString(axis);
+	out << "<joint id=\"" << id.c_str() << "\" port=\"" << port << "\" axis=\"" << axis.c_str() ;
 
-	out << "\" home=\"" << QString::number(home, 'g', 10);
-	out << "\" min=\"" << QString::number(min, 'g', 10) << "\" max=\"" << QString::number(max, 'g', 10);
-	out << "\" tx=\"" << QString::number(backtX, 'g', 10) << "\" ty=\"" << QString::number(backtY, 'g', 10) <<"\" tz=\""<< QString::number(backtZ, 'g', 10);
-	out << "\" rx=\"" << QString::number(backrX, 'g', 10) << "\" ry=\"" << QString::number(backrY, 'g', 10) << "\" rz=\"" << QString::number(backrZ, 'g', 10);
+	out << "\" home=\"" << std::to_string(home).c_str();
+	out << "\" min=\"" << std::to_string(min).c_str() << "\" max=\"" << std::to_string(max).c_str();
+	out << "\" tx=\"" << std::to_string(backtX).c_str() << "\" ty=\"" << std::to_string(backtY).c_str() <<"\" tz=\""<< std::to_string(backtZ).c_str();
+	out << "\" rx=\"" << std::to_string(backrX).c_str() << "\" ry=\"" << std::to_string(backrY).c_str() << "\" rz=\"" << std::to_string(backrZ).c_str();
 
 	out << "\">\n";
 
-	for (c=children.begin(); c!=children.end(); c++)
-			(*c)->save(out, tabs+1);
+	for (auto c : children)
+			c->save(out, tabs+1);
 
 	for (int i=0; i<tabs; i++) out << "\t";
 	out << "</joint>\n";
@@ -162,12 +160,10 @@ float InnerModelJoint::setAngle(float angle, bool force)
 	}
 	else
 	{
-		QString error;
-		error.sprintf("internal error, no such axis %s\n", axis.c_str());
-		throw error;
+		throw std::string("internal error, no such axis " + axis);
 	}
 
-	printf("%p %ld\n", innerModel, (long int)innerModel);
+	std::cout << innerModel << (long int)innerModel << std::endl;
 	if (innerModel != nullptr)
 		innerModel->cleanupTables();
 	return ret;
@@ -181,24 +177,24 @@ QVec InnerModelJoint::unitaryAxis()
 	return QVec::zeros(3);
 }
 
-InnerModelNode * InnerModelJoint::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelJoint::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelJoint *ret;
+	std::shared_ptr<InnerModelJoint> ret;
 	if (axis == "x")
 	{
-		ret = new InnerModelJoint(id, backl,0,0, backh,0,0, backtX, backtY, backtZ, backrX, 0, 0, min, max, port, axis, home, (InnerModelTransform *)parent);
+		std::shared_ptr<InnerModelJoint> ret(new InnerModelJoint(id, backl,0,0, backh,0,0, backtX, backtY, backtZ, backrX, 0, 0, min, max, port, axis, home, std::static_pointer_cast<InnerModelTransform>(parent)));
 	}
 	else if (axis == "y")
 	{
-		ret = new InnerModelJoint(id, 0,backl,0, 0,backh,0, backtX, backtY, backtZ, 0, backrY, 0, min, max, port, axis, home, (InnerModelTransform *)parent);
+		std::shared_ptr<InnerModelJoint> ret(new InnerModelJoint(id, 0,backl,0, 0,backh,0, backtX, backtY, backtZ, 0, backrY, 0, min, max, port, axis, home, std::static_pointer_cast<InnerModelTransform>(parent)));
 	}
 	else if (axis == "z")
 	{
-		ret = new InnerModelJoint(id, 0,0,backl, 0,0,backh, backtX, backtY, backtZ, 0, 0, backrZ, min, max, port, axis, home, (InnerModelTransform *)parent);
+		std::shared_ptr<InnerModelJoint> ret(new InnerModelJoint(id, 0,0,backl, 0,0,backh, backtX, backtY, backtZ, 0, 0, backrZ, min, max, port, axis, home, std::static_pointer_cast<InnerModelTransform>(parent)));
 	}
 	else
 	{
-		fprintf(stderr, "InnerModel internal error: invalid axis %s.\n", axis.c_str());
+		std::cout << stderr << "InnerModel internal error: invalid axis " << axis << std::endl;
 		exit(-1);
 	}
 
@@ -208,9 +204,9 @@ InnerModelNode * InnerModelJoint::copyNode(QHash<QString, InnerModelNode *> &has
 	ret->attributes.clear();
 	hash[id] = ret;
 	ret->innerModel = parent->innerModel;
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator: children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 	ret->setAngle(getAngle());
 

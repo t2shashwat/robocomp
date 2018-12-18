@@ -17,7 +17,7 @@
 
 #include "innermodeltouchsensor.h"
 
-InnerModelTouchSensor::InnerModelTouchSensor(QString id_, QString stype_, float nx_, float ny_, float nz_, float min_, float max_, uint32_t port_, InnerModelNode *parent_) : InnerModelNode(id_, parent_)
+InnerModelTouchSensor::InnerModelTouchSensor(std::string id_, std::string stype_, float nx_, float ny_, float nz_, float min_, float max_, uint32_t port_, std::shared_ptr<InnerModelNode> parent_) : InnerModelNode(id_, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -33,9 +33,9 @@ InnerModelTouchSensor::InnerModelTouchSensor(QString id_, QString stype_, float 
 	port = port_;
 }
 
-InnerModelNode * InnerModelTouchSensor::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
+std::shared_ptr<InnerModelNode> InnerModelTouchSensor::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	InnerModelTouchSensor *ret = new InnerModelTouchSensor(id, stype, nx, ny, nz, min, max, port, parent);
+	std::shared_ptr<InnerModelTouchSensor> ret(new InnerModelTouchSensor(id, stype, nx, ny, nz, min, max, port, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -44,9 +44,9 @@ InnerModelNode * InnerModelTouchSensor::copyNode(QHash<QString, InnerModelNode *
 	ret->innerModel = parent->innerModel;
 
 	ret->innerModel = parent->innerModel;
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator: children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;

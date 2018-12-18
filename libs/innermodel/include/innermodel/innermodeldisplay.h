@@ -27,17 +27,16 @@
  class InnerModelDisplay : public InnerModelNode
  {
  	public:
-    InnerModelDisplay(QString id_, uint32_t port_, QString texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable_, InnerModelNode *parent_=NULL);
-    void updateTexture(QString texture_);
+    InnerModelDisplay(std::string id_, uint32_t port_, std::string texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable_, std::shared_ptr<InnerModelNode>parent_=nullptr);
+    void updateTexture(std::string texture_);
     void print(bool verbose);
     void save(QTextStream &out, int tabs);
     void setUpdatePointers(float *nx_, float *ny_, float *nz_, float *px_, float *py_, float *pz_);
-    void update();
     void update(float nx_, float ny_, float nz_, float px_, float py_, float pz_);
-    virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+    virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
     QVec normal, point;
-    QString texture;
+    std::string texture;
     uint32_t port;
     int repeat;
     float width, height, depth;

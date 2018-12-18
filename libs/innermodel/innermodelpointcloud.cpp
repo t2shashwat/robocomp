@@ -17,7 +17,7 @@
 
 #include "innermodelpointcloud.h"
 
-InnerModelPointCloud::InnerModelPointCloud(QString id_, InnerModelNode *parent_) : InnerModelNode(id_, parent_)
+InnerModelPointCloud::InnerModelPointCloud(std::string id_, std::shared_ptr<InnerModelNode> parent_) : InnerModelNode(id_, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -28,25 +28,18 @@ InnerModelPointCloud::InnerModelPointCloud(QString id_, InnerModelNode *parent_)
 void InnerModelPointCloud::save(QTextStream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
-	out << "<pointcloud id=\""<<id<<"\"/>\n";
+	out << "<pointcloud id=\""<<id.c_str()<<"\"/>\n";
 }
 
 void InnerModelPointCloud::print(bool verbose)
 {
-	if (verbose) printf("Point Cloud: %s\n", qPrintable(id));
+	if (verbose) 
+		std::cout << "Point Cloud: " << id << std::endl;
 }
 
-void InnerModelPointCloud::update()
+std::shared_ptr<InnerModelNode> InnerModelPointCloud::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
-	if (fixed)
-	{
-	}
-	updateChildren();
-}
-
-InnerModelNode * InnerModelPointCloud::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
-{
-	InnerModelPointCloud *ret = new InnerModelPointCloud(id, parent);
+	std::shared_ptr<InnerModelPointCloud> ret(new InnerModelPointCloud(id, parent));
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();
@@ -55,9 +48,9 @@ InnerModelNode * InnerModelPointCloud::copyNode(QHash<QString, InnerModelNode *>
 	ret->innerModel = parent->innerModel;
 
 	ret->innerModel = parent->innerModel;
-	for (QList<InnerModelNode*>::iterator i=children.begin(); i!=children.end(); i++)
+	for (auto iterator : children)
 	{
-		ret->addChild((*i)->copyNode(hash, ret));
+		ret->addChild(iterator->copyNode(hash, ret));
 	}
 
 	return ret;

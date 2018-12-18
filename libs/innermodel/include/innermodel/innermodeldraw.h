@@ -34,9 +34,9 @@ class InnerModelDraw
 {
 public:
 	InnerModelDraw(){};
-	static void addMesh_ignoreExisting(InnerModelViewer *innerViewer, QString a, QString parent, QVec t, QVec r, QString path, QVec scale);
-	static bool addTransform(InnerModelViewer *innerViewer, QString a, QString b/*, const RoboCompInnerModelManager::Pose3D & m*/);
-	static bool addTransform_ignoreExisting(InnerModelViewer *innerViewer, QString a, QString b/*, const RoboCompInnerModelManager::Pose3D & m*/);
+	static void addMesh_ignoreExisting(InnerModelViewer *innerViewer, std::string a, std::string parent, QVec t, QVec r, std::string path, QVec scale);
+	static bool addTransform(InnerModelViewer *innerViewer, std::string a, std::string b/*, const RoboCompInnerModelManager::Pose3D & m*/);
+	static bool addTransform_ignoreExisting(InnerModelViewer *innerViewer, std::string a, std::string b/*, const RoboCompInnerModelManager::Pose3D & m*/);
  /**
  * @brief Draws a segment parallel to the floor defined with a normalVector and the position of its center
  * 
@@ -50,7 +50,7 @@ public:
  * @param texture color defined as the string: #rrggbb
  * @return void
  */
-	static void drawLine(InnerModelViewer *innerViewer, QString name, QString parent, const QVec &normalVector, const QVec &center, float length, float width, QString texture = "#550000");
+	static void drawLine(InnerModelViewer *innerViewer, std::string name, std::string parent, const QVec &normalVector, const QVec &center, float length, float width, std::string texture = "#550000");
  /**
  * @brief Draws a line parallel the floor between point p1 and p2 wrt to the parent coordinate system
  * 
@@ -64,14 +64,14 @@ public:
  * @return void
  */
 	
-	static void drawLine2Points(InnerModelViewer *innerViewer, QString name, QString parent, const QVec& p1, const QVec& p2, float width, QString texture);
-	static bool removeObject(InnerModelViewer *innerViewer, QString name);
-	static bool removeNode(InnerModelViewer *innerViewer, const QString &item);
-	static bool addPlane_ignoreExisting(InnerModelViewer *innerViewer, const QString &a, const QString &b, const QVec &p, const QVec &n, const QString &texture, const QVec &size);
-	static bool addPlane_notExisting(   InnerModelViewer *innerViewer, const QString &a, const QString &b, const QVec &p, const QVec &n, const QString &texture, const QVec &size);
-	static bool setScale(InnerModelViewer *innerViewer, const QString item, float scaleX, float scaleY, float scaleZ);
-	static bool setPlaneTexture(InnerModelViewer *innerViewer, const QString item, QString texture);
-	static bool addJoint(InnerModelViewer* innerViewer, const QString item, const QString base, QVec t, QVec r, QString axis);
+	static void drawLine2Points(InnerModelViewer *innerViewer, std::string name, std::string parent, const QVec& p1, const QVec& p2, float width, std::string texture);
+	static bool removeObject(InnerModelViewer *innerViewer, std::string name);
+	static bool removeNode(InnerModelViewer *innerViewer, const std::string &item);
+	static bool addPlane_ignoreExisting(InnerModelViewer *innerViewer, const std::string &a, const std::string &b, const QVec &p, const QVec &n, const std::string &texture, const QVec &size);
+	static bool addPlane_notExisting(   InnerModelViewer *innerViewer, const std::string &a, const std::string &b, const QVec &p, const QVec &n, const std::string &texture, const QVec &size);
+	static bool setScale(InnerModelViewer *innerViewer, const std::string item, float scaleX, float scaleY, float scaleZ);
+	static bool setPlaneTexture(InnerModelViewer *innerViewer, const std::string item, std::string texture);
+	static bool addJoint(InnerModelViewer* innerViewer, const std::string item, const std::string base, QVec t, QVec r, std::string axis);
 
 };
 

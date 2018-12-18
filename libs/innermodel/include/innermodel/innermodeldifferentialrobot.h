@@ -23,8 +23,8 @@
 class InnerModelDifferentialRobot : public InnerModelTransform
 {
 	public:
-		InnerModelDifferentialRobot(QString id_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, uint32_t port_=0, float noise=0, bool collide=false, InnerModelTransform *parent_=NULL);
-		virtual InnerModelNode *copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent);
+		InnerModelDifferentialRobot(std::string id_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, uint32_t port_=0, float noise=0, bool collide=false, std::shared_ptr<InnerModelTransform> parent_=nullptr);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		uint32_t port;
 		float noise;

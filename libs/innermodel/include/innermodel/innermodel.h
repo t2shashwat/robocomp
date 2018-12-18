@@ -46,6 +46,7 @@
 // #include <osg/Geode>
 
 
+
 #ifdef PYTHON_BINDINGS_SUPPORT
 #include <boost/python/stl_iterator.hpp>
 #endif
@@ -73,35 +74,37 @@ public:
 
 	/////////////////////////
 	bool open(std::string xmlFilePath);
-	bool save(QString path);
+	bool save(std::string path);
 	InnerModel* copy();
-	void ChangeHash(QString new_id, InnerModelNode *node);
+	void ChangeHash(std::string new_id, std::shared_ptr<InnerModelNode> node);
 
 	///////////////////////
 	/// Tree update methods
 	///////////////////////
-	void setRoot(InnerModelNode *node);
+	void setRoot(std::shared_ptr<InnerModelNode> node);
 	void update();
-	void setUpdateRotationPointers(QString rotationId, float *x, float *y, float *z);
-	void setUpdateTranslationPointers(QString translationId, float *x, float *y, float *z);
-	void setUpdatePlanePointers(QString planeId, float *nx, float *ny, float *nz, float *px, float *py, float *pz);
-	void setUpdateTransformPointers(QString transformId, float *tx, float *ty, float *tz, float *rx, float *ry, float *rz);
+//TODO REMOVE
+//	void setUpdateRotationPointers(QString rotationId, float *x, float *y, float *z);
+//	void setUpdateTranslationPointers(QString translationId, float *x, float *y, float *z);
+//	void setUpdatePlanePointers(QString planeId, float *nx, float *ny, float *nz, float *px, float *py, float *pz);
+//	void setUpdateTransformPointers(std::string transformId, float *tx, float *ty, float *tz, float *rx, float *ry, float *rz);
 	void cleanupTables();
-	void updateTransformValues(QString transformId, float tx, float ty, float tz, float rx, float ry, float rz, QString parentId="");
-	void updateTransformValues(QString transformId, QVec v, QString parentId="");
+/*	void updateTransformValues(std::string transformId, float tx, float ty, float tz, float rx, float ry, float rz, QString parentId="");
+	void updateTransformValues(std::string transformId, QVec v, std::string parentId="");
 	void updateTransformValuesS(std::string transformId, float tx, float ty, float tz, float rx, float ry, float rz, std::string parentId="");
 	void updateTransformValuesS(std::string transformId, QVec v, std::string parentId="");
-	void updateTranslationValues(QString transformId, float tx, float ty, float tz, QString parentId="");
-	void updateRotationValues(QString transformId, float rx, float ry, float rz,QString parentId="");
-	void updateJointValue(QString jointId, float angle, bool force=false);
-	void updatePrismaticJointPosition(QString jointId, float position);
-	void updatePlaneValues(QString planeId, float nx, float ny, float nz, float px, float py, float pz);
-	void updateDisplay(QString displayId, QString texture);
-	
+	void updateTranslationValues(std::string transformId, float tx, float ty, float tz, std::string parentId="");
+	void updateRotationValues(std::string transformId, float rx, float ry, float rz,std::string parentId="");
+	void updateJointValue(std::string jointId, float angle, bool force=false);
+	void updatePrismaticJointPosition(std::string jointId, float position);
+	void updatePlaneValues(std::string planeId, float nx, float ny, float nz, float px, float py, float pz);
+	void updateDisplay(std::string displayId, std::string texture);
+*/	
 	////////////////////////////////
 	/// Factory constructors
 	///////////////////////////////
-	InnerModelTransform* newTransform(QString id, QString engine, InnerModelNode *parent, float tx=0, float ty=0, float tz=0, float rx=0, float ry=0, float rz=0, float mass=0);
+//TODO REMOVE	
+/*	InnerModelTransform* newTransform(QString id, QString engine, InnerModelNode *parent, float tx=0, float ty=0, float tz=0, float rx=0, float ry=0, float rz=0, float mass=0);
 	InnerModelJoint* newJoint(QString id, InnerModelTransform* parent, float lx = 0, float ly = 0, float lz = 0, float hx = 0, float hy = 0, float hz = 0,  float tx = 0, float ty = 0, float tz = 0, float rx = 0, float ry = 0, float rz = 0, float min=-INFINITY, float max=INFINITY, uint32_t port = 0, std::string axis = "z", float home=0);
 	InnerModelTouchSensor* newTouchSensor(QString id, InnerModelTransform* parent, QString type, float nx = 0, float ny = 0, float nz = 0, float min=0, float max=INFINITY, uint32_t port=0);
 	InnerModelPrismaticJoint* newPrismaticJoint(QString id, InnerModelTransform* parent, float min=-INFINITY, float max=INFINITY, float value=0, float offset=0, uint32_t port = 0, std::string axis = "z", float home=0);
@@ -133,76 +136,73 @@ public:
 	InnerModelPlane *getPlane(const QString &id)                         { return getNode<InnerModelPlane>(id); }
 	InnerModelMesh *getMesh(const QString &id)                           { return getNode<InnerModelMesh>(id); }
 	InnerModelPointCloud *getPointCloud(const QString &id)               { return getNode<InnerModelPointCloud>(id); }
-
+*/
 	///////////////////////////////////
 	/// Kinematic transformation methods
 	////////////////////////////////////
-	QVec transform(  const QString & destId, const QVec &origVec, const QString & origId);
-	QVec transform(  const QString &destId, const QString & origId) { return transform(destId, QVec::vec3(0,0,0), origId); };
-	QVec transformS( const std::string &destId, const QVec &origVec, const std::string & origId);
-	QVec transformS( const std::string &destId, const std::string &origId) { return transform(QString::fromStdString(destId), QVec::vec3(0,0,0), QString::fromStdString(origId)); }
+	QVec transform(  const std::string & destId, const QVec &origVec, const std::string & origId);
+	QVec transform(  const std::string &destId, const std::string & origId) { return transform(destId, QVec::vec3(0,0,0), origId); };
+//	QVec transformS( const std::string &destId, const QVec &origVec, const std::string & origId);
+//	QVec transformS( const std::string &destId, const std::string &origId) { return transform(QString::fromStdString(destId), QVec::vec3(0,0,0), QString::fromStdString(origId)); }
 
-	QVec transform6D(const QString &destId, const QVec &origVec, const QString & origId) { Q_ASSERT(origVec.size() == 6); return transform(destId, origVec, origId); }
-	QVec transform6D(const QString &destId, const QString & origId) { return transform(destId, QVec::vec6(0,0,0,0,0,0), origId); }
-	QVec transformS6D(const std::string &destId, const std::string & origId) 
-		{ return transform(QString::fromStdString(destId), QVec::vec6(0,0,0,0,0,0), QString::fromStdString(origId)); }
-	QVec transformS6D(const std::string &destId, const QVec &origVec, const std::string & origId) 
-		{ return transform(QString::fromStdString(destId), origVec, QString::fromStdString(origId)); }
+	QVec transform6D(const std::string &destId, const QVec &origVec, const std::string & origId) { Q_ASSERT(origVec.size() == 6); return transform(destId, origVec, origId); }
+	QVec transform6D(const std::string &destId, const std::string & origId) { return transform(destId, QVec::vec6(0,0,0,0,0,0), origId); }
+//	QVec transformS6D(const std::string &destId, const std::string & origId) 
+//		{ return transform(QString::fromStdString(destId), QVec::vec6(0,0,0,0,0,0), QString::fromStdString(origId)); }
+//	QVec transformS6D(const std::string &destId, const QVec &origVec, const std::string & origId) 
+//		{ return transform(QString::fromStdString(destId), origVec, QString::fromStdString(origId)); }
 	
 	////////////////////////////////////////////
 	/// Transformation matrix retrieval methods
 	///////////////////////////////////////////
-	RTMat getTransformationMatrix(const QString &destId, const QString &origId);
-	RTMat getTransformationMatrixS(const std::string &destId, const std::string &origId);
-	QMat getRotationMatrixTo(const QString &to, const QString &from);
-	QVec getTranslationVectorTo(const QString &to, const QString &from);
-	QVec rotationAngles(const QString & destId, const QString & origId);
+	RTMat getTransformationMatrix(const std::string &destId, const std::string &origId);
+//	RTMat getTransformationMatrixS(const std::string &destId, const std::string &origId);
+	QMat getRotationMatrixTo(const std::string &to, const std::string &from);
+	QVec getTranslationVectorTo(const std::string &to, const std::string &from);
+	QVec rotationAngles(const std::string & destId, const std::string & origId);
 
-	/////////////////////////////////////////////
-	/// Graoh editing methods
-	/////////////////////////////////////////////
-	QList<QString> getIDKeys() {return hash.keys(); }
-	InnerModelNode *getNode(const QString & id) const { /*QMutexLocker ml(mutex); */if (hash.contains(id)) return hash[id]; else return NULL;}
+
+	////////////////////////////////
+	/// Factory constructor/accessor
+	///////////////////////////////
 	
-	template <class N> N* getNode(const std::string &id) const
-	{
-		N* r = dynamic_cast<N *>(getNode(QString::fromStdString(id)));
-		if (not r)
-		{
-			QString error;
-			if (not hash[QString::fromStdString(id)])
-				error.sprintf("No such joint %s", id.c_str());
-			else
-				error.sprintf("%s doesn't seem to be a joint", id.c_str());
-			throw error;
-		}
-		return r;
-	}
-
-	template <class N> N* getNode(const QString &id) const
-	{
-		N* r = dynamic_cast<N *>(getNode(id));
-		if (not r)
-		{
-			QString error;
-			if (not hash[id])
-				error.sprintf("No such joint %s", id.toStdString().c_str());
-			else
-				error.sprintf("%s doesn't seem to be a joint", id.toStdString().c_str());
-			throw error;
-		}
-		return r;
+	/// New constructor
+	template<typename T, typename... Ts>
+	std::shared_ptr<T> newNode(Ts&&... params);
+	
+	std::list<std::string> getIDKeys()
+	{	
+		std::list<std::string> keys;
+		for (auto const& element : hash)
+			keys.push_back(element.first);
+		return keys; 
 	}
 	
-	void removeSubTree(InnerModelNode *item, QStringList *l);
-	void removeNode(const QString & id);
-	void moveSubTree(InnerModelNode *nodeSrc, InnerModelNode *nodeDst);
-	void getSubTree(InnerModelNode *node, QStringList *l);
-	void getSubTree(InnerModelNode *node, QList<InnerModelNode *> *l);
-	void computeLevels(InnerModelNode *node);
-	InnerModelNode *getRoot() { return root; }
-	QString getParentIdentifier(QString id);
-	std::string getParentIdentifierS(std::string id);
+	template <typename N> 
+	std::shared_ptr<N> getNode(const std::string &id) 
+	{
+		return std::dynamic_pointer_cast<N>(hash.at(id));
+	}
+	
+	template <typename N> 
+	std::shared_ptr<N> getNode(const std::string &id) const
+	{
+		return std::dynamic_pointer_cast<N>(hash.at(id));
+	}
+
+	/////////////////////////////////////////////
+	/// Graph editing methods
+	/////////////////////////////////////////////
+	
+	void removeSubTree(std::shared_ptr<InnerModelNode> node, std::list<std::string> *l);
+	void removeNode(const std::string & id);
+	void moveSubTree(std::shared_ptr<InnerModelNode>  nodeSrc, std::shared_ptr<InnerModelNode> nodeDst);
+	void getSubTree(std::shared_ptr<InnerModelNode> node, std::list<std::string> *l);
+	void getSubTree(std::shared_ptr<InnerModelNode> node, std::list<std::shared_ptr<InnerModelNode> > *l);
+	void computeLevels(std::shared_ptr<InnerModelNode> node);
+	std::shared_ptr<InnerModelNode> getRoot() { return root; }
+	std::string getParentIdentifier(std::string id);
+//	std::string getParentIdentifierS(std::string id);
 
 	/////////////////////
 	/// Set debug level
@@ -212,12 +212,12 @@ public:
 	////////////////////////////
 	// FCL related
 	////////////////////////////
-	bool collidable(const QString &a);
-	bool collide(const QString &a, const QString &b);
-	float distance(const QString &a, const QString &b);
+	bool collidable(const std::string &a);
+	bool collide(const std::string &a, const std::string &b);
+	float distance(const std::string &a, const std::string &b);
 
 #if FCL_SUPPORT==1
-	bool collide(const QString &a, const fcl::CollisionObject *obj);
+	bool collide(const std::string &a, const fcl::CollisionObject *obj);
 #endif
 
 	/**
@@ -227,18 +227,18 @@ public:
 		* @param motores value of motro joints where the jacobian will be evaluated
 		* @param endEffector name of end effector of the kin. chain. It can be an element further away than the last in listaJoint.
 		* @return RMat::QMat Jacobian as MxN matrix of evaluated partial derivatives. M=joints, N=6 (pose cartesian coordinates of the endEffector) (CHECK ORDER)
-		*/
+	*/
 	QMat jacobian(QStringList &listaJoints, const QVec &motores, const QString &endEffector);
-	QMat jacobianS(std::vector<std::string> &listaJoints, const QVec &motores, const std::string &endEffector)
+/*	QMat jacobianS(std::vector<std::string> &listaJoints, const QVec &motores, const std::string &endEffector)
 	{
-		QStringList listaJointQ/* = QStringList::fromStdList(listaJoints)*/;
+		QStringList listaJointQ;//* = QStringList::fromStdList(listaJoints);
 		for (auto e : listaJoints)
 		{
 			listaJointQ.push_back(QString::fromStdString(e));
 		}
 		return jacobian(listaJointQ, motores, QString::fromStdString(endEffector));
 	}
-
+*/
 #ifdef PYTHON_BINDINGS_SUPPORT
 	QMat jacobianSPython(const  boost::python::list &listaJointsP, const QVec &motores, const std::string &endEffector)
 	{
@@ -251,13 +251,13 @@ public:
 	///////////////////////////////////////
 	/// Auxiliary methods
 	//////////////////////////////////////
-	void print(QString s="") { treePrint(s, true); }
-	void treePrint(QString s="", bool verbose=false) { root->treePrint(QString(s), verbose); }
+	void print(std::string s="") { treePrint(s, true); }
+	void treePrint(std::string s="", bool verbose=false) { root->treePrint(s, verbose); }
 
 	////////////////
 	/// Laser stuff DEPRECATED
 	////////////////
-	QVec laserTo(const QString &dest, const QString & laserId , float r, float alfa)
+	QVec laserTo(const std::string &dest, const std::string & laserId , float r, float alfa)
 	{
 		//qDebug() << __FUNCTION__ << "DEPRECATED. Use getNode<InnerModelLaser>(laserId)->laserTo(dest,laserId, r, alfa) ";
 		return getNode<InnerModelLaser>(laserId)->laserTo(dest, r, alfa);
@@ -267,13 +267,15 @@ public:
 	mutable std::recursive_mutex mutex;
 
 protected:
-	InnerModelNode *root;
-	QHash<QString, InnerModelNode *> hash;
-	QHash<QPair<QString, QString>, RTMat> localHashTr;
-	QHash<QPair<QString, QString>, QMat> localHashRot;
+	std::shared_ptr<InnerModelNode> root;
+	std::map<std::string, std::shared_ptr<InnerModelNode>> hash;
+	std::map<std::pair<std::string, std::string>, RTMat> localHashTr;
+	std::map<std::pair<std::string, std::string>, QMat> localHashRot;
+	//QHash<QPair<std::string, std::string>, RTMat> localHashTr;
+	//QHash<QPair<std::string, std::string>, QMat> localHashRot;
 
-	void setLists(const QString &origId, const QString &destId);
-	QList<InnerModelNode *> listA, listB;
+	void setLists(const std::string &origId, const std::string &destId);
+	std::list<std::shared_ptr<InnerModelNode>> listA, listB;
 };
 #endif
 

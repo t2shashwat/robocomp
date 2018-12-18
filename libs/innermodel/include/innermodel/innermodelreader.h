@@ -35,8 +35,8 @@ public:
 	static bool load(const QString &file, InnerModel *model);
 	
 private:
-	static bool include(const QString &file, InnerModel *model, InnerModelNode *node);
-	static void recursive(QDomNode parentDomNode, InnerModel *model, InnerModelNode *imNode);
+	static bool include(const QString &file, InnerModel *model, std::shared_ptr<InnerModelNode> node);
+	static void recursive(QDomNode parentDomNode, InnerModel *model, std::shared_ptr<InnerModelNode> imNode);
 	static QMap<QString, QStringList> getValidNodeAttributes();
 };
 
