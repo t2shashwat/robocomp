@@ -23,6 +23,7 @@
 #include <Ice/Ice.h>
 #include <OmniRobot.h>
 #include <innermodel/innermodel.h>
+#include <innermodel/innermodeltransform.h>
 
 // Simulator includes
 #include "config.h"
@@ -36,7 +37,7 @@ class OmniRobotI : public QThread, public virtual RoboCompOmniRobot::OmniRobot
 	public:
 		OmniRobotI ( std::shared_ptr<SpecificWorker> _worker, QObject *parent = 0 );
 		
-		void add(QString id);
+		void add(std::string id);
 		void run();
 		void updateInnerModelPose(bool force=false);
 		

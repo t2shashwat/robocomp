@@ -47,15 +47,16 @@ class InnerModelTransform : public InnerModelNode
 //		void setUpdateTranslationPointers(float *tx_, float *ty_, float *tz_);
 //		void setUpdateRotationPointers(float *rx_, float *ry_, float *rz_);
 //		void update();
+		void update(QVec v);
 		void update(float tx_, float ty_, float tz_, float rx_, float ry_, float rz_);
 		void updateT(float tx_, float ty_, float tz_);
 		void updateR(float rx_, float ry_, float rz_);
 		
 		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
-		void transformValues(const RTMat &Tpb, float tx, float ty, float tz, float rx, float ry, float rz, const std::shared_ptr<InnerModelTransform> parentNode);
-		void translateValues(const RTMat &Tpb, float tx, float ty, float tz, const std::shared_ptr<InnerModelTransform> parentNode);
-		void rotateValues(const RTMat &Tpb, float rx, float ry, float rz, const std::shared_ptr<InnerModelTransform> parentNode);
+		void transformValues(const RTMat &Tpb, float tx, float ty, float tz, float rx, float ry, float rz);
+		void translateValues(const RTMat &Tpb, float tx, float ty, float tz);
+		void rotateValues(const RTMat &Tpb, float rx, float ry, float rz);
 		
 //		float *tx, *ty, *tz;
 //		float *rx, *ry, *rz;

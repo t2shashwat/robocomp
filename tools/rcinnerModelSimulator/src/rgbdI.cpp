@@ -34,7 +34,7 @@ RGBDI::~RGBDI()
 {
 }
 
-void RGBDI::add ( QString _id )
+void RGBDI::add ( std::string _id )
 {
 	id = _id;
 }
@@ -44,14 +44,19 @@ TRGBDParams RGBDI::getRGBDParams ( const Ice::Current& )
 {
 	guard gl(worker->innerModel->mutex);
 	
-	IMVCamera &cam = worker->imv->cameras[id];
+	IMVCamera &cam = worker->imv->cameras[QString::fromStdString(id)];
 
 	RoboCompRGBD::TRGBDParams rgbdParams;
 	rgbdParams.driver = "RCIS";
-	rgbdParams.device = id.toStdString();
+	rgbdParams.device = id;
 	rgbdParams.timerPeriod = worker->timer.interval();
 
-	QStringList cameraConfig = cam.RGBDNode->ifconfig.split ( "," );
+	QStringList cameraConfig;
+	std::string s;
+	std::istringstream tokenStream(cam.RGBDNode->ifconfig);
+	while (std::getline(tokenStream, s, ',')) {
+        cameraConfig.append(QString::fromStdString(s));
+    }
 	if ( cameraConfig.size() > 1 ) {
 		uint32_t basePort  = QString ( cameraConfig[1] ).toUInt();
 		//if( worker->servers.dfr_servers.count( basePort ) > 0 )
@@ -132,11 +137,16 @@ void RGBDI::getImage ( ColorSeq& color, DepthSeq& depth, PointSeq& points, RoboC
 	guard gl(worker->innerModel->mutex);
 	//worker->rgbd_getImage ( id, color, depth, points, hState, bState );
 
-	IMVCamera &cam = worker->imv->cameras[id];
-	QStringList cameraConfig = cam.RGBDNode->ifconfig.split ( "," );
+	IMVCamera &cam = worker->imv->cameras[QString::fromStdString(id)];
+	QStringList cameraConfig;
+	std::string s;
+	std::istringstream tokenStream(cam.RGBDNode->ifconfig);
+	while (std::getline(tokenStream, s, ',')) {
+        cameraConfig.append(QString::fromStdString(s));
+    }
 	if (cameraConfig.size() > 1)
 	{
-		uint32_t basePort  = QString ( cam.RGBDNode->ifconfig.split ( "," ) [1] ).toUInt();
+		uint32_t basePort  = cameraConfig[1].toUInt();
 		//std::map<uint32_t, OmniRobotServer>::iterator base;
 		//base = worker->servers.omn_servers.find( basePort );
 		auto base = worker->servers.hMaps.find<OmniRobotServer>( basePort );
@@ -161,7 +171,7 @@ void RGBDI::getImage ( ColorSeq& color, DepthSeq& depth, PointSeq& points, RoboC
 		{
 			std::cout<<"Error: no base state updated, basePort "<<basePort<<std::endl;
 		}
-		uint32_t jointPort = QString ( cam.RGBDNode->ifconfig.split ( "," ) [0] ).toUInt();
+		uint32_t jointPort = cameraConfig[0].toUInt();
 		//std::map<uint32_t, JointMotorServer>::iterator joint;
 		//joint = worker->servers.jm_servers.find( jointPort );
 		auto joint = worker->servers.hMaps.find<JointMotorServer>( jointPort );

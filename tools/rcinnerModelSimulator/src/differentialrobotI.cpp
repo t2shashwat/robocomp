@@ -33,25 +33,25 @@ DifferentialRobotI::DifferentialRobotI(std::shared_ptr<SpecificWorker> _worker, 
 }
 
 
-void DifferentialRobotI::add(QString id)
+void DifferentialRobotI::add(std::string id)
 {
 	guard gl(worker->innerModel->mutex);
 	try
 	{
 		nodeOmni = NULL;
-		node = innerModel->getDifferentialRobot(id);
-		parent = innerModel->getTransform(node->parent->id);
+		node = innerModel->getNode<InnerModelDifferentialRobot>(id).get();
+		parent = innerModel->getNode<InnerModelTransform>(node->parent->id).get();
 	}
 	catch (QString err)
 	{
 		node = nullptr;
-		nodeOmni = innerModel->getOmniRobot(id);
-		parent = innerModel->getTransform(nodeOmni->parent->id);
+		nodeOmni = innerModel->getNode<InnerModelOmniRobot>(id).get();
+		parent = innerModel->getNode<InnerModelTransform>(nodeOmni->parent->id).get();
 	}
-	differentialIDs << id;
+	differentialIDs << QString::fromStdString(id);
 	newAngle = innerModel->getRotationMatrixTo(parent->id, id).extractAnglesR()(1);
 	noisyNewAngle = innerModel->getRotationMatrixTo(parent->id, id).extractAnglesR()(1);
-	realNode = innerModel->newTransform(id+"_odometry\"", "static", parent, 0, 0, 0, 0, newAngle, 0);
+	realNode = innerModel->newNode<InnerModelTransform>(id+"_odometry\"", "static", parent, 0, 0, 0, 0, newAngle, 0).get();
 }
 
 void DifferentialRobotI::run()
@@ -135,7 +135,7 @@ void DifferentialRobotI::updateInnerModelPose(bool force)
 	QVec newPos, noisyNewPos;
 
 	const double noise = (nodeOmni==NULL)?node->noise:nodeOmni->noise;
-	const QString id = (nodeOmni==NULL)?node->id:nodeOmni->id;
+	const std::string id = (nodeOmni==NULL)?node->id:nodeOmni->id;
 
 	// With random noise:
 	QVec rndmRot = QVec::gaussianSamples(1, 0, noise);
@@ -194,8 +194,8 @@ void DifferentialRobotI::updateInnerModelPose(bool force)
 	float backNoisyAngle = noisyNewAngle;
 	noisyNewAngle += Angle+((rndmYaw[0]));
 	noisyNewPos = innerModel->transform(parent->id, QVec::vec3(Ax1, 0, Az1), id);
-	innerModel->updateTransformValues(id, noisyNewPos(0), noisyNewPos(1), noisyNewPos(2), 0, noisyNewAngle, 0);
-	if (canMoveBaseTo(id, noisyNewPos, noisyNewAngle+Angle+(rndmYaw[0]*noise) ))
+	innerModel->getNode<InnerModelTransform>(id)->update(noisyNewPos(0), noisyNewPos(1), noisyNewPos(2), 0, noisyNewAngle, 0);
+	if (canMoveBaseTo(QString::fromStdString(id), noisyNewPos, noisyNewAngle+Angle+(rndmYaw[0]*noise) ))
 	{
 		// Noisy pose(real)
 		pose.x     = noisyPose.x     = noisyNewPos(0)*MILIMETERS_PER_UNIT;
@@ -206,10 +206,10 @@ void DifferentialRobotI::updateInnerModelPose(bool force)
 	{
 		noisyNewAngle = backNoisyAngle;
 		noisyNewPos = backNoisyNewPos;
-		innerModel->updateTransformValues(id, noisyNewPos(0), noisyNewPos(1), noisyNewPos(2), 0, noisyNewAngle, 0);
+		innerModel->getNode<InnerModelTransform>(id)->update(noisyNewPos(0), noisyNewPos(1), noisyNewPos(2), 0, noisyNewAngle, 0);
 	}
 	newPos = innerModel->transform(parent->id, QVec::vec3(Ax2, 0, Az2), id+"_odometry\"");
-	innerModel->updateTransformValues(id+"_odometry\"", newPos(0), newPos(1), newPos(2), 0, newAngle, 0);
+	innerModel->getNode<InnerModelTransform>(id+"_odometry\"")->update(newPos(0), newPos(1), newPos(2), 0, newAngle, 0);
 		
 	// Pose without noise (as if I moved perfectly)
 	pose.correctedX = newPos(0)*MILIMETERS_PER_UNIT;
@@ -225,13 +225,13 @@ bool DifferentialRobotI::canMoveBaseTo(const QString nodeId, const QVec position
 	std::vector<QString> robotNodes;
 	std::vector<QString> restNodes;
 
-	recursiveIncludeMeshes(innerModel->getRoot(), nodeId, false, robotNodes, restNodes);
+	recursiveIncludeMeshes(innerModel->getRoot().get(), nodeId, false, robotNodes, restNodes);
 
 	for (uint32_t in=0; in<robotNodes.size(); in++)
 	{
 		for (uint32_t out=0; out<restNodes.size(); out++)
 		{
-			if (innerModel->collide(robotNodes[in], restNodes[out]))
+			if (innerModel->collide(robotNodes[in].toStdString(), restNodes[out].toStdString()))
 			{
 				return false;
 			}
@@ -243,7 +243,7 @@ bool DifferentialRobotI::canMoveBaseTo(const QString nodeId, const QVec position
 
 void DifferentialRobotI::recursiveIncludeMeshes(InnerModelNode *node, QString robotId, bool inside, std::vector<QString> &in, std::vector<QString> &out)
 {
-	if (node->id == robotId)
+	if (node->id == robotId.toStdString())
 	{
 		inside = true;
 	}
@@ -254,9 +254,9 @@ void DifferentialRobotI::recursiveIncludeMeshes(InnerModelNode *node, QString ro
 
 	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
 	{
-		for (int i=0; i<node->children.size(); i++)
+		for (auto iterator : node->children)
 		{
-			recursiveIncludeMeshes(node->children[i], robotId, inside, in, out);
+			recursiveIncludeMeshes(iterator.get(), robotId, inside, in, out);
 		}
 	}
 	else if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
@@ -266,11 +266,11 @@ void DifferentialRobotI::recursiveIncludeMeshes(InnerModelNode *node, QString ro
 			//printf("collidable: %s\n", node->id.toStdString().c_str());
 			if (inside)
 			{
-				in.push_back(node->id);
+				in.push_back(QString::fromStdString(node->id));
 			}
 			else
 			{
-				out.push_back(node->id);
+				out.push_back(QString::fromStdString(node->id));
 			}
 		}
 	}

@@ -32,18 +32,18 @@ OmniRobotI::OmniRobotI(std::shared_ptr<SpecificWorker> _worker, QObject *parent)
 }
 
 
-void OmniRobotI::add(QString id)
+void OmniRobotI::add(std::string id)
 {
 	std::lock_guard<std::recursive_mutex> guard(innerModel->mutex);
 
-	omniIDs << id;
-	node                        = innerModel->getOmniRobot(id);
-	parent                      = innerModel->getTransform(node->parent->id);
-	rawOdometryParentNode       = innerModel->newTransform(id+"_raw_odometry_parent\"", "static", parent, 0, 0, 0, 0, 0, 0);
-	rawOdometryNode             = innerModel->newTransform(id+"_raw_odometry\"", "static", rawOdometryParentNode, 0, 0, 0, 0, 0, 0);
-	correctedOdometryParentNode = innerModel->newTransform(id+"_corrected_odometry_parent\"", "static", parent, 0, 0, 0, 0, 0, 0);
-	correctedOdometryNode       = innerModel->newTransform(id+"_corrected_odometry\"", "static", correctedOdometryParentNode, 0, 0, 0, 0, 0, 0);
-	movementFutureNode          = innerModel->newTransform(id+"_move\"", "static", node, 0, 0, 0, 0, 0, 0);
+	omniIDs << QString::fromStdString(id);
+	node                        = innerModel->getNode<InnerModelOmniRobot>(id).get();
+	parent                      = innerModel->getNode<InnerModelTransform>(node->parent->id).get();
+	rawOdometryParentNode       = innerModel->newNode<InnerModelTransform>(id+"_raw_odometry_parent\"", "static", parent, 0, 0, 0, 0, 0, 0).get();
+	rawOdometryNode             = innerModel->newNode<InnerModelTransform>(id+"_raw_odometry\"", "static", rawOdometryParentNode, 0, 0, 0, 0, 0, 0).get();
+	correctedOdometryParentNode = innerModel->newNode<InnerModelTransform>(id+"_corrected_odometry_parent\"", "static", parent, 0, 0, 0, 0, 0, 0).get();
+	correctedOdometryNode       = innerModel->newNode<InnerModelTransform>(id+"_corrected_odometry\"", "static", correctedOdometryParentNode, 0, 0, 0, 0, 0, 0).get();
+	movementFutureNode          = innerModel->newNode<InnerModelTransform>(id+"_move\"", "static", node, 0, 0, 0, 0, 0, 0).get();
 }
 
 
@@ -116,24 +116,24 @@ void OmniRobotI::updateInnerModelPose(bool force)
 	QVec estimatedIncrements = QVec::vec6(advVelx, 0,  advVelz, 0, rotVel, 0).operator*(msecs / 1000.);
 
 	// Update raw odometry using estimated pose increments
-	innerModel->updateTransformValues(node->id+"_raw_odometry\"", estimatedIncrements);
+	innerModel->getNode<InnerModelTransform>(node->id+"_raw_odometry\"")->update(estimatedIncrements);
 	QVec finalRawPose = innerModel->transform6D(parent->id, node->id+"_raw_odometry\"");
-	innerModel->updateTransformValues(node->id+"_raw_odometry_parent\"", finalRawPose);
-	innerModel->updateTransformValues(node->id+"_raw_odometry\"", QVec::vec6(0,0,0,0,0,0));
+	innerModel->getNode<InnerModelTransform>(node->id+"_raw_odometry_parent\"")->update(finalRawPose);
+	innerModel->getNode<InnerModelTransform>(node->id+"_raw_odometry\"")->update(QVec::vec6(0,0,0,0,0,0));
 
 	// Update corrected odometry using estimated pose increments
 	innerModel->transform6D("root", node->id+"_corrected_odometry_parent\"").print(":updateIMP  correctedP 0");
 	innerModel->transform6D("root", node->id+"_corrected_odometry\"").print(       ":updateIMP  corrected  0");
 	estimatedIncrements.print("estimatedIncrements");
 
-	innerModel->updateTransformValues(node->id+"_corrected_odometry\"", estimatedIncrements);
+	innerModel->getNode<InnerModelTransform>(node->id+"_corrected_odometry\"")->update(estimatedIncrements);
 
 	innerModel->transform6D("root", node->id+"_corrected_odometry_parent\"").print(":updateIMP  correctedP 1");
 	innerModel->transform6D("root", node->id+"_corrected_odometry\"").print(       ":updateIMP  corrected  1");
 
 	QVec finalCorrectedPose = innerModel->transform6D(parent->id, node->id+"_corrected_odometry\"");
-	innerModel->updateTransformValues(node->id+"_corrected_odometry_parent\"", finalCorrectedPose);
-	innerModel->updateTransformValues(node->id+"_corrected_odometry\"", QVec::vec6(0,0,0,0,0,0));
+	innerModel->getNode<InnerModelTransform>(node->id+"_corrected_odometry_parent\"")->update(finalCorrectedPose);
+	innerModel->getNode<InnerModelTransform>(node->id+"_corrected_odometry\"")->update(QVec::vec6(0,0,0,0,0,0));
 
 	innerModel->transform6D("root", node->id+"_corrected_odometry_parent\"").print(":updateIMP  correctedP 2");
 	innerModel->transform6D("root", node->id+"_corrected_odometry\"").print(       ":updateIMP  corrected  2");
@@ -152,15 +152,15 @@ void OmniRobotI::updateInnerModelPose(bool force)
 
 	QVec backPose = innerModel->transform6D(parent->id, node->id);
 // 	backPose.print("backPose");
-	innerModel->updateTransformValues(node->id+"_move\"", actualIncrements);
+	innerModel->getNode<InnerModelTransform>(node->id+"_move\"")->update(actualIncrements);
 	QVec newPose = innerModel->transform6D(parent->id, node->id+"_move\"");
 // 	newPose.print("newPose");
-	innerModel->updateTransformValues(node->id, newPose);
-	if (not canMoveBaseTo(node->id))
+	innerModel->getNode<InnerModelTransform>(node->id)->update(newPose);
+	if (not canMoveBaseTo(QString::fromStdString(node->id)))
 	{
-		innerModel->updateTransformValues(node->id, backPose);
+		innerModel->getNode<InnerModelTransform>(node->id)->update(backPose);
 	}
-	innerModel->updateTransformValues(node->id+"_move\"", QVec::vec6(0,0,0,0,0,0));
+	innerModel->getNode<InnerModelTransform>(node->id+"_move\"")->update(QVec::vec6(0,0,0,0,0,0));
 	
 }
 
@@ -173,13 +173,13 @@ bool OmniRobotI::canMoveBaseTo(const QString nodeId)
 	std::vector<QString> robotNodes;
 	std::vector<QString> restNodes;
 
-	recursiveIncludeMeshes(innerModel->getRoot(), nodeId, false, robotNodes, restNodes);
+	recursiveIncludeMeshes(innerModel->getRoot().get(), nodeId, false, robotNodes, restNodes);
 
 	for (uint32_t in=0; in<robotNodes.size(); in++)
 	{
 		for (uint32_t out=0; out<restNodes.size(); out++)
 		{
-			if (innerModel->collide(robotNodes[in], restNodes[out]))
+			if (innerModel->collide(robotNodes[in].toStdString(), restNodes[out].toStdString()))
 			{
 				return false;
 			}
@@ -193,7 +193,7 @@ void OmniRobotI::recursiveIncludeMeshes(InnerModelNode *node, QString robotId, b
 {
 	std::lock_guard<std::recursive_mutex> guard (innerModel->mutex);
 
-	if (node->id == robotId)
+	if (node->id == robotId.toStdString())
 	{
 		inside = true;
 	}
@@ -204,20 +204,20 @@ void OmniRobotI::recursiveIncludeMeshes(InnerModelNode *node, QString robotId, b
 
 	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
 	{
-		for (int i=0; i<node->children.size(); i++)
+		for (auto iterator: node->children)
 		{
-			recursiveIncludeMeshes(node->children[i], robotId, inside, in, out);
+			recursiveIncludeMeshes(iterator.get(), robotId, inside, in, out);
 		}
 	}
 	else if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
 	{
 		if (inside)
 		{
-			in.push_back(node->id);
+			in.push_back(QString::fromStdString(node->id));
 		}
 		else
 		{
-			out.push_back(node->id);
+			out.push_back(QString::fromStdString(node->id));
 		}
 	}
 }
@@ -259,16 +259,16 @@ void OmniRobotI::setOdometer(const RoboCompGenericBase::TBaseState &st, const Ic
 void OmniRobotI::setOdometerPose(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current&)
 {
 	std::lock_guard<std::recursive_mutex> guard (innerModel->mutex);
-	innerModel->updateTransformValues(node->id+"_raw_odometry_parent\"", x, 0, z, 0, alpha, 0);
-	innerModel->updateTransformValues(node->id+"_raw_odometry\"", 0, 0, 0,  0, 0, 0);
+	innerModel->getNode<InnerModelTransform>(node->id+"_raw_odometry_parent\"")->update(x, 0, z, 0, alpha, 0);
+	innerModel->getNode<InnerModelTransform>(node->id+"_raw_odometry\"")->update(0, 0, 0,  0, 0, 0);
 }
 
 
 void OmniRobotI::correctOdometer(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current&)
 {
 	std::lock_guard<std::recursive_mutex> guard (innerModel->mutex);
-	innerModel->updateTransformValues(node->id+"_corrected_odometry_parent\"", x, 0, z, 0, alpha, 0);
-	innerModel->updateTransformValues(node->id+"_corrected_odometry\"", 0, 0, 0,  0, 0, 0);
+	innerModel->getNode<InnerModelTransform>(node->id+"_corrected_odometry_parent\"")->update(x, 0, z, 0, alpha, 0);
+	innerModel->getNode<InnerModelTransform>(node->id+"_corrected_odometry\"")->update(0, 0, 0,  0, 0, 0);
 	innerModel->transform6D("root", node->id+"_corrected_odometry_parent\"").print(":correctOd  correctedP");
 	innerModel->transform6D("root", node->id+"_corrected_odometry\"").print(":correctOd  correctedC");
 }

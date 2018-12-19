@@ -44,7 +44,7 @@ Q_OBJECT
 public:
 	GenericBaseI ( std::shared_ptr<SpecificWorker> _worker, QObject *parent = 0 );
 	
-	void add(QString id);
+	void add(std::string id);
 	//void run();
 	
 	void getBaseState(RoboCompGenericBase::TBaseState& state, const Ice::Current & =Ice::Current());

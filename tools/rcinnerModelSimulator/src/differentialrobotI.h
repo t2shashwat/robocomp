@@ -30,6 +30,7 @@
 #include <OmniRobot.h>
 #include <omnirobotI.h>
 #include <innermodel/innermodel.h>
+#include <innermodel/innermodeltransform.h>
 #include <memory>
 
 // Simulator includes
@@ -47,7 +48,7 @@ public:
 	DifferentialRobotI(std::shared_ptr<SpecificWorker>  _worker, OmniRobotI *_omniI=NULL, QObject *parent = 0);
 	~DifferentialRobotI();
 
-	void add(QString id);
+	void add(std::string id);
 	void run();
 	void updateInnerModelPose(bool force=false);
 

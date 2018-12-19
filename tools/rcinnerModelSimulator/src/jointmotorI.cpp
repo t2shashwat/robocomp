@@ -53,7 +53,7 @@ void JointMotorI::add(QString id)
 	param.invertedSign = false;
 	param.busId = jointIDs.size();
 	
-	InnerModelNode *node = worker->innerModel->getNode(id);
+	InnerModelNode *node = worker->innerModel->getNode<InnerModelNode>(id.toStdString()).get();
 	if (dynamic_cast<InnerModelJoint*>(node) != NULL)
 	{
 		param.minPos = dynamic_cast<InnerModelJoint*>(node)->min;
@@ -176,7 +176,7 @@ MotorState JointMotorI::getMotorState(const std::string &motor, const Ice::Curre
 {
 	for (QStringList::const_iterator name = jointIDs.constBegin() ; name != jointIDs.constEnd() ; ++name)
 	{
-		InnerModelNode *node = worker->innerModel->getNode(*name);
+		InnerModelNode *node = worker->innerModel->getNode<InnerModelNode>((*name).toStdString()).get();
 		if (dynamic_cast<InnerModelJoint*>(node) != nullptr)
 			states[name->toStdString()].pos = dynamic_cast<InnerModelJoint*>(node)->getAngle();
 		else if (dynamic_cast<InnerModelPrismaticJoint*>(node) != nullptr)
@@ -189,7 +189,7 @@ MotorStateMap JointMotorI::getMotorStateMap(const MotorList &mList, const Ice::C
 {
 	for (QStringList::const_iterator name = jointIDs.constBegin() ; name != jointIDs.constEnd() ; ++name)
 	{
-		InnerModelNode *node = worker->innerModel->getNode(*name);
+		InnerModelNode *node = worker->innerModel->getNode<InnerModelNode>((*name).toStdString()).get();
 		if (dynamic_cast<InnerModelJoint*>(node) != NULL)
 			states[name->toStdString()].pos = dynamic_cast<InnerModelJoint*>(node)->getAngle();
 		else if (dynamic_cast<InnerModelPrismaticJoint*>(node) != NULL)
@@ -202,7 +202,7 @@ void JointMotorI::getAllMotorState(MotorStateMap &mstateMap, const Ice::Current&
 {
 	for (QStringList::const_iterator name = jointIDs.constBegin() ; name != jointIDs.constEnd() ; ++name)
 	{
-		InnerModelNode *node = worker->innerModel->getNode(*name);
+		InnerModelNode *node = worker->innerModel->getNode<InnerModelNode>((*name).toStdString()).get();
 		if (dynamic_cast<InnerModelJoint*>(node) !=  nullptr)
 			states[name->toStdString()].pos = dynamic_cast<InnerModelJoint*>(node)->getAngle();
 		else if (dynamic_cast<InnerModelPrismaticJoint*>(node) != nullptr)

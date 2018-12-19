@@ -120,14 +120,6 @@ void InnerModelPlane::print(bool verbose)
 		normal.print( QString::fromStdString("Plane: " + id));
 }
 
-void InnerModelPlane::update()
-{
-	if (fixed)
-	{
-	}
-	updateChildren();
-}
-
 void InnerModelPlane::save(QTextStream &out, int tabs)
 {
 // 	float width, height, depth;
@@ -138,7 +130,7 @@ void InnerModelPlane::save(QTextStream &out, int tabs)
 
 
 
-void InnerModelPlane::setUpdatePointers(float *nx_, float *ny_, float *nz_, float *px_, float *py_, float *pz_)
+/*void InnerModelPlane::setUpdatePointers(float *nx_, float *ny_, float *nz_, float *px_, float *py_, float *pz_)
 {
 	nx = nx_;
 	ny = ny_;
@@ -148,10 +140,7 @@ void InnerModelPlane::setUpdatePointers(float *nx_, float *ny_, float *nz_, floa
 	pz = pz_;
 	nx = ny = nz = px = py = pz = NULL;
 	fixed = false;
-}
-
-
-
+}*/
 
 void InnerModelPlane::update(float nx_, float ny_, float nz_, float px_, float py_, float pz_)
 {

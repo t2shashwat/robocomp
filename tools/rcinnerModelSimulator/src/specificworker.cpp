@@ -144,7 +144,7 @@ void SpecificWorker::updateCameras()
 {
 		for(const auto &i: imv->cameras.keys())
 		{
-			RTMat rt= innerModel->getTransformationMatrix("root",i);
+			RTMat rt= innerModel->getTransformationMatrix("root",i.toStdString());
 			// Put camera in its position
 			imv->cameras[i].viewerCamera->getCameraManipulator()->setByMatrix(QMatToOSGMat4(rt));
 
@@ -167,7 +167,7 @@ void SpecificWorker::updateLasers()
 	for (const auto &laserKey : imv->lasers.keys())			 // NO DEBERIAMOS ITERAR SOBRE LOS LASERS DE INNERMODEL?
 	{
 		const auto &laserValue = imv->lasers.value(laserKey);
-		const std::string &id = laserValue.laserNode->id.toStdString();
+		const std::string &id = laserValue.laserNode->id;
 		
 		if( laserDataCartArray.count(id) == 0)
 		{
@@ -253,7 +253,7 @@ void SpecificWorker::updateJoints(const float delta)
 	QHash<QString, JointMovement>::const_iterator iter;
 	for (iter = jointMovements.constBegin() ; iter != jointMovements.constEnd() ; ++iter)
 	{
-		InnerModelNode *node = innerModel->getNode(iter.key());
+		InnerModelNode *node = innerModel->getNode<InnerModelNode>(iter.key().toStdString()).get();
 		InnerModelJoint *ajoint;
 		InnerModelPrismaticJoint *pjoint;
 		if ((ajoint = dynamic_cast<InnerModelJoint*>(node)) != NULL)
@@ -289,8 +289,8 @@ void SpecificWorker::updateTouchSensors()
 {
 	//std::map<uint32_t, TouchSensorServer>::iterator touchIt;
 	//for (touchIt = servers.touch_servers.begin(); touchIt != servers.touch_servers.end(); touchIt++)
-	for(auto &[k, v] : servers.hMaps.getMap<TouchSensorServer>())	
-		for(auto &s : v.sensors)
+//	for(auto &[k, v] : servers.hMaps.getMap<TouchSensorServer>())	
+//		for(auto &s : v.sensors)
 		//for (uint32_t sss=0; sss<touchIt->second.sensors.size(); sss++)
 		{
 			// 	TouchSensorI *interface;
@@ -334,7 +334,7 @@ std::shared_ptr<InnerModelViewer> SpecificWorker::getInnerModelViewer()
 InnerModelNode* SpecificWorker::getNode(const QString &id, const QString &msg)
 {
 	guard gl(innerModel->mutex);
-	InnerModelNode *node = innerModel->getNode(id);
+	InnerModelNode *node = innerModel->getNode<InnerModelNode>(id.toStdString()).get();
 	if (node==NULL)
 	{
 		RoboCompInnerModelManager::InnerModelManagerError err;
@@ -360,7 +360,7 @@ void SpecificWorker::checkOperationInvalidNode(InnerModelNode *node,QString msg)
 			RoboCompInnerModelManager::InnerModelManagerError err;
 		err.err = RoboCompInnerModelManager::OperationInvalidNode;
 		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: Node " << node->id.toStdString() <<" is not of the type require";
+		oss <<msg.toStdString() <<" error: Node " << node->id <<" is not of the type require";
 		err.text = oss.str();
 		throw err;
 	}
@@ -368,7 +368,8 @@ void SpecificWorker::checkOperationInvalidNode(InnerModelNode *node,QString msg)
 
 void SpecificWorker::checkNodeAlreadyExists(const QString &id, const QString &msg)
 {
-	if (innerModel->getIDKeys().contains(id))
+	std::list<std::string> keys = innerModel->getIDKeys();
+	if (std::find(keys.begin(), keys.end(), id.toStdString()) != keys.end())
 	{
 		#ifdef INNERMODELMANAGERDEBUG
 			qDebug("item already exist. %s\n", id.toStdString().c_str());
@@ -416,7 +417,7 @@ void SpecificWorker::checkInvalidMeshValues(RoboCompInnerModelManager::meshType 
 
 void SpecificWorker::AttributeAlreadyExists(InnerModelNode *node, QString attributeName, QString msg)
 {
-	if (node->attributes.contains(attributeName))
+	if (node->attributes.find(attributeName.toStdString()) != node->attributes.end())
 	{
 		#ifdef INNERMODELMANAGERDEBUG
 				qDebug("attribute already exist. %s\n", attributeName.toStdString().c_str());
@@ -424,7 +425,7 @@ void SpecificWorker::AttributeAlreadyExists(InnerModelNode *node, QString attrib
 		RoboCompInnerModelManager::InnerModelManagerError err;
 		err.err = RoboCompInnerModelManager::AttributeAlreadyExists;
 		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " already exists." <<" in node "<<node->id.toStdString();
+		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " already exists." <<" in node "<<node->id;
 		err.text = oss.str();
 		throw err;
 	}
@@ -432,7 +433,7 @@ void SpecificWorker::AttributeAlreadyExists(InnerModelNode *node, QString attrib
 
 void SpecificWorker::NonExistingAttribute(InnerModelNode *node, QString attributeName, QString msg)
 {
-	if (node->attributes.contains(attributeName) ==false)
+	if (node->attributes.find(attributeName.toStdString()) == node->attributes.end())
 	{
 #ifdef INNERMODELMANAGERDEBUG
 		qDebug("attribute NO exist. %s\n", attributeName.toStdString().c_str());
@@ -440,7 +441,7 @@ void SpecificWorker::NonExistingAttribute(InnerModelNode *node, QString attribut
 		RoboCompInnerModelManager::InnerModelManagerError err;
 		err.err = RoboCompInnerModelManager::AttributeAlreadyExists;
 		std::ostringstream oss;
-		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " NO exists."<<" in node "<<node->id.toStdString();
+		oss <<msg.toStdString() <<" error: attribute " << attributeName.toStdString() << " NO exists."<<" in node "<<node->id;
 		err.text = oss.str();
 		throw err;
 	}
@@ -450,12 +451,12 @@ void SpecificWorker::getRecursiveNodeInformation(RoboCompInnerModelManager::Node
 {
 	/// Add current node information
 	RoboCompInnerModelManager::NodeInformation ni;
-	ni.id = node->id.toStdString();
+	ni.id = node->id;
 
 
 	if (node->parent)
 	{
-		ni.parentId = node->parent->id.toStdString();
+		ni.parentId = node->parent->id;
 	}
 	else
 	{
@@ -464,19 +465,18 @@ void SpecificWorker::getRecursiveNodeInformation(RoboCompInnerModelManager::Node
 	ni.nType = getNodeType(node);
 
 	RoboCompInnerModelManager::AttributeType a;
-	foreach (const QString &str, node->attributes.keys())
+	for(auto attribute : node->attributes)
 	{
-		a.type=node->attributes.value(str).type.toStdString();
-		a.value=node->attributes.value(str).value.toStdString();
-		ni.attributes[str.toStdString()]=a;
+		a.type = attribute.second.type;
+		a.value = attribute.second.value;
+		ni.attributes[attribute.first] = a;
 	}
 	nodesInfo.push_back(ni);
 
 	/// Recursive call for all children
-	QList<InnerModelNode *>::iterator child;
-	for (child = node->children.begin(); child != node->children.end(); child++)
+	for (auto child : node->children)
 	{
-		getRecursiveNodeInformation(nodesInfo, *child);
+		getRecursiveNodeInformation(nodesInfo, child.get());
 	}
 }
 
@@ -539,7 +539,7 @@ RoboCompInnerModelManager::NodeType SpecificWorker::getNodeType(InnerModelNode *
 		RoboCompInnerModelManager::InnerModelManagerError err;
 		err.err = RoboCompInnerModelManager::InternalError;
 		std::ostringstream oss;
-		oss << "RoboCompInnerModelManager::getNodeType() error: Type of node " << node->id.toStdString() << " is unknown.";
+		oss << "RoboCompInnerModelManager::getNodeType() error: Type of node " << node->id << " is unknown.";
 		err.text = oss.str();
 		throw err;
 	}

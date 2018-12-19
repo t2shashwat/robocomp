@@ -40,15 +40,15 @@ public:
 	DisplayI(std::shared_ptr<SpecificWorker> _worker);
 	~DisplayI();
 
-	void add(QString id_);
-	void remove(QString id);
+	void add(std::string id_);
+	void remove(std::string id);
 
 	void setImage(const RoboCompDisplay::Image  &img, const Ice::Current&);
 	void setImageFromFile(const string  &pathImg, const Ice::Current&);
 private:
 
 	std::shared_ptr<SpecificWorker> worker;
-	QString id;
+	std::string id;
 
 };
 

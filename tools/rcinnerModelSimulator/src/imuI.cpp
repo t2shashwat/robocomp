@@ -20,7 +20,7 @@ void IMUI::updateIMUData ( QString id )
 {
 	guard gl(worker->innerModel->mutex);
 
-	QMat R = worker->innerModel->getRotationMatrixTo(id, "root");
+	QMat R = worker->innerModel->getRotationMatrixTo(id.toStdString(), "root");
 	QVec acc   = R * QVec::vec3(0.0, -9.80665,  0.0);
 	QVec north = R * QVec::vec3(0.0,      0.0, 10.0);
 

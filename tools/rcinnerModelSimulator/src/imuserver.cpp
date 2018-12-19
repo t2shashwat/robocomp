@@ -34,5 +34,5 @@ IMUServer::IMUServer(Ice::CommunicatorPtr communicator, 	std::shared_ptr<Specifi
 void IMUServer::add(InnerModelIMU *imu)
 {
 	imus.push_back(imu);
-	interface->add(imu->id);
+	interface->add(QString::fromStdString(imu->id));
 }

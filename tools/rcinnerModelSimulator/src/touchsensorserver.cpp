@@ -37,12 +37,12 @@ TouchSensorServer::TouchSensorServer(Ice::CommunicatorPtr communicator, std::sha
 void TouchSensorServer::add(InnerModelTouchSensor *sensor)
 {
 	sensors.push_back(sensor);
-	interface->add(sensor->id.toStdString());
+	interface->add(sensor->id);
 }
 
 void TouchSensorServer::remove(InnerModelTouchSensor *sensor)
 {
-	interface->remove(sensor->id.toStdString());
+	interface->remove(sensor->id);
 	sensors.erase(std::remove(sensors.begin(), sensors.end(), sensor), sensors.end());
 }
 

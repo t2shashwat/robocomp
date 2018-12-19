@@ -33,7 +33,7 @@ LaserI::~LaserI()
 void LaserI::add (std::string _id)
 {
 	id = _id;
-	laserNode = worker->innerModel->getNode<InnerModelLaser>(QString::fromStdString(id));
+	laserNode = worker->innerModel->getNode<InnerModelLaser>(id).get();
 	laserConf.staticConf   =  1;
 	laserConf.maxMeasures  =  laserNode->measures;
 	laserConf.maxDegrees   = ( int ) ( 180.f*laserNode->angle/M_PI );
@@ -67,7 +67,7 @@ TLaserData LaserI::getLaserAndBStateData ( RoboCompGenericBase::TBaseState& stat
 		guard gl(worker->innerModel->mutex);
 
 		IMVLaser &las = worker->imv->lasers[QString::fromStdString(id)];
-		QString laserConfig = las.laserNode->ifconfig;
+		QString laserConfig = QString::fromStdString(las.laserNode->ifconfig);
 		uint32_t basePort  = laserConfig.toUInt();
 	
 		//std::map<uint32_t, DifferentialRobotServer>::iterator it = worker->servers.dfr_servers.find( basePort );

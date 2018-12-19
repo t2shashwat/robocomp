@@ -37,18 +37,18 @@ void ServersInitiator::init(std::shared_ptr<InnerModel> innerModel_, std::shared
 void ServersInitiator::walkTree(InnerModelNode *node)
 {
 	if (node == nullptr)
-		node = innerModel->getRoot();
+		node = innerModel->getRoot().get();
 	
 	for(auto &it : node->children)	
 	{
-		addServer<InnerModelNode, InnerModelDifferentialRobot, DifferentialRobotServer>(it);
-		addServer<InnerModelNode, InnerModelOmniRobot, OmniRobotServer>(it);
-		addServer<InnerModelNode, InnerModelDisplay, DisplayServer>(it);
-		addServer<InnerModelNode, InnerModelTouchSensor, TouchSensorServer>(it);
-		addServer<InnerModelNode, InnerModelIMU, IMUServer>(it);
-		addServer<InnerModelNode, InnerModelJoint, JointMotorServer>(it);
-		addServer<InnerModelNode, InnerModelPrismaticJoint, JointMotorServer>(it);
-		walkTree(it);
+		addServer<InnerModelNode, InnerModelDifferentialRobot, DifferentialRobotServer>(it.get());
+		addServer<InnerModelNode, InnerModelOmniRobot, OmniRobotServer>(it.get());
+		addServer<InnerModelNode, InnerModelDisplay, DisplayServer>(it.get());
+		addServer<InnerModelNode, InnerModelTouchSensor, TouchSensorServer>(it.get());
+		addServer<InnerModelNode, InnerModelIMU, IMUServer>(it.get());
+		addServer<InnerModelNode, InnerModelJoint, JointMotorServer>(it.get());
+		addServer<InnerModelNode, InnerModelPrismaticJoint, JointMotorServer>(it.get());
+		walkTree(it.get());
 	}
 }
 

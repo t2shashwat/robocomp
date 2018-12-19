@@ -38,25 +38,25 @@ JointMotorServer::JointMotorServer(Ice::CommunicatorPtr communicator, std::share
 void JointMotorServer::add(InnerModelJoint *joint)
 {
 	joints.push_back(joint);
-	interface->add(joint->id);
+	interface->add(QString::fromStdString(joint->id));
 	joint->setAngle(joint->home);
 }
 
 void JointMotorServer::add(InnerModelPrismaticJoint *joint)
 {
 	joints.push_back(joint);
-	interface->add(joint->id);
+	interface->add(QString::fromStdString(joint->id));
 }
 
 void JointMotorServer::remove(InnerModelJoint *joint)
 {
-	interface->remove(joint->id);
+	interface->remove(QString::fromStdString(joint->id));
 	joints.erase(std::remove(joints.begin(), joints.end(), joint), joints.end());
 }
 
 void JointMotorServer::remove(InnerModelPrismaticJoint *joint)
 {
-	interface->remove(joint->id);
+	interface->remove(QString::fromStdString(joint->id));
 	joints.erase(std::remove(joints.begin(), joints.end(), joint), joints.end());
 }
 

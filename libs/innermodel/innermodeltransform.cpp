@@ -133,6 +133,15 @@ void InnerModelTransform::update()
 	updateChildren();
 }
 */
+void InnerModelTransform::update(QVec vec)
+{
+	//Lock lock(mutex);
+	backrX = vec(0); backrY = vec(1); backrZ = vec(2);
+	backtX = vec(3); backtY = vec(4); backtZ = vec(5);
+	set(backrX, backrY, backrZ, backtX, backtY, backtZ);
+	fixed = true;
+}
+
 /**
  * @brief Updates the internal values of the node from the values passed in the parameters
  *
@@ -184,7 +193,7 @@ std::shared_ptr<InnerModelNode> InnerModelTransform::copyNode(std::map<std::stri
 
 	return std::static_pointer_cast<InnerModelNode>(ret);
 }
-void InnerModelTransform::transformValues(const RTMat &Tpb, float tx, float ty, float tz, float rx, float ry, float rz, const std::shared_ptr<InnerModelTransform> parentNode)
+void InnerModelTransform::transformValues(const RTMat &Tpb, float tx, float ty, float tz, float rx, float ry, float rz)
 {	
 	RTMat Tbi;
 	Tbi.setTr(tx,ty,tz);
@@ -196,7 +205,7 @@ void InnerModelTransform::transformValues(const RTMat &Tpb, float tx, float ty, 
 	update(angles.x(),angles.y(),angles.z(),tr.x(),tr.y(),tr.z());
 }
 
-void InnerModelTransform::translateValues(const RTMat &Tpb, float tx, float ty, float tz, const std::shared_ptr<InnerModelTransform> parentNode)
+void InnerModelTransform::translateValues(const RTMat &Tpb, float tx, float ty, float tz)
 {
 	RTMat Tbi;
 	Tbi.setTr(tx,ty,tz);
@@ -208,7 +217,7 @@ void InnerModelTransform::translateValues(const RTMat &Tpb, float tx, float ty, 
 	updateT(tx,ty,tz);
 }
 
-void InnerModelTransform::rotateValues(const RTMat &Tpb, float rx, float ry, float rz, const std::shared_ptr<InnerModelTransform> parentNode)
+void InnerModelTransform::rotateValues(const RTMat &Tpb, float rx, float ry, float rz)
 {
 	RTMat Tbi;
 	Tbi.setR (rx,ry,rz);

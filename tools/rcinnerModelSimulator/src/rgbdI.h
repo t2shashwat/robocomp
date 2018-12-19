@@ -36,7 +36,7 @@ class RGBDI : public QObject , public virtual RoboCompRGBD::RGBD
 	public:
 		RGBDI ( std::shared_ptr<SpecificWorker> _worker, QObject* parent = 0 );
 		~RGBDI();
-		void add ( QString id );
+		void add ( std::string id );
 		TRGBDParams getRGBDParams ( const Ice::Current & = Ice::Current() );
 		void setRegistration ( Registration value, const Ice::Current & = Ice::Current() );
 		Registration getRegistration ( const Ice::Current & = Ice::Current() );
@@ -49,7 +49,7 @@ class RGBDI : public QObject , public virtual RoboCompRGBD::RGBD
 		
 	private:
 		std::shared_ptr<SpecificWorker> worker;
-		QString id;
+		std::string id;
 };
 
 #endif

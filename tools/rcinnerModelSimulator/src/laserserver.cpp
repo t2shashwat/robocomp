@@ -35,6 +35,6 @@ LaserServer::LaserServer(Ice::CommunicatorPtr communicator, std::shared_ptr<Spec
 void LaserServer::add(InnerModelLaser *laser)
 {
 	lasers.push_back(laser);
-	interface->add(laser->id.toStdString());
+	interface->add(laser->id);
 }
 

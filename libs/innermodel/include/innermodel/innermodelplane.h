@@ -30,8 +30,7 @@ class InnerModelPlane : public InnerModelNode
 		InnerModelPlane(std::string id_, std::string texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable, std::shared_ptr<InnerModelNode>parent_=nullptr);
 		void print(bool verbose);
 		void save(QTextStream &out, int tabs);
-		void setUpdatePointers(float *nx_, float *ny_, float *nz_, float *px_, float *py_, float *pz_);
-		void update();
+//		void setUpdatePointers(float *nx_, float *ny_, float *nz_, float *px_, float *py_, float *pz_);
 		void update(float nx_, float ny_, float nz_, float px_, float py_, float pz_);
 		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 

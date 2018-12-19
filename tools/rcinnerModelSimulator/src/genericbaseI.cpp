@@ -28,10 +28,10 @@ GenericBaseI::GenericBaseI(std::shared_ptr<SpecificWorker> _worker, QObject *par
 }
 
 
-void GenericBaseI::add(QString id)
+void GenericBaseI::add(std::string id)
 {
-	node                        = innerModel->getOmniRobot(id);
-	parent                      = innerModel->getTransform(node->parent->id);
+	node                        = innerModel->getNode<InnerModelOmniRobot>(id).get();
+	parent                      = innerModel->getNode<InnerModelTransform>(node->parent->id).get();
 }
 
 
