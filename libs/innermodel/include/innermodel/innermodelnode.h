@@ -21,6 +21,7 @@
 // RoboComp includes
 #include <qmat/QMatAll>
 #include <innermodel/innermodelconfig.h>
+#include <memory>
 
 #if FCL_SUPPORT==1
 #include <fcl/collision.h>
@@ -46,7 +47,7 @@ class InnerModelNode : public RTMat
 		friend class InnerModelReader;
 
 	public:
-		InnerModelNode(std::string id_, std::shared_ptr<InnerModelNode>parent_=nullptr);
+		InnerModelNode(std::string id_, std::shared_ptr<InnerModelNode> parent_=nullptr);
 		virtual ~InnerModelNode();
 	
 		struct AttributeType

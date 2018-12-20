@@ -33,12 +33,12 @@ void InnerModelDraw::addMesh_ignoreExisting(InnerModelViewer *innerViewer, std::
 
 	std::shared_ptr<InnerModelMesh> mesh = im->newNode<InnerModelMesh> (
 		item,
-		parent,
 		path,
 		scale(0), scale(1), scale(2),
-		0,
+		InnerModelMesh::NormalRendering,
 		t(0), t(1), t(2),
-		r(0), r(1), r(2));
+		r(0), r(1), r(2), false,
+		std::dynamic_pointer_cast<InnerModelNode>(parent));
 	mesh->setScale(scale(0), scale(1), scale(2));
 	parent->addChild(mesh);
 
@@ -64,14 +64,13 @@ bool InnerModelDraw::addJoint(InnerModelViewer* innerViewer, const std::string i
 	InnerModel *im = innerViewer->innerModel.get();
 	std::shared_ptr<InnerModelTransform> parent= im->getNode<InnerModelTransform>(base);
 	std::shared_ptr<InnerModelJoint> jN = im->newNode<InnerModelJoint>(item,
-					parent,
 					0,0,0,
 					0,0,0,
 					t(0), t(1), t(2),
 					r(0), r(1), r(2),
 					-1000, 1000,
 				    0,
-				    axis );
+				    axis, 0, parent );
 	parent->addChild (jN);
 	innerViewer->recursiveConstructor(jN.get(), innerViewer->mts[QString::fromStdString(parent->id)], innerViewer->mts, innerViewer->meshHash);
 	return true;
@@ -141,7 +140,7 @@ bool InnerModelDraw::addTransform(InnerModelViewer *innerViewer, std::string ite
 	std::shared_ptr<InnerModelTransform> tr;
 	try
 	{
-		tr = innerViewer->innerModel->newNode<InnerModelTransform>(item, "static", parent, 0,0,0, 0,0,0);
+		tr = innerViewer->innerModel->newNode<InnerModelTransform>(item, "static", 0,0,0, 0,0,0, 0, parent);
 		parent->addChild(tr);
 		innerViewer->recursiveConstructor(tr.get(), innerViewer->mts[QString::fromStdString(parent->id)], innerViewer->mts, innerViewer->meshHash);
 
@@ -173,7 +172,7 @@ bool InnerModelDraw::addPlane_notExisting(InnerModelViewer *innerViewer, const s
 		//printf("%s: parent does not exist\n", __FUNCTION__);
 		return false;
 	}
-	std::shared_ptr<InnerModelPlane> plane = innerViewer->innerModel->newNode<InnerModelPlane>(item, parent, texture, size(0), size(1), size(2), 1, n(0), n(1), n(2), p(0), p(1), p(2));
+	std::shared_ptr<InnerModelPlane> plane = innerViewer->innerModel->newNode<InnerModelPlane>(item, texture, size(0), size(1), size(2), 1, n(0), n(1), n(2), p(0), p(1), p(2), false, parent);
 	parent->addChild(plane);
 	innerViewer->recursiveConstructor(plane.get(), innerViewer->mts[QString::fromStdString(parent->id)], innerViewer->mts, innerViewer->meshHash);
 	return true;

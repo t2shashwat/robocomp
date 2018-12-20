@@ -258,7 +258,7 @@ bool InnerModelManagerI::addTransform(const std::string &item, const std::string
 		qEngine = "static";
 	}
 
-	std::shared_ptr<InnerModelTransform> tr = worker->innerModel->newNode<InnerModelTransform>(item, "static" ,parent, pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz);
+	std::shared_ptr<InnerModelTransform> tr = worker->innerModel->newNode<InnerModelTransform>(item, "static" , pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz, 0, std::shared_ptr<InnerModelNode>(parent));
 	parent->addChild(tr);
 	worker->imv->recursiveConstructor(tr.get(), worker->imv->mts[QString::fromStdString(parent->id)], worker->imv->mts, worker->imv->meshHash); // imv->osgmeshes,imv->osgmeshPats);
 	
@@ -286,7 +286,7 @@ bool InnerModelManagerI::addJoint(const std::string &item, const std::string &ba
 	InnerModelTransform *parent=dynamic_cast<InnerModelTransform *>(worker->getNode(QString::fromStdString(base), "RoboCompInnerModelManager::addJoint()"));
 	worker->checkNodeAlreadyExists(QString::fromStdString(item), "RoboCompInnerModelManager::addJoint()");
 
-	std::shared_ptr<InnerModelJoint> j_NS = worker->innerModel->newNode<InnerModelJoint>(item, parent, j_.lx, j_.ly, j_.lz, j_.hx, j_.hy, j_.hz, pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz, j_.min, j_.max, j_.port, j_.axis);
+	std::shared_ptr<InnerModelJoint> j_NS = worker->innerModel->newNode<InnerModelJoint>(item, j_.lx, j_.ly, j_.lz, j_.hx, j_.hy, j_.hz, pose.x, pose.y, pose.z, pose.rx, pose.ry, pose.rz, j_.min, j_.max, j_.port, j_.axis, 0, std::shared_ptr<InnerModelTransform>(parent));
 	InnerModelJoint *j_N = j_NS.get();
 	parent->addChild (j_NS);
 
@@ -295,11 +295,11 @@ bool InnerModelManagerI::addJoint(const std::string &item, const std::string &ba
 	{ 
 		//worker->addJM(j_N);  //CHANGE
 		/*if (worker->servers.jm_servers.count(j_N->port) == 0)*/
-		if (worker->servers.hMaps.count<InnerModelJoint>(j_N->port) == 0)
-			worker->servers.hMaps.insert(j_N->port, JointMotorServer(worker->communicator, worker, j_N->port));
+		if (worker->servers.hMaps.count(j_N->port) == 0)
+			worker->servers.hMaps.insert(std::make_pair(j_N->port, JointMotorServer(worker->communicator, worker, j_N->port)));
 			//worker->servers.jm_servers.insert(std::pair<uint32_t, JointMotorServer>(j_N->port, JointMotorServer(worker->communicator, worker, j_N->port)));
 		
-		worker->servers.hMaps.at<JointMotorServer>(j_N->port).add(j_N);
+		std::get<JointMotorServer>(worker->servers.hMaps.at(j_N->port)).add(j_N);
 		//worker->servers.jm_servers.at(j_N->port).add(j_N);
 	}
 	worker->imv->recursiveConstructor(j_N, worker->imv->mts[QString::fromStdString(parent->id)], worker->imv->mts, worker->imv->meshHash); // imv->osgmeshes,imv->osgmeshPats);
@@ -311,7 +311,7 @@ bool InnerModelManagerI::addJoint(const std::string &item, const std::string &ba
 bool InnerModelManagerI::addMesh(const std::string &item,const std::string &base,const meshType &m, const Ice::Current&)
 {
 	//return worker->imm_addMesh(id, item, base, m);
-		guard gl(worker->innerModel->mutex);
+	guard gl(worker->innerModel->mutex);
 
 	QString msg="RoboCompInnerModelManager::addMesh()";
 #ifdef INNERMODELMANAGERDEBUG
@@ -325,19 +325,18 @@ bool InnerModelManagerI::addMesh(const std::string &item,const std::string &base
 	worker->checkNodeAlreadyExists(QString::fromStdString(item), msg);
 	worker->checkInvalidMeshValues(m,msg);
 
-	int render = m.render;
-	if(render!=0 and render!=1)
+	InnerModelMesh::RenderingModes render = InnerModelMesh::RenderingModes::NormalRendering;
+	if(m.render==1 )
 	{
-		render=0;
+		render = InnerModelMesh::RenderingModes::WireframeRendering;
 	}
 	
-	std::shared_ptr<InnerModelMesh> mesh = worker->innerModel->newNode<InnerModelMesh>(item, parent,m.meshPath,
+	std::shared_ptr<InnerModelMesh> mesh = worker->innerModel->newNode<InnerModelMesh>(item, m.meshPath,
 		m.scaleX, m.scaleY, m.scaleZ,
 		render,
 		m.pose.x, m.pose.y, m.pose.z,
-		m.pose.rx, m.pose.ry, m.pose.rz);
+		m.pose.rx, m.pose.ry, m.pose.rz, 0, std::shared_ptr<InnerModelNode>(parent));
 
-	mesh->setScale(m.scaleX, m.scaleY, m.scaleZ);
 	parent->addChild(mesh);
 
 	worker->imv->recursiveConstructor(mesh.get(), worker->imv->mts[QString::fromStdString(parent->id)], worker->imv->mts, worker->imv->meshHash); // osgmeshes,imv->osgmeshPats);
@@ -355,9 +354,9 @@ bool InnerModelManagerI::addPlane(const std::string &item, const std::string &ba
 	worker->checkNodeAlreadyExists(QString::fromStdString(item), "RoboCompInnerModelManager::addPlane()");
 
 
-	std::shared_ptr<InnerModelPlane> plane = worker->innerModel->newNode<InnerModelPlane>(item, parent, p.texture,
+	std::shared_ptr<InnerModelPlane> plane = worker->innerModel->newNode<InnerModelPlane>(item, p.texture,
 	                         p.width, p.height, p.thickness, 1,
-	                         p.nx, p.ny, p.nz, p.px, p.py, p.pz);
+	                         p.nx, p.ny, p.nz, p.px, p.py, p.pz, 0, std::shared_ptr<InnerModelNode>(parent));
 	parent->addChild(plane);
 
 	worker->imv->recursiveConstructor(plane.get(), worker->imv->mts[QString::fromStdString(parent->id)], worker->imv->mts, worker->imv->meshHash);

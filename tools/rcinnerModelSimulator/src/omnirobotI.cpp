@@ -39,11 +39,11 @@ void OmniRobotI::add(std::string id)
 	omniIDs << QString::fromStdString(id);
 	node                        = innerModel->getNode<InnerModelOmniRobot>(id).get();
 	parent                      = innerModel->getNode<InnerModelTransform>(node->parent->id).get();
-	rawOdometryParentNode       = innerModel->newNode<InnerModelTransform>(id+"_raw_odometry_parent\"", "static", parent, 0, 0, 0, 0, 0, 0).get();
-	rawOdometryNode             = innerModel->newNode<InnerModelTransform>(id+"_raw_odometry\"", "static", rawOdometryParentNode, 0, 0, 0, 0, 0, 0).get();
-	correctedOdometryParentNode = innerModel->newNode<InnerModelTransform>(id+"_corrected_odometry_parent\"", "static", parent, 0, 0, 0, 0, 0, 0).get();
-	correctedOdometryNode       = innerModel->newNode<InnerModelTransform>(id+"_corrected_odometry\"", "static", correctedOdometryParentNode, 0, 0, 0, 0, 0, 0).get();
-	movementFutureNode          = innerModel->newNode<InnerModelTransform>(id+"_move\"", "static", node, 0, 0, 0, 0, 0, 0).get();
+	rawOdometryParentNode       = innerModel->newNode<InnerModelTransform>(id+"_raw_odometry_parent\"", "static", 0, 0, 0, 0, 0, 0, 0, 				std::shared_ptr<InnerModelNode>(parent)).get();
+	rawOdometryNode             = innerModel->newNode<InnerModelTransform>(id+"_raw_odometry\"", "static",  0, 0, 0, 0, 0, 0, 0, std::shared_ptr<InnerModelNode>(rawOdometryParentNode)).get();
+	correctedOdometryParentNode = innerModel->newNode<InnerModelTransform>(id+"_corrected_odometry_parent\"", "static", 0, 0, 0, 0, 0, 0, 0, std::shared_ptr<InnerModelNode>(parent)).get();
+	correctedOdometryNode       = innerModel->newNode<InnerModelTransform>(id+"_corrected_odometry\"", "static", 0, 0, 0, 0, 0, 0, 0,  std::shared_ptr<InnerModelNode>(correctedOdometryParentNode)).get();
+	movementFutureNode          = innerModel->newNode<InnerModelTransform>(id+"_move\"", "static", 0, 0, 0, 0, 0, 0, 0, std::shared_ptr<InnerModelNode>(node)).get();
 }
 
 

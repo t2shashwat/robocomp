@@ -26,12 +26,11 @@ JointMotorServer::JointMotorServer(Ice::CommunicatorPtr communicator, std::share
 	comm = communicator;
 	std::string name = std::string("JointMotor") + out1.str();
 	std::string endp = std::string("tcp -p ")    + out1.str();
-
 	adapter = communicator->createObjectAdapterWithEndpoints(name, endp);
-	printf("Creating JointMotor adapter <<%s>> with endpoint <<%s>>\n", name.c_str(), endp.c_str());
 	interface = new JointMotorI(worker);
 	adapter->add(interface, Ice::stringToIdentity("jointmotor"));
 	adapter->activate();
+	printf("Creating JointMotor adapter <<%s>> with endpoint <<%s>>\n", name.c_str(), endp.c_str());
 }
 
 

@@ -42,11 +42,12 @@ bool InnerModel::support_fcl()
 InnerModel::InnerModel(std::string xmlFilePath)
 {
 	//QMutexLocker ml(mutex);
-	root = NULL;
+	root = nullptr;
 	if (not InnerModelReader::load(QString::fromStdString(xmlFilePath), this))
 	{
 		throw std::string("InnerModelReader::load error using file " + xmlFilePath);
 	}
+	createHash(root);
 }
 
 InnerModel::InnerModel()
@@ -55,7 +56,7 @@ InnerModel::InnerModel()
 	
 	// Set Root node
 	auto root = newNode<InnerModelTransform>("root", "static", 0, 0, 0, 0, 0, 0, 0);
-	root->parent = NULL;
+	root->parent = nullptr;
 	setRoot(root);
 	root->innerModel = this;
 	hash.insert(std::pair<std::string,std::shared_ptr<InnerModelNode>>("root", root));
@@ -185,7 +186,7 @@ void InnerModel::moveSubTree(std::shared_ptr<InnerModelNode> nodeSrc,std::shared
 
 void InnerModel::computeLevels(std::shared_ptr<InnerModelNode> node)
 {
-	if (node->parent != NULL )
+	if (node->parent != nullptr )
 	{
 		node->level=node->parent->level+1;
 	}
@@ -202,7 +203,10 @@ bool InnerModel::save(std::string path)
 		return false;
 
 	QTextStream out(&file);
-	root->save(out, 0);
+	if (root != nullptr)
+	{
+		root->save(out, 0);
+	}
 	file.close();
 	return true;
 }
@@ -497,11 +501,11 @@ void InnerModel::setRoot(std::shared_ptr<InnerModelNode> node)
 	
 	root = node;
 	hash["root"] = root;
-	root->parent=NULL;
+	root->parent = nullptr;
 }
 
 /// New constructor
-template<typename T, typename... Ts>
+/*template<typename T, typename... Ts>
 std::shared_ptr<T> InnerModel::newNode(Ts&&... params)
 {
 	auto t = std::make_tuple(params...);
@@ -510,9 +514,10 @@ std::shared_ptr<T> InnerModel::newNode(Ts&&... params)
 		throw InnerModelException("InnerModel::newNode Error: Cannot insert new node with already existing name" + id);
 
 	std::shared_ptr<T> node(new T(std::forward<Ts>(params)...)); 
+
 	hash.insert(std::pair<std::string,std::shared_ptr<InnerModelNode>>(id, std::static_pointer_cast<InnerModelNode>(node)));
 	return node;
-}
+}*/
 
 ///TODO REMOVE
 /*InnerModelJoint *InnerModel::newJoint(QString id, InnerModelTransform *parent,float lx, float ly, float lz,float hx, float hy, float hz, float tx, float ty, float tz, float rx, float ry, float rz, float min, float max, uint32_t port,std::string axis, float home)

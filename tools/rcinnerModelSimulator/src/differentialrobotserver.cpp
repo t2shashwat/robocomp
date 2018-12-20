@@ -25,10 +25,10 @@ DifferentialRobotServer::DifferentialRobotServer(Ice::CommunicatorPtr communicat
 	std::string name = std::string("DifferentialRobot") + out1.str();
 	std::string endp = std::string("tcp -p ") + out1.str();
 	adapter = communicator->createObjectAdapterWithEndpoints(name, endp);
-	printf("Creating DifferentialRobot adapter <<%s>> with endpoint <<%s>>\n", name.c_str(), endp.c_str());
 	interface = new DifferentialRobotI(worker);
 	adapter->add(interface, Ice::stringToIdentity("differentialrobot"));
 	adapter->activate();
+	printf("Creating DifferentialRobot adapter <<%s>> with endpoint <<%s>>\n", name.c_str(), endp.c_str());	
 }
 
 void DifferentialRobotServer::add(InnerModelDifferentialRobot *differentialrobot)

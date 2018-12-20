@@ -41,6 +41,7 @@ void ServersInitiator::walkTree(InnerModelNode *node)
 	
 	for(auto &it : node->children)	
 	{
+qDebug()<<"node"<<it->id.c_str();		
 		addServer<InnerModelNode, InnerModelDifferentialRobot, DifferentialRobotServer>(it.get());
 		addServer<InnerModelNode, InnerModelOmniRobot, OmniRobotServer>(it.get());
 		addServer<InnerModelNode, InnerModelDisplay, DisplayServer>(it.get());
@@ -54,14 +55,18 @@ void ServersInitiator::walkTree(InnerModelNode *node)
 
 void ServersInitiator::removeJointMotorServer(InnerModelJoint *node)
 {
-	for (auto &[k, v] : hMaps.getMap<JointMotorServer>())
+	for (auto &[k, v] : hMaps)
 	{
-		v.remove(node);
-		if (v.empty())
+		try
 		{
-			jointServersToShutDown.push_back(&(v));
-			hMaps.erase<JointMotorServer>(k);
-		}
+			auto njoint = std::get<JointMotorServer>(v);
+			njoint.remove(node);
+			if (njoint.empty())
+			{
+				jointServersToShutDown.push_back(&(njoint));
+				hMaps.erase(k);
+			}
+		}catch(...){}
 	}
 }
 

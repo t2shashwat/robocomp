@@ -360,7 +360,8 @@ if sys.argv[1].endswith(".cdsl"):
 						sys.exit(-1)
 					replaceTagsInFile(ofile)
 	else:
-		print 'Unsupported language', component['language']
+		print 'Unsupported language', component['language'], 'check cdsl file content'
+		sys.exit(0)
 
 	if component['usingROS'] == True:
 		for imp in component['imports']:

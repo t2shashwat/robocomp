@@ -202,7 +202,7 @@ void InnerModelTransform::transformValues(const RTMat &Tpb, float tx, float ty, 
 	QVec angles = Tpi.extractAnglesR();
 	QVec tr = Tpi.getTr();
 
-	update(angles.x(),angles.y(),angles.z(),tr.x(),tr.y(),tr.z());
+	update(tr.x(),tr.y(),tr.z(),angles.x(),angles.y(),angles.z());
 }
 
 void InnerModelTransform::translateValues(const RTMat &Tpb, float tx, float ty, float tz)

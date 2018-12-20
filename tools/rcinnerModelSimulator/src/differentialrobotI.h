@@ -30,7 +30,6 @@
 #include <OmniRobot.h>
 #include <omnirobotI.h>
 #include <innermodel/innermodel.h>
-#include <innermodel/innermodeltransform.h>
 #include <memory>
 
 // Simulator includes

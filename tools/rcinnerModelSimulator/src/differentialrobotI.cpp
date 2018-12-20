@@ -51,7 +51,7 @@ void DifferentialRobotI::add(std::string id)
 	differentialIDs << QString::fromStdString(id);
 	newAngle = innerModel->getRotationMatrixTo(parent->id, id).extractAnglesR()(1);
 	noisyNewAngle = innerModel->getRotationMatrixTo(parent->id, id).extractAnglesR()(1);
-	realNode = innerModel->newNode<InnerModelTransform>(id+"_odometry\"", "static", parent, 0, 0, 0, 0, newAngle, 0).get();
+	realNode = innerModel->newNode<InnerModelTransform>(id+"_odometry\"", "static", 0, 0, 0, 0, newAngle, 0, 0, std::shared_ptr<InnerModelTransform>(parent)).get();
 }
 
 void DifferentialRobotI::run()
@@ -126,7 +126,7 @@ void DifferentialRobotI::updateInnerModelPose(bool force)
 	{
 		return;
 	}
-
+innerModel->cleanupTables();
 	timeval now;
 	gettimeofday(&now, NULL);
 	const double msecs = (now.tv_sec - lastCommand_timeval.tv_sec)*1000. +(now.tv_usec - lastCommand_timeval.tv_usec)/1000.;

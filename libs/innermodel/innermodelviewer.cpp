@@ -36,13 +36,12 @@ InnerModelViewer::InnerModelViewer(const std::shared_ptr<InnerModel> &im, std::s
 	
 	// Get main node
 	std::shared_ptr<InnerModelNode> imnode = innerModel->getNode<InnerModelNode>(root);
-	if (not imnode)
+	if (imnode == nullptr)
 	{
 		std::cout << "InnerModelViewer::InnerModelViewer(): Error: Specified root node" << root << "not found." <<std::endl;
 		throw "InnerModelViewer::InnerModelViewer(): Error: Specified root node not found.";
 	}
 	recursiveConstructor(imnode.get(), this, mts, meshHash, ignoreCameras); //mts, osgmeshes, osgmeshPats);
-	
 	// Update
 	update();
 	if (parent)
@@ -212,7 +211,6 @@ void InnerModelViewer::recursiveConstructor(InnerModelNode *node, osg::Group* pa
 	InnerModelLaser *laser;
 	InnerModelTransform *transformation;
 	InnerModelDisplay *display;
-
 	// Find out which kind of node are we dealing with
 	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
 	{
@@ -374,7 +372,8 @@ void InnerModelViewer::update()
 		foreach(QString key, mts.keys())
 		{
 			InnerModelNode *node = innerModel->getNode<InnerModelNode>(key.toStdString()).get();
-			if (node->parent)
+			
+			if (node->parent != nullptr)
 			{
 				mts[key]->setMatrix(QMatToOSGMat4(*node));
 			}

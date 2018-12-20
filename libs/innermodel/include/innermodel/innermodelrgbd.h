@@ -25,7 +25,7 @@ class InnerModel;
 class InnerModelRGBD : public InnerModelCamera
 {
 	public:
-		InnerModelRGBD(std::string id_, float width, float height, float focal, float _noise, uint32_t _port, std::string _ifconfig, InnerModel *innermdoel_, std::shared_ptr<InnerModelNode> parent_=nullptr);
+		InnerModelRGBD(std::string id_, float width, float height, float focal, float _noise, uint32_t _port, std::string _ifconfig, InnerModel *innermodel_, std::shared_ptr<InnerModelNode> parent_=nullptr);
 		void save(QTextStream &out, int tabs);
 		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 	

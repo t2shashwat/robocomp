@@ -168,7 +168,18 @@ public:
 	
 	/// New constructor
 	template<typename T, typename... Ts>
-	std::shared_ptr<T> newNode(Ts&&... params);
+	std::shared_ptr<T> newNode(Ts&&... params)
+	{
+		auto t = std::make_tuple(params...);
+		std::string id = std::string(std::get<0>(t));
+		if(hash.find(id) != hash.end())
+			throw InnerModelException("InnerModel::newNode Error: Cannot insert new node with already existing name: " + id);
+
+		std::shared_ptr<T> node(new T(std::forward<Ts>(params)...)); 
+
+		hash.insert(std::make_pair(id, std::static_pointer_cast<InnerModelNode>(node)));
+		return node;
+	}
 	
 	std::list<std::string> getIDKeys()
 	{	
@@ -181,15 +192,27 @@ public:
 	template <typename N> 
 	std::shared_ptr<N> getNode(const std::string &id) 
 	{
-		return std::dynamic_pointer_cast<N>(hash.at(id));
+		auto n = hash.at(id);
+		return std::dynamic_pointer_cast<N>(n);
 	}
 	
 	template <typename N> 
 	std::shared_ptr<N> getNode(const std::string &id) const
 	{
-		return std::dynamic_pointer_cast<N>(hash.at(id));
+		auto n = hash.at(id);
+		return std::dynamic_pointer_cast<N>(n);
 	}
 
+	void createHash(std::shared_ptr<InnerModelNode> &node)
+	{
+		if(hash.find(node->id) == hash.end())
+			hash.insert(std::make_pair(node->id, node));
+		for (auto i : node->children)
+		{
+			createHash(i);
+		}
+	}
+	
 	/////////////////////////////////////////////
 	/// Graph editing methods
 	/////////////////////////////////////////////

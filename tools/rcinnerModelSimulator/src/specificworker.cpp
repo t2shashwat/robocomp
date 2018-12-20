@@ -33,30 +33,24 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 
 	// Initialize InnerModel from file
 	innerModel = std::make_shared<InnerModel>(_innerModelXML);
-	
 	qDebug() << __FILE__ << __FUNCTION__ << "InnerModel read";
-	
+
 	//add name of .xml to window
 	setWindowTitle(windowTitle() + "\t" + _innerModelXML);
-
 	// Initialize the Inner Model Viewer
 	QGLFormat fmt;
 	fmt.setDoubleBuffer(true);
 	QGLFormat::setDefaultFormat(fmt);
 	viewer = new OsgView(frameOSG);
-	
 	// create InnerModelViewer
 	imv = std::make_shared<InnerModelViewer>(innerModel, "root", viewer->getRootGroup());
-
 	// view manipulator
 	manipulator = new osgGA::TrackballManipulator;
 	// 	manipulator->setHomePosition(osg::Vec3d(0, 10000, 0), osg::Vec3d(0, 0, 0), osg::Vec3d(0, 0, -10000), true);
 	viewer->setCameraManipulator(manipulator, true);
-	
 	// Add mouse pick handler to publish 3D coordinates
 	if (rcis_mousepicker_proxy)
 		viewer->addEventHandler(new PickHandler(rcis_mousepicker_proxy));
-
 	// Restore previous camera position
 	settings = new QSettings("RoboComp", "RCIS");
 	QString path(_innerModelXML);
@@ -98,14 +92,12 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	//Init viewer
 	viewer->realize();
 	//viewer->setThreadingModel( osgViewer::ViewerBase::ThreadPerCamera);
-	
+qDebug()<<"initserver";	
 	//Initialize Ice interfaces
 	servers.init(innerModel, imv, worker, communicator); 
-
+qDebug()<<"initserverend";	
 	// Initialize the timer
 	setPeriod(ms);	
-	
-	//qDebug() << __FILE__ << __FUNCTION__ << "CPP " << __cplusplus;
 }
 
 void SpecificWorker::compute()
