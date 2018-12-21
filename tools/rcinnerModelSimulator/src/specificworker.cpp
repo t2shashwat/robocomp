@@ -92,10 +92,8 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	//Init viewer
 	viewer->realize();
 	//viewer->setThreadingModel( osgViewer::ViewerBase::ThreadPerCamera);
-qDebug()<<"initserver";	
 	//Initialize Ice interfaces
 	servers.init(innerModel, imv, worker, communicator); 
-qDebug()<<"initserverend";	
 	// Initialize the timer
 	setPeriod(ms);	
 }

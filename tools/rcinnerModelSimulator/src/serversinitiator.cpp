@@ -18,7 +18,7 @@
 #include "serversinitiator.h"
 
 void ServersInitiator::init(std::shared_ptr<InnerModel> innerModel_, std::shared_ptr<InnerModelViewer> imv_ , 
-														std::shared_ptr<SpecificWorker> worker_, Ice::CommunicatorPtr communicator_)
+							std::shared_ptr<SpecificWorker> worker_, Ice::CommunicatorPtr communicator_)
 {
 	innerModel = innerModel_;
 	imv = imv_;
@@ -41,7 +41,6 @@ void ServersInitiator::walkTree(InnerModelNode *node)
 	
 	for(auto &it : node->children)	
 	{
-qDebug()<<"node"<<it->id.c_str();		
 		addServer<InnerModelNode, InnerModelDifferentialRobot, DifferentialRobotServer>(it.get());
 		addServer<InnerModelNode, InnerModelOmniRobot, OmniRobotServer>(it.get());
 		addServer<InnerModelNode, InnerModelDisplay, DisplayServer>(it.get());

@@ -790,29 +790,40 @@ QVec InnerModel::rotationAngles(const std::string & destId, const std::string & 
 	return getTransformationMatrix(destId, origId).extractAnglesR();
 }
 
+void InnerModel::removeOldHashTrNode(const std::string &node)
+{
+	for (auto [key, value]: localHashTr)
+	{
+		if(std::find (value.first.begin(), value.first.end(), node) != value.first.cend())
+			localHashTr.erase(key);
+	}
+}
 
 /// Matrix transformation retrieval methods
 RTMat InnerModel::getTransformationMatrix(const std::string &to, const std::string &from)
 {
 	RTMat ret;
-
-	
 	if (localHashTr.find(std::pair<std::string, std::string>(to, from)) != localHashTr.end())
 	{
-		ret = localHashTr[std::pair<std::string, std::string>(to, from)];
+		ret = localHashTr[std::pair<std::string, std::string>(to, from)].second;
 	}
 	else
 	{
+		std::list<std::string> nodeList;
+		nodeList.push_back(to);
+		nodeList.push_back(from);
 		setLists(from, to);
 		foreach (auto i, listA)
 		{
+			nodeList.push_back(i->id);
 			ret = ((RTMat)(*i)).operator*(ret);
 		}
 		foreach (auto i, listB)
 		{
+			nodeList.push_back(i->id);
 			ret = i->invert() * ret;
 		}
-		localHashTr[std::pair<std::string, std::string>(to, from)] = ret;
+		localHashTr[std::pair<std::string, std::string>(to, from)] = std::make_pair(nodeList, ret);
 	}
 	return RTMat(ret);
 }
@@ -877,7 +888,7 @@ void InnerModel::setLists(const std::string & origId, const std::string & destId
 	while (a->level >= minLevel)
 	{
 		listA.push_back(a);
-		if(a->parent == NULL)
+		if(a->parent == nullptr)
 		{
 			// 			error.sprintf("InnerModel::setLists: It wouldn't be here!!!!");
 			break;
@@ -889,7 +900,7 @@ void InnerModel::setLists(const std::string & origId, const std::string & destId
 	while (b->level >= minLevel)
 	{
 		listB.push_front(b);
-		if(b->parent == NULL)
+		if(b->parent == nullptr)
 		{
 			// 			error.sprintf("InnerModel::setLists: It wouldn't be here!!!!");
 			break;

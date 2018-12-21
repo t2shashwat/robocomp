@@ -88,7 +88,7 @@ public:
 //	void setUpdateTranslationPointers(QString translationId, float *x, float *y, float *z);
 //	void setUpdatePlanePointers(QString planeId, float *nx, float *ny, float *nz, float *px, float *py, float *pz);
 //	void setUpdateTransformPointers(std::string transformId, float *tx, float *ty, float *tz, float *rx, float *ry, float *rz);
-	void cleanupTables();
+	
 /*	void updateTransformValues(std::string transformId, float tx, float ty, float tz, float rx, float ry, float rz, QString parentId="");
 	void updateTransformValues(std::string transformId, QVec v, std::string parentId="");
 	void updateTransformValuesS(std::string transformId, float tx, float ty, float tz, float rx, float ry, float rz, std::string parentId="");
@@ -100,6 +100,11 @@ public:
 	void updatePlaneValues(std::string planeId, float nx, float ny, float nz, float px, float py, float pz);
 	void updateDisplay(std::string displayId, std::string texture);
 */	
+	////////////////////////////////
+	/// Cache
+	////////////////////////////////
+	void removeOldHashTrNode(const std::string &node);
+	void cleanupTables();
 	////////////////////////////////
 	/// Factory constructors
 	///////////////////////////////
@@ -266,7 +271,7 @@ public:
 	QMat jacobianSPython(const  boost::python::list &listaJointsP, const QVec &motores, const std::string &endEffector)
 	{
 		std::vector<std::string> listaJoint = std::vector<std::string>(boost::python::stl_input_iterator<std::string>(listaJointsP), boost::python::stl_input_iterator<std::string>( ) );
-		return jacobianS(listaJoint, motores, endEffector);
+		return jacobian(listaJoint, motores, endEffector);
 	}
 #endif
 
@@ -280,11 +285,11 @@ public:
 	////////////////
 	/// Laser stuff DEPRECATED
 	////////////////
-	QVec laserTo(const std::string &dest, const std::string & laserId , float r, float alfa)
+/*	QVec laserTo(const std::string &dest, const std::string & laserId , float r, float alfa)
 	{
 		//qDebug() << __FUNCTION__ << "DEPRECATED. Use getNode<InnerModelLaser>(laserId)->laserTo(dest,laserId, r, alfa) ";
 		return getNode<InnerModelLaser>(laserId)->laserTo(dest, r, alfa);
-	};
+	};*/
 
 	//QMutex *mutex;
 	mutable std::recursive_mutex mutex;
@@ -292,7 +297,7 @@ public:
 protected:
 	std::shared_ptr<InnerModelNode> root;
 	std::map<std::string, std::shared_ptr<InnerModelNode>> hash;
-	std::map<std::pair<std::string, std::string>, RTMat> localHashTr;
+	std::map<std::pair<std::string, std::string>,std::pair<std::list<std::string>, RTMat>> localHashTr;
 	std::map<std::pair<std::string, std::string>, QMat> localHashRot;
 	//QHash<QPair<std::string, std::string>, RTMat> localHashTr;
 	//QHash<QPair<std::string, std::string>, QMat> localHashRot;
