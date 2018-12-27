@@ -60,7 +60,7 @@ class InnerModelNode : public RTMat
 		virtual void print(bool verbose) = 0;
 //		virtual void update() = 0;
 		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent) = 0;
-		virtual void save(QTextStream &out, int tabs) = 0;
+		virtual void save(std::ofstream &out, int tabs) = 0;
 		void setParent(std::shared_ptr<InnerModelNode>parent_);
 		void addChild(std::shared_ptr<InnerModelNode> child);
 		void setFixed(bool f=true);

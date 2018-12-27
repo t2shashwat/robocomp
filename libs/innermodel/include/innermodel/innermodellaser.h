@@ -26,7 +26,7 @@ class InnerModelLaser : public InnerModelNode
 {
 	public:
 		InnerModelLaser(std::string id_, uint32_t _port, uint32_t _min, uint32_t _max, float _angle, uint32_t _measures, std::string _ifconfig, InnerModel *innermodel_, std::shared_ptr<InnerModelNode> parent_=nullptr);
-		void save(QTextStream &out, int tabs);
+		void save(std::ofstream &out, int tabs);
 		void print(bool verbose);
 		void update();
 		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);

@@ -25,7 +25,7 @@ InnerModelPointCloud::InnerModelPointCloud(std::string id_, std::shared_ptr<Inne
 	id = id_;
 }
 
-void InnerModelPointCloud::save(QTextStream &out, int tabs)
+void InnerModelPointCloud::save(std::ofstream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
 	out << "<pointcloud id=\""<<id.c_str()<<"\"/>\n";

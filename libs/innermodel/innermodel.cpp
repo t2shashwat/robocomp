@@ -198,14 +198,14 @@ void InnerModel::computeLevels(std::shared_ptr<InnerModelNode> node)
 
 bool InnerModel::save(std::string path)
 {
-	QFile file(QString::fromStdString(path));
-	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+	std::ofstream file;
+	file.open(path);
+	if (!file.is_open())
 		return false;
 
-	QTextStream out(&file);
 	if (root != nullptr)
 	{
-		root->save(out, 0);
+		root->save(file, 0);
 	}
 	file.close();
 	return true;

@@ -44,7 +44,7 @@ void InnerModelCamera::update()
 	updateChildren();
 }
 
-void InnerModelCamera::save(QTextStream &out, int tabs)
+void InnerModelCamera::save(std::ofstream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
 	out << "<camera id=\"" << id.c_str() << "\" width=\"" << std::to_string(width).c_str() << "\" height=\"" << std::to_string(height).c_str() << "\" focal=\"" << std::to_string(camera.getFocal()).c_str() << "\" />\n";

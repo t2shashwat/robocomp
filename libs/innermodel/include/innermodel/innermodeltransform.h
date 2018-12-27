@@ -42,7 +42,7 @@ class InnerModelTransform : public InnerModelNode
 		virtual ~InnerModelTransform();
 
 		void print(bool verbose);
-		void save(QTextStream &out, int tabs);
+		void save(std::ofstream &out, int tabs);
 //		void setUpdatePointers(float *tx_, float *ty_, float *tz_, float *rx_, float *ry_, float *rz_);
 //		void setUpdateTranslationPointers(float *tx_, float *ty_, float *tz_);
 //		void setUpdateRotationPointers(float *rx_, float *ry_, float *rz_);

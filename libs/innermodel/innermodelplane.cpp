@@ -120,7 +120,7 @@ void InnerModelPlane::print(bool verbose)
 		normal.print( QString::fromStdString("Plane: " + id));
 }
 
-void InnerModelPlane::save(QTextStream &out, int tabs)
+void InnerModelPlane::save(std::ofstream &out, int tabs)
 {
 // 	float width, height, depth;
 	for (int i=0; i<tabs; i++) 

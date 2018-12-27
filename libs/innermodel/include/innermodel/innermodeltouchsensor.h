@@ -25,7 +25,7 @@ class InnerModelTouchSensor :public InnerModelNode
 	public:
 		InnerModelTouchSensor(std::string id_, std::string stype, float nx_, float ny_, float nz_, float min_=-INFINITY, float max_=INFINITY, uint32_t port_=0, std::shared_ptr<InnerModelNode> parent_=nullptr);
 		void print(bool verbose) {verbose = true;}
-		void save(QTextStream &out, int tabs){}
+		void save(std::ofstream &out, int tabs){}
 		QVec getMeasure() { return value; }
 		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 

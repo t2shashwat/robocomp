@@ -72,7 +72,7 @@ void InnerModelJoint::print(bool verbose)
 	}
 }
 
-void InnerModelJoint::save(QTextStream &out, int tabs)
+void InnerModelJoint::save(std::ofstream &out, int tabs)
 {
 	QList<InnerModelNode*>::iterator c;
 	for (int i=0; i<tabs; i++)

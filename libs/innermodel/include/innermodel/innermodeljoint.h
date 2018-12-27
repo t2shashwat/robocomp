@@ -27,7 +27,7 @@ class InnerModelJoint : public InnerModelTransform
 		InnerModelJoint(std::string id_, float lx_, float ly_, float lz_, float hx_, float hy_, float hz_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float min_=-INFINITY, float max_=INFINITY, uint32_t port_=0,std::string axis_="z", float home_=0, std::shared_ptr<InnerModelTransform> parent_=nullptr);
 
 		void print(bool verbose);
-		void save(QTextStream &out, int tabs);
+		void save(std::ofstream &out, int tabs);
 		void update(float lx_, float ly_, float lz_, float hx_, float hy_, float hz_);
 		float getAngle();
 		float setAngle(float angle, bool force=false);

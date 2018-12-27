@@ -31,7 +31,7 @@ InnerModelRGBD::InnerModelRGBD(std::string id_, float width, float height, float
 
 
 
-void InnerModelRGBD::save(QTextStream &out, int tabs)
+void InnerModelRGBD::save(std::ofstream &out, int tabs)
 {
 	
 // 	<rgbd id="laser" focal="120" width="160" height="120" port="10097" ifconfig="10068,10004" />

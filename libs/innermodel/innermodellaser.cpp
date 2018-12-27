@@ -34,7 +34,7 @@ InnerModelLaser::InnerModelLaser(std::string id_, uint32_t _port, uint32_t _min,
 	//qDebug() << __FUNCTION__ << id << port << min << max << angle << measures;
 }
 
-void InnerModelLaser::save(QTextStream &out, int tabs)
+void InnerModelLaser::save(std::ofstream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
 

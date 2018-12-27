@@ -111,7 +111,7 @@ InnerModelMesh::InnerModelMesh(std::string id_, std::string meshPath_, float sca
 #endif
 }
 
-void InnerModelMesh::save(QTextStream &out, int tabs)
+void InnerModelMesh::save(std::ofstream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
 	out << "<mesh id=\""<<id.c_str()<<"\"" <<" file=\"" << meshPath.c_str()

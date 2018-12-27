@@ -42,7 +42,7 @@ void InnerModelPrismaticJoint::print(bool verbose)
 	}
 }
 
-void InnerModelPrismaticJoint::save(QTextStream &out, int tabs)
+void InnerModelPrismaticJoint::save(std::ofstream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
 	out << "### joints cannot be saved yet ###\n";

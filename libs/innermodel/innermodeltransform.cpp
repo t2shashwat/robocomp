@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-
+#include "innermodel.h"
 #include "innermodeltransform.h"
 
 InnerModelTransform::InnerModelTransform(std::string id_, std::string engine_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, float mass_, std::shared_ptr<InnerModelNode> parent_) : InnerModelNode(id_, parent_)
@@ -51,7 +51,7 @@ void InnerModelTransform::print(bool verbose)
 	}
 }
 
-void InnerModelTransform::save(QTextStream &out, int tabs)
+void InnerModelTransform::save(std::ofstream &out, int tabs)
 {
 	if (id == "root")
 	{
@@ -160,8 +160,8 @@ void InnerModelTransform::update(float tx_, float ty_, float tz_, float rx_, flo
 	backtX = tx_; backtY = ty_; backtZ = tz_;
 	set(backrX, backrY, backrZ, backtX, backtY, backtZ);
 	fixed = true;
-//	if (innerModel != nullptr)
-//		innerModel->cleanUpTables();//removeOldHashTrNode(id);
+	if (innerModel != nullptr)
+		innerModel->removeOldHashTrNode(id);
 }
 void InnerModelTransform::updateT(float tx_, float ty_, float tz_)
 {

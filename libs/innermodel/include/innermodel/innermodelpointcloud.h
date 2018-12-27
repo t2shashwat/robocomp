@@ -24,7 +24,7 @@ class InnerModelPointCloud : public InnerModelNode
 {
 	public:
 		InnerModelPointCloud(std::string id_, std::shared_ptr<InnerModelNode> parent_=nullptr);
-		void save(QTextStream &out, int tabs);
+		void save(std::ofstream &out, int tabs);
 		void print(bool verbose);
 		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 };

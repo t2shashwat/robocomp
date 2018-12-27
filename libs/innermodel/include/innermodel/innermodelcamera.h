@@ -27,7 +27,7 @@ class InnerModelCamera : public InnerModelNode
 	public:
 		InnerModelCamera(std::string id_, float width_, float height_, float focal_, InnerModel* innermodel_, std::shared_ptr<InnerModelNode> parent_= NULL);
 		void print(bool verbose);
-		void save(QTextStream &out, int tabs);
+		void save(std::ofstream &out, int tabs);
 		void update();
 		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 

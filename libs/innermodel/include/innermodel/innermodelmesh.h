@@ -129,7 +129,7 @@ class InnerModelMesh : public InnerModelNode
 			enum RenderingModes { NormalRendering=0, WireframeRendering=1};		
 			InnerModelMesh(std::string id_, std::string meshPath_, float scale, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable, std::shared_ptr<InnerModelNode> parent_=nullptr);
 			InnerModelMesh(std::string id_, std::string meshPath_, float scalex_, float scaley_, float scalez_, RenderingModes render_, float tx_, float ty_, float tz_, float rx_, float ry_, float rz_, bool collidable, std::shared_ptr<InnerModelNode> parent_=nullptr);
-			void save(QTextStream &out, int tabs);
+			void save(std::ofstream &out, int tabs);
 			void print(bool verbose);
 			void update();
 			void setScale(float x, float y, float z);

@@ -25,7 +25,7 @@ InnerModelIMU::InnerModelIMU(std::string id_, uint32_t _port, std::shared_ptr<In
 	port = _port;
 }
 
-void InnerModelIMU::save(QTextStream &out, int tabs)
+void InnerModelIMU::save(std::ofstream &out, int tabs)
 {
 	for (int i=0; i<tabs; i++) out << "\t";
 	out << "<imu id=\"" << id.c_str() << "\" />\n";
