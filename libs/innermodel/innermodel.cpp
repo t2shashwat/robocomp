@@ -792,10 +792,27 @@ QVec InnerModel::rotationAngles(const std::string & destId, const std::string & 
 
 void InnerModel::removeOldHashTrNode(const std::string &node)
 {
-	for (auto [key, value]: localHashTr)
+	for (auto it = localHashTr.begin(); it != localHashTr.end();)
 	{
-		if(std::find (value.first.begin(), value.first.end(), node) != value.first.cend())
-			localHashTr.erase(key);
+		if(std::find (it->second.first.begin(), it->second.first.end(), node) != it->second.first.cend())
+		{
+			it = localHashTr.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
+void InnerModel::removeOldHashRtNode(const std::string &node)
+{
+	for (auto it = localHashRot.begin(); it != localHashRot.end();)
+	{
+		if(std::find (it->second.first.begin(), it->second.first.end(), node) != it->second.first.cend())
+		{
+			it = localHashRot.erase(it);
+		}
+		else
+			++it;
 	}
 }
 
@@ -837,15 +854,15 @@ RTMat InnerModel::getTransformationMatrix(const std::string &to, const std::stri
 QMat InnerModel::getRotationMatrixTo(const std::string &to, const std::string &from)
 {
 	QMat rret = QMat::identity(3);
-
-	
-
 	if (localHashRot.find(std::pair<std::string, std::string>(to, from)) != localHashRot.end())
 	{
-		rret = localHashRot[std::pair<std::string, std::string>(to, from)];
+		rret = localHashRot[std::pair<std::string, std::string>(to, from)].second;
 	}
 	else
 	{
+		std::list<std::string> nodeList;
+		nodeList.push_back(to);
+		nodeList.push_back(from);
 		setLists(from, to);
 		InnerModelTransform *tf=NULL;
 
@@ -853,6 +870,7 @@ QMat InnerModel::getRotationMatrixTo(const std::string &to, const std::string &f
 		{
 			if ((tf=dynamic_cast<InnerModelTransform *>(i.get()))!=NULL)
 			{
+				nodeList.push_back(i->id);
 				rret = tf->getR() * rret;
 			}
 		}
@@ -860,10 +878,11 @@ QMat InnerModel::getRotationMatrixTo(const std::string &to, const std::string &f
 		{
 			if ((tf=dynamic_cast<InnerModelTransform *>(i.get()))!=NULL)
 			{
+				nodeList.push_back(i->id);
 				rret = tf->getR().transpose() * rret;
 			}
 		}
-		localHashRot[std::pair<std::string, std::string>(to, from)] = rret;
+		localHashRot[std::pair<std::string, std::string>(to, from)] = std::make_pair(nodeList, rret);
 	}
 	return rret;
 }

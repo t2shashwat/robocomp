@@ -104,6 +104,7 @@ public:
 	/// Cache
 	////////////////////////////////
 	void removeOldHashTrNode(const std::string &node);
+	void removeOldHashRtNode(const std::string &node);
 	void cleanupTables();
 	////////////////////////////////
 	/// Factory constructors
@@ -298,7 +299,7 @@ protected:
 	std::shared_ptr<InnerModelNode> root;
 	std::map<std::string, std::shared_ptr<InnerModelNode>> hash;
 	std::map<std::pair<std::string, std::string>,std::pair<std::list<std::string>, RTMat>> localHashTr;
-	std::map<std::pair<std::string, std::string>, QMat> localHashRot;
+	std::map<std::pair<std::string, std::string>,std::pair<std::list<std::string>, QMat>> localHashRot;
 	//QHash<QPair<std::string, std::string>, RTMat> localHashTr;
 	//QHash<QPair<std::string, std::string>, QMat> localHashRot;
 

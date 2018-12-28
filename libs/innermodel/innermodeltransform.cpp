@@ -160,8 +160,10 @@ void InnerModelTransform::update(float tx_, float ty_, float tz_, float rx_, flo
 	backtX = tx_; backtY = ty_; backtZ = tz_;
 	set(backrX, backrY, backrZ, backtX, backtY, backtZ);
 	fixed = true;
-	if (innerModel != nullptr)
+	if (innerModel != nullptr){
 		innerModel->removeOldHashTrNode(id);
+		innerModel->removeOldHashRtNode(id);
+	}
 }
 void InnerModelTransform::updateT(float tx_, float ty_, float tz_)
 {
@@ -169,6 +171,8 @@ void InnerModelTransform::updateT(float tx_, float ty_, float tz_)
 	backtX = tx_; backtY = ty_; backtZ = tz_;
 	set(backrX, backrY, backrZ, backtX, backtY, backtZ);
 	fixed = true;
+	if (innerModel != nullptr)
+		innerModel->removeOldHashTrNode(id);
 }
 	
 void InnerModelTransform::updateR(float rx_, float ry_, float rz_)
@@ -177,6 +181,8 @@ void InnerModelTransform::updateR(float rx_, float ry_, float rz_)
 	backrX = rx_; backrY = ry_; backrZ = rz_;
 	set(backrX, backrY, backrZ, backtX, backtY, backtZ);
 	fixed = true;
+	if (innerModel != nullptr)
+		innerModel->removeOldHashRtNode(id);
 } 
 
 std::shared_ptr<InnerModelNode> InnerModelTransform::copyNode(std::map<std::string,std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
