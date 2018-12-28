@@ -1,0 +1,32 @@
+module RoboCompPlane
+{
+
+	struct PointXY
+	{
+		int x;
+		int y;
+	};
+
+
+	struct Dimensions
+	{
+		int width;
+		int height;
+	};
+
+	sequence <PointXY> Points;
+	
+	interface planeSetup
+	{
+		idempotent void setWidth ( int width, out Dimensions dims );
+		idempotent void setHeight ( int height, out Dimensions dims );
+		idempotent void setName ( string name, out string lastName );
+		idempotent void addPoint ( PointXY point , out Points pts );
+	};
+
+	interface Plane
+	{
+		idempotent void newPlaneName ( string planeName );
+		idempotent void newDimensions ( Dimensions dims );
+	};
+};
