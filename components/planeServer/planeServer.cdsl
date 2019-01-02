@@ -1,0 +1,12 @@
+import "Plane.idsl";
+
+Component planeServer
+{
+	Communications
+	{
+		implements planeSetup(ros);
+	};
+	language Cpp;
+	gui Qt(QWidget);
+};
+
