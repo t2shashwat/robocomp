@@ -65,17 +65,28 @@ void SpecificWorker::initialize(int period)
 void SpecificWorker::compute()
 {
 	QMutexLocker locker(mutex);
-	//computeCODE
-// 	try
-// 	{
-// 		camera_proxy->getYImage(0,img, cState, bState);
-// 		memcpy(image_gray.data, &img[0], m_width*m_height*sizeof(uchar));
-// 		searchTags(image_gray);
-// 	}
-// 	catch(const Ice::Exception &e)
-// 	{
-// 		std::cout << "Error reading from Camera" << e << std::endl;
-// 	}
+    
+    RoboCompPlaneROS::Dimensions dims ;
+    
+    dims.width = 200;
+    dims.height = 300;
+    std_msgs::String nombre;
+    nombre.data = "NombreActualizado1";
+    plane_proxy->newPlaneName(nombre);
+    plane_proxy->newDimensions ( dims ) ;
+    
+    dims.width = 400;
+    dims.height = 400;
+    nombre.data = "NombreActualizado2" ;
+    plane_proxy->newPlaneName ( nombre ) ;
+    plane_proxy->newDimensions ( dims ) ;
+    
+    dims.width = 600;
+    dims.height = 600;
+    nombre.data = "NombreActualizado3" ;
+    plane_proxy->newPlaneName ( nombre ) ;
+    plane_proxy->newDimensions ( dims ) ;
+    
 	ros::spinOnce();
 }
 

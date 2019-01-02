@@ -82,13 +82,13 @@ void SpecificWorker::compute()
 
 void SpecificWorker::newDimensions(RoboCompPlaneROS::Dimensions dims)
 {
-//subscribesToCODE
+    printf ( "Nueva dimension . Width: %d - Height: %d\n" , dims.width , dims.height );
 
 }
 
 void SpecificWorker::newPlaneName(std_msgs::String planeName)
 {
-//subscribesToCODE
+    std::cout << "Nuevo nombre. Nombre: " << planeName<< std::endl;
 
 }
 

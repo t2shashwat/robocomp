@@ -30,8 +30,8 @@ SET ( SOURCES
 #ROS
 find_package(catkin REQUIRED)
 include_directories(  ${catkin_INCLUDE_DIRS} )
-include_directories(  "/opt/ros/kinetic/include" )
-SET ( LIBS ${LIBS} ${catkin_LIBRARIES} -L/opt/ros/kinetic/lib -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lxmlrpcpp -lcpp_common -lrosconsole_log4cxx -lrosconsole_backend_interface)
+include_directories(  "/opt/ros/melodic/include" )
+SET ( LIBS ${LIBS} ${catkin_LIBRARIES} -L/opt/ros/melodic/lib -lroscpp -lrosconsole -lroscpp_serialization -lrostime -lxmlrpcpp -lcpp_common -lrosconsole_log4cxx -lrosconsole_backend_interface)
 
 
 
