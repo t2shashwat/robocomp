@@ -1,0 +1,12 @@
+import "Plane.idsl";
+
+Component planeSubscriberROS
+{
+	Communications
+	{
+		subscribesTo Plane(ros);
+	};
+	language Cpp;
+	gui Qt(QWidget);
+};
+

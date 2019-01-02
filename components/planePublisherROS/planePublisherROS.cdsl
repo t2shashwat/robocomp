@@ -1,0 +1,12 @@
+import "Plane.idsl";
+
+Component planePublisherROS
+{
+	Communications
+	{
+		publishes Plane(ros);
+	};
+	language Cpp;
+	gui Qt(QWidget);
+};
+
