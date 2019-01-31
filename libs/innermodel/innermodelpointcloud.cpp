@@ -37,7 +37,7 @@ void InnerModelPointCloud::print(bool verbose)
 		std::cout << "Point Cloud: " << id << std::endl;
 }
 
-std::shared_ptr<InnerModelNode> InnerModelPointCloud::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelPointCloud::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelPointCloud> ret(new InnerModelPointCloud(id, parent));
 	ret->level = level;

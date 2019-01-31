@@ -31,7 +31,7 @@ class InnerModelPrismaticJoint : public InnerModelTransform
 		void update();
 		float getPosition();
 		float setPosition(float v);
-		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		float value, offset;
 		float min, max;

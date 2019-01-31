@@ -92,7 +92,7 @@ float InnerModelPrismaticJoint::setPosition(float v)
 	return ret;
 }
 
-std::shared_ptr<InnerModelNode> InnerModelPrismaticJoint::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelPrismaticJoint::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelPrismaticJoint> ret (new InnerModelPrismaticJoint(id, min, max, value, offset, port, axis, home, std::static_pointer_cast<InnerModelTransform>(parent)));
 	ret->level = level;

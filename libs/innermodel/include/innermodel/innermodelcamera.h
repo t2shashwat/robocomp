@@ -29,7 +29,7 @@ class InnerModelCamera : public InnerModelNode
 		void print(bool verbose);
 		void save(std::ofstream &out, int tabs);
 		void update();
-		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		Cam camera;
 		float width, height, focal;

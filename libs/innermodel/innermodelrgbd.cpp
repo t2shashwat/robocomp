@@ -40,7 +40,7 @@ void InnerModelRGBD::save(std::ofstream &out, int tabs)
 }
 
 
-std::shared_ptr<InnerModelNode> InnerModelRGBD::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelRGBD::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelRGBD> ret (new InnerModelRGBD(id, width, height, focal, noise, port, ifconfig, innermodel, parent));
 	ret->level = level;

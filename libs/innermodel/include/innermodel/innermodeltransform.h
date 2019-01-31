@@ -52,7 +52,7 @@ class InnerModelTransform : public InnerModelNode
 		void updateT(float tx_, float ty_, float tz_);
 		void updateR(float rx_, float ry_, float rz_);
 		
-		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		void transformValues(const RTMat &Tpb, float tx, float ty, float tz, float rx, float ry, float rz);
 		void translateValues(const RTMat &Tpb, float tx, float ty, float tz);

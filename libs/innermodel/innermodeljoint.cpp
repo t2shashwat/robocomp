@@ -177,7 +177,7 @@ QVec InnerModelJoint::unitaryAxis()
 	return QVec::zeros(3);
 }
 
-std::shared_ptr<InnerModelNode> InnerModelJoint::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelJoint::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelJoint> ret;
 	if (axis == "x")

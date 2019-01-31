@@ -32,7 +32,7 @@ class InnerModelJoint : public InnerModelTransform
 		float getAngle();
 		float setAngle(float angle, bool force=false);
 		QVec unitaryAxis();
-		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		float backl;
 		float backh;

@@ -33,7 +33,7 @@ InnerModelTouchSensor::InnerModelTouchSensor(std::string id_, std::string stype_
 	port = port_;
 }
 
-std::shared_ptr<InnerModelNode> InnerModelTouchSensor::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelTouchSensor::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelTouchSensor> ret(new InnerModelTouchSensor(id, stype, nx, ny, nz, min, max, port, parent));
 	ret->level = level;

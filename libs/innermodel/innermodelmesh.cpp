@@ -144,7 +144,7 @@ bool InnerModelMesh::wireframeRendering() const {
 	return render == WireframeRendering;
 }
 
-std::shared_ptr<InnerModelNode> InnerModelMesh::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelMesh::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelMesh> ret(new InnerModelMesh(id, meshPath, scalex, scaley, scalez, render, tx, ty, tz, rx, ry, rz, collidable, parent));
 	ret->level = level;

@@ -33,7 +33,7 @@
     void save(std::ofstream &out, int tabs);
     void setUpdatePointers(float *nx_, float *ny_, float *nz_, float *px_, float *py_, float *pz_);
     void update(float nx_, float ny_, float nz_, float px_, float py_, float pz_);
-    virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
+    virtual std::shared_ptr<InnerModelNode> copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
     QVec normal, point;
     std::string texture;

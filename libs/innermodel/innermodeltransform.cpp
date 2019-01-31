@@ -185,7 +185,7 @@ void InnerModelTransform::updateR(float rx_, float ry_, float rz_)
 		innerModel->removeOldHashRtNode(id);
 } 
 
-std::shared_ptr<InnerModelNode> InnerModelTransform::copyNode(std::map<std::string,std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelTransform::copyNode(std::unordered_map<std::string,std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelTransform> ret( new InnerModelTransform(id, engine, backtX, backtY, backtZ, backrX, backrY, backrZ, mass, parent));
 	ret->level = level;

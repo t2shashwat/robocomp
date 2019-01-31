@@ -199,10 +199,9 @@ void InnerModel::computeLevels(std::shared_ptr<InnerModelNode> node)
 bool InnerModel::save(std::string path)
 {
 	std::ofstream file;
-	file.open(path);
+	file.open(path, std::ofstream::out);
 	if (!file.is_open())
 		return false;
-
 	if (root != nullptr)
 	{
 		root->save(file, 0);
@@ -778,6 +777,18 @@ QVec InnerModel::transform(const std::string &destId, const QVec &initVec, const
 	{
 		throw InnerModelException("InnerModel::transform was called with an unsupported vector size.");
 	}
+}
+QVec InnerModel::transform(const std::string &destId, const std::string & origId)
+{
+	return transform(destId, QVec::vec3(0,0,0), origId); 
+}
+QVec InnerModel::transform6D(const std::string &destId, const QVec &origVec, const std::string & origId)
+{
+	return transform(destId, origVec, origId); 
+}
+QVec InnerModel::transform6D(const std::string &destId, const std::string & origId)
+{ 
+	return transform(destId, QVec::vec6(0,0,0,0,0,0), origId);
 }
 
 /*QVec InnerModel::transformS(const std::string & destId, const QVec &origVec, const std::string & origId)

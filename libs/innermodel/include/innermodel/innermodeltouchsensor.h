@@ -27,7 +27,7 @@ class InnerModelTouchSensor :public InnerModelNode
 		void print(bool verbose) {verbose = true;}
 		void save(std::ofstream &out, int tabs){}
 		QVec getMeasure() { return value; }
-		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 		float nx, ny, nz;
 		float min, max;

@@ -54,7 +54,7 @@ void InnerModelLaser::update()
 	updateChildren();
 }
 
-std::shared_ptr<InnerModelNode> InnerModelLaser::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelLaser::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelLaser> ret(new InnerModelLaser(id, port, min, max, angle, measures, ifconfig, innermodel, parent));
 	ret->level = level;

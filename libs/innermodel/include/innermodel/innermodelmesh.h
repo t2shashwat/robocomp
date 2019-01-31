@@ -135,7 +135,7 @@ class InnerModelMesh : public InnerModelNode
 			void setScale(float x, float y, float z);
 			bool normalRendering() const;
 			bool wireframeRendering() const;
-			virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
+			virtual std::shared_ptr<InnerModelNode> copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 
 			RenderingModes render;
 			std::string meshPath;

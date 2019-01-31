@@ -50,7 +50,7 @@ void InnerModelCamera::save(std::ofstream &out, int tabs)
 	out << "<camera id=\"" << id.c_str() << "\" width=\"" << std::to_string(width).c_str() << "\" height=\"" << std::to_string(height).c_str() << "\" focal=\"" << std::to_string(camera.getFocal()).c_str() << "\" />\n";
 }
 
-std::shared_ptr<InnerModelNode> InnerModelCamera::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelCamera::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelCamera> ret(new InnerModelCamera(id, width, height, focal, innermodel, parent));
 	ret->level = level;

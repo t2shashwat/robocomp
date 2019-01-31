@@ -5,9 +5,8 @@
 #include <stdexcept>
 #include <stdint.h>
 #include <typeinfo>
-
+#include <fstream>
 // Qt includes
-#include <QHash>
 //#include <QMutexLocker>
 #include <mutex>
 #include <memory>
@@ -147,12 +146,12 @@ public:
 	/// Kinematic transformation methods
 	////////////////////////////////////
 	QVec transform(  const std::string & destId, const QVec &origVec, const std::string & origId);
-	QVec transform(  const std::string &destId, const std::string & origId) { return transform(destId, QVec::vec3(0,0,0), origId); };
+	QVec transform(  const std::string &destId, const std::string & origId);
 //	QVec transformS( const std::string &destId, const QVec &origVec, const std::string & origId);
 //	QVec transformS( const std::string &destId, const std::string &origId) { return transform(QString::fromStdString(destId), QVec::vec3(0,0,0), QString::fromStdString(origId)); }
 
-	QVec transform6D(const std::string &destId, const QVec &origVec, const std::string & origId) { Q_ASSERT(origVec.size() == 6); return transform(destId, origVec, origId); }
-	QVec transform6D(const std::string &destId, const std::string & origId) { return transform(destId, QVec::vec6(0,0,0,0,0,0), origId); }
+	QVec transform6D(const std::string &destId, const QVec &origVec, const std::string & origId);
+	QVec transform6D(const std::string &destId, const std::string & origId);
 //	QVec transformS6D(const std::string &destId, const std::string & origId) 
 //		{ return transform(QString::fromStdString(destId), QVec::vec6(0,0,0,0,0,0), QString::fromStdString(origId)); }
 //	QVec transformS6D(const std::string &destId, const QVec &origVec, const std::string & origId) 
@@ -297,7 +296,7 @@ public:
 
 protected:
 	std::shared_ptr<InnerModelNode> root;
-	std::map<std::string, std::shared_ptr<InnerModelNode>> hash;
+	std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> hash;
 	std::map<std::pair<std::string, std::string>,std::pair<std::list<std::string>, RTMat>> localHashTr;
 	std::map<std::pair<std::string, std::string>,std::pair<std::list<std::string>, QMat>> localHashRot;
 	//QHash<QPair<std::string, std::string>, RTMat> localHashTr;

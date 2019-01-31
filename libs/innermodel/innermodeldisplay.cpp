@@ -129,7 +129,7 @@ void InnerModelDisplay::update(float nx_, float ny_, float nz_, float px_, float
 	fixed = true;
 }
 
-std::shared_ptr<InnerModelNode> InnerModelDisplay::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode>parent)
+std::shared_ptr<InnerModelNode> InnerModelDisplay::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode>parent)
 {
 	std::shared_ptr<InnerModelDisplay> ret(new InnerModelDisplay(id, port, texture, width, height, depth, repeat, normal(0), normal(1), normal(2), point(0), point(1), point(2), collidable, parent));
 	ret->level = level;

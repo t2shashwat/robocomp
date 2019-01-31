@@ -27,7 +27,7 @@ InnerModelDifferentialRobot::InnerModelDifferentialRobot(std::string id_, float 
 	collide = collide_;
 }
 
-std::shared_ptr<InnerModelNode> InnerModelDifferentialRobot::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode>parent)
+std::shared_ptr<InnerModelNode> InnerModelDifferentialRobot::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode>parent)
 {
 	std::shared_ptr<InnerModelDifferentialRobot> ret(new InnerModelDifferentialRobot(id, backtX, backtY, backtZ, backrX, backrY, backrZ, port, noise, collide, std::static_pointer_cast<InnerModelTransform>(parent)));
 	ret->level = level;

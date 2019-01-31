@@ -44,7 +44,7 @@ void InnerModelIMU::update()
 	updateChildren();
 }
 
-std::shared_ptr<InnerModelNode> InnerModelIMU::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelIMU::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelIMU> ret(new InnerModelIMU(id, port, parent));
 	ret->level = level;

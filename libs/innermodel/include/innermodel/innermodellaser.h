@@ -29,7 +29,7 @@ class InnerModelLaser : public InnerModelNode
 		void save(std::ofstream &out, int tabs);
 		void print(bool verbose);
 		void update();
-		virtual std::shared_ptr<InnerModelNode> copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
+		virtual std::shared_ptr<InnerModelNode> copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent);
 		
 		/**
 		* \brief Local laser measure of range r and angle alfa is converted to Any RS

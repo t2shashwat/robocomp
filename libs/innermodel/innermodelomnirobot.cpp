@@ -27,7 +27,7 @@ InnerModelOmniRobot::InnerModelOmniRobot(std::string id_, float tx_, float ty_, 
 	collide = collide_;
 }
 
-std::shared_ptr<InnerModelNode> InnerModelOmniRobot::copyNode(std::map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
+std::shared_ptr<InnerModelNode> InnerModelOmniRobot::copyNode(std::unordered_map<std::string, std::shared_ptr<InnerModelNode>> &hash, std::shared_ptr<InnerModelNode> parent)
 {
 	std::shared_ptr<InnerModelOmniRobot> ret(new InnerModelOmniRobot(id, backtX, backtY, backtZ, backrX, backrY, backrZ, port, noise, collide, std::static_pointer_cast<InnerModelTransform>(parent)));
 	ret->level = level;
