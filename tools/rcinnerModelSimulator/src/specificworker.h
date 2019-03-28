@@ -148,6 +148,10 @@ private:
 		void setLigthx(double v);
 		void setLigthy(double v);
 		void setLigthz(double v);
+        //-----------------------------------------------------------------------------------
+        //Save
+        //-----------------------------------------------------------------------------------
+        void saveScene();
 		void closeEvent(QCloseEvent *event);
 
 	public:

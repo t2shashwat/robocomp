@@ -131,6 +131,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	connect(sp_lightz,  SIGNAL(valueChanged(double)), this, SLOT(setLigthz(double)));
 	connect(actionObject, SIGNAL(triggered()), this, SLOT(objectTriggered()));
 	connect(actionVisual, SIGNAL(triggered()), this, SLOT(visualTriggered()));
+    connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
 
 	// Additional widgets
 	objectTriggered();
@@ -178,6 +179,23 @@ void SpecificWorker::compute()
 		viewer->frame();
 			
 }
+
+///////////////////////////////////////////////////////////////////////
+///Add Save Option
+/// ////////////////////////////////////////////////////////////////
+void SpecificWorker::saveScene()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+                tr("Save XML"), "",
+                tr("XML file (*.xml)"));
+        if (fileName.isEmpty())
+            return;
+        else {
+            innerModel->save(fileName);
+        }
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
 /// Updates
