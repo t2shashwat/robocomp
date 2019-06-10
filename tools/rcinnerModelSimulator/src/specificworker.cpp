@@ -132,18 +132,29 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	connect(actionObject, SIGNAL(triggered()), this, SLOT(objectTriggered()));
 	connect(actionVisual, SIGNAL(triggered()), this, SLOT(visualTriggered()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
-
+    connect(actionFeatures, SIGNAL(triggered()), this, SLOT(featuresTriggered()));
+    connect(actionTree, SIGNAL(triggered()), this, SLOT(viewTriggered()));
+    connect(addobject_button, SIGNAL(clicked()), this, SLOT(add_object()));
+//    connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+//    fillNodeMap(innerModel->getNode("root"), NULL);
 	// Additional widgets
 	objectTriggered();
 	visualTriggered();
-	
+    featuresTriggered();
+    //viewTriggered();
 	viewer->realize();
 	//viewer->setThreadingModel( osgViewer::ViewerBase::ThreadPerCamera);
 	
 	// Initialize the timer
 	setPeriod(ms);	
 	qDebug() << __FILE__ << __FUNCTION__ << "Timer period:" << ms;
+    groupBox_8->hide();
+    groupBox_12->hide();
+    //disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+    //treeWidget->clear;
+
 }
+
 
 void SpecificWorker::compute()
 {
@@ -195,6 +206,190 @@ void SpecificWorker::saveScene()
         }
 }
 
+////////////////////////////////////////////////////////////////////
+///add object
+/// ///////////////////////////////////////////////////////////////
+void SpecificWorker::add_object()
+{
+    //newnodeConnections(false);
+    printf("aaya1\n");
+    //qDebug() << "aaya";
+    groupBox_8->show();
+    printf("aaya2\n");
+    newnodeConnections(true);
+    printf("aaya3\n");
+
+
+}
+void SpecificWorker::newnodeConnections(bool enable)
+{
+    if(enable)
+            {
+                    connect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
+                    connect(add_object_final,SIGNAL(clicked()),this,SLOT(add_new_node()));
+                    printf("new_node-connections");
+            }
+
+             else
+             {
+                 disconnect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
+                 disconnect(add_object_final,SIGNAL(clicked()),this,SLOT(add_new_node()));
+                 printf("disconnect new_node-connections");
+    }
+
+
+}
+void SpecificWorker::shownode()
+{
+    if(comboBox->currentText()=="Click to show type")
+    {
+        groupBox_12->hide();
+    }
+    if(comboBox->currentText()=="Transform")
+    {
+        groupBox_12->show();
+    }
+}
+ void SpecificWorker::add_new_node()
+ {
+     printf("andar toh aaya atleast");
+     InnerModelNode *par= innerModel->getNode(parentid->text());
+     qDebug("%s",parentid->text().toLatin1().constData());
+     //printf(parentid->text());
+//         if (par==NULL)
+//         {
+//             msgBox.setText("Enter valid Parent Id");
+//             msgBox.exec();
+//         }
+
+         //else
+        // {
+             InnerModelNode *check= innerModel->getNode(nodeid->text());
+            //printf(nodeid->text());
+            qDebug("%s",nodeid->text().toLatin1().constData());
+             if(check==NULL)
+             {
+                 if(comboBox->currentText()=="Transform")
+                 {
+                     InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
+                     par->addChild(newnode);
+                     InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text());
+                     if(check2==NULL)
+                     {
+                     InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(planeid->text(), par1, texture->text(), rect_w->value(), rect_h->value()
+                                             , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                             , ptx->value(), pty->value(), ptz->value(), 0);
+                     par1->addChild(newnode1);
+                     //flag=0;
+                     printf("add_object");
+                 }
+                 }
+             }
+//             disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+//             treeWidget->clear();
+//             connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+//             fillNodeMap(innerModel->getNode("root"), NULL);
+             imv->update();
+         //}
+
+ }
+
+// void SpecificWorker::fillNodeMap(InnerModelNode *node, QTreeWidgetItem *parent)
+// {   InnerModelMesh *mesh;
+//     InnerModelPlane *plane;
+//     InnerModelCamera *camera;
+//     InnerModelTransform *transform;
+//     InnerModelIMU *imu;
+//     InnerModelLaser *laser;
+//     InnerModelRGBD *rgbd;
+//     InnerModelJoint *joint;
+//     InnerModelDisplay *display;
+
+//     QTreeWidgetItem *item=new QTreeWidgetItem(QTreeWidgetItem::Type);
+//     WorkerNode wnode;
+//     wnode.id =node->id;
+//     wnode.item = item;
+
+//     item->setText(0,node->id);
+//     if(not parent)
+//     {
+//         treeWidget->addTopLevelItem(item);
+//     }
+//     else
+//     {
+//         parent->addChild(item);
+//     }
+//     if ((transform = dynamic_cast<InnerModelTransform *>(node)))
+//         {
+//             if ((joint = dynamic_cast<InnerModelJoint *>(node)))
+//                 wnode.type = IMJoint;
+//             else if (transform->gui_translation and transform->gui_rotation)
+//                 wnode.type = IMTransform;
+//             else if (transform->gui_translation)
+//                 wnode.type = IMTranslation;
+//             else if (transform->gui_rotation)
+//                 wnode.type = IMRotation;
+//             else
+//                 qFatal("Void transformation node (%s)?\n", transform->id.toStdString().c_str());
+
+//             nodeMap[wnode.id] = wnode;
+//             nodeMapByItem[item] = wnode;
+//             for(int i=0; i<node->children.size(); i++)
+//             {
+//                 fillNodeMap(node->children[i], item);
+//             }
+//         }
+//         else if ((camera = dynamic_cast<InnerModelCamera *>(node)))
+//         {
+//             if ((rgbd = dynamic_cast<InnerModelRGBD *>(node)))
+//             {
+//                 wnode.type = IMRGBD;
+//                 rgbd_id = node->id;
+//             }
+//             else
+//                 wnode.type = IMCamera;
+//             nodeMap[wnode.id] = wnode;
+//             nodeMapByItem[item] = wnode;
+//         }
+//         else if ((plane = dynamic_cast<InnerModelPlane *>(node)))
+//         {
+//             wnode.type = IMPlane;
+//             nodeMap[wnode.id] = wnode;
+//             nodeMapByItem[item] = wnode;
+//         }
+//         else if ((mesh = dynamic_cast<InnerModelMesh *>(node)))
+//         {
+//             wnode.type = IMMesh;
+//             nodeMap[wnode.id] = wnode;
+//             nodeMapByItem[item] = wnode;
+//         }
+//         else if ((imu = dynamic_cast<InnerModelIMU *>(node)))
+//         {
+//             wnode.type = IMIMU;
+//             nodeMap[wnode.id] = wnode;
+//             nodeMapByItem[item] = wnode;
+//         }
+//         else if ((laser = dynamic_cast<InnerModelLaser *>(node)))
+//         {
+//             wnode.type = IMLaser;
+//             nodeMap[wnode.id] = wnode;
+//             nodeMapByItem[item] = wnode;
+//         }
+//         else if ((display = dynamic_cast<InnerModelDisplay *>(node)))
+//         {
+//             wnode.type = IMDisplay;
+//             nodeMap[wnode.id] = wnode;
+//             nodeMapByItem[item] = wnode;
+//         }
+//         else
+//         {
+//             qDebug() << "InnerModelReader::InnerModelReader(): Error: Unknown type of node (see node id=\n" << node->id << "\")";
+//             throw "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
+//         }
+
+
+// }
 
 
 //////////////////////////////////////////////////////////////////////
@@ -935,6 +1130,30 @@ void SpecificWorker::visualTriggered()
 		VISUALWidget->hide();
 	}
 }
+void SpecificWorker::featuresTriggered()
+{
+    if (actionFeatures->isChecked())
+    {
+        FEATURESWidget->show();
+    }
+    else
+    {
+        FEATURESWidget->hide();
+    }
+    printf("features\n");
+}
+//void SpecificWorker :: viewTriggered()
+//{
+//    if (actionTree->isChecked())
+//    {
+//        VIEWwidget->show();
+//    }
+//    else
+//    {
+//        VIEWwidget->hide();
+//    }
+//    printf("features\n");
+//}
 
 
 // ------------------------------------------------------------------------------------------------

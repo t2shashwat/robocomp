@@ -35,6 +35,13 @@
 #include "servers.h"
 #include "pickhandler.h"
 
+enum NodeType1 {IMTransform, IMRotation, IMTranslation, IMMesh, IMPlane, IMCamera, IMIMU, IMLaser, IMRGBD, IMJoint, IMDisplay};
+struct WorkerNode
+{
+    QString id;
+    NodeType1 type;
+    QTreeWidgetItem *item;
+};
 
 class SpecificWorker : public GenericWorker
 {
@@ -78,7 +85,10 @@ private:
 		std::map<uint32_t, OmniRobotServer> omn_servers;
         std::map<uint32_t, DisplayServer> display_servers;
 		QList <JointMotorServer *> jointServersToShutDown;
-		
+        //------------------
+        QMap<QString, WorkerNode> nodeMap;
+        QMap<QTreeWidgetItem *, WorkerNode> nodeMapByItem;
+        QString rgbd_id;
 		// IMU
 		DataImu data_imu;
 
@@ -132,6 +142,8 @@ private:
 		void includeLasers();
 		void includeRGBDs();
 		void walkTree(InnerModelNode *node = NULL);
+        void newnodeConnections(bool enable);
+        //void fillNodeMap(InnerModelNode *node,QTreeWidgetItem *parent);
 	
 	public slots:
 		// ----------------------------------------------------------------------------------------
@@ -140,6 +152,8 @@ private:
 		void compute();
 		void objectTriggered();
 		void visualTriggered();
+        void featuresTriggered();
+        //void viewTriggered();
 		void setTopPOV();
 		void setFrontPOV();
 		void setBackPOV();
@@ -152,7 +166,15 @@ private:
         //Save
         //-----------------------------------------------------------------------------------
         void saveScene();
-		void closeEvent(QCloseEvent *event);
+        //------------------------------------------------------
+        //add_object
+        //------------------------------------------
+        void add_object();
+        void add_new_node();
+        void shownode();
+
+
+        void closeEvent(QCloseEvent *event);
 
 	public:
 		// ----------------------------------------------------------------------------------------
