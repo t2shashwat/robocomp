@@ -143,7 +143,7 @@ private:
 		void includeRGBDs();
 		void walkTree(InnerModelNode *node = NULL);
         void newnodeConnections(bool enable);
-        //void fillNodeMap(InnerModelNode *node,QTreeWidgetItem *parent);
+        void fillNodeMap(InnerModelNode *node,QTreeWidgetItem *parent);
 	
 	public slots:
 		// ----------------------------------------------------------------------------------------
@@ -172,6 +172,7 @@ private:
         void add_object();
         void add_new_node();
         void shownode();
+        void add_tree();
 
 
         void closeEvent(QCloseEvent *event);

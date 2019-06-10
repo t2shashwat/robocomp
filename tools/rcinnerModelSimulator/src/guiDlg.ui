@@ -483,6 +483,22 @@
           </widget>
          </item>
          <item>
+          <widget class="QTreeWidget" name="treeWidget">
+           <column>
+            <property name="text">
+             <string notr="true">1</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="treepushButton">
+           <property name="text">
+            <string>Tree</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -619,64 +635,6 @@
                </item>
                <item row="2" column="1">
                 <widget class="QDoubleSpinBox" name="tz"/>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QGroupBox" name="groupBox_10">
-              <property name="title">
-               <string>Rotational</string>
-              </property>
-              <layout class="QFormLayout" name="formLayout_5">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_19">
-                 <property name="text">
-                  <string>X</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_18">
-                 <property name="text">
-                  <string>Y</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_17">
-                 <property name="text">
-                  <string>Z</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QDoubleSpinBox" name="rx"/>
-               </item>
-               <item row="1" column="1">
-                <widget class="QDoubleSpinBox" name="ry"/>
-               </item>
-               <item row="2" column="1">
-                <widget class="QDoubleSpinBox" name="rz"/>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QGroupBox" name="groupBox_11">
-              <property name="title">
-               <string>GroupBox</string>
-              </property>
-              <layout class="QFormLayout" name="formLayout_6">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_20">
-                 <property name="text">
-                  <string>Mass</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QSpinBox" name="mass_b"/>
                </item>
               </layout>
              </widget>
@@ -833,6 +791,45 @@
               </layout>
              </widget>
             </item>
+            <item row="2" column="0">
+             <widget class="QGroupBox" name="groupBox_10">
+              <property name="title">
+               <string>Rotational</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_5">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_19">
+                 <property name="text">
+                  <string>X</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_18">
+                 <property name="text">
+                  <string>Y</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_17">
+                 <property name="text">
+                  <string>Z</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QDoubleSpinBox" name="rx"/>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="ry"/>
+               </item>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="rz"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
             <item row="2" column="1">
              <widget class="QGroupBox" name="groupBox_13">
               <property name="title">
@@ -903,6 +900,25 @@
                   <widget class="QDoubleSpinBox" name="doubleSpinBox_19"/>
                  </item>
                 </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QGroupBox" name="groupBox_11">
+              <property name="title">
+               <string>GroupBox</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_6">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_20">
+                 <property name="text">
+                  <string>Mass</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QSpinBox" name="mass_b"/>
                </item>
               </layout>
              </widget>

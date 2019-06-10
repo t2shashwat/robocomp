@@ -133,10 +133,11 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	connect(actionVisual, SIGNAL(triggered()), this, SLOT(visualTriggered()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
     connect(actionFeatures, SIGNAL(triggered()), this, SLOT(featuresTriggered()));
-    connect(actionTree, SIGNAL(triggered()), this, SLOT(viewTriggered()));
+    //connect(actionTree, SIGNAL(triggered()), this, SLOT(viewTriggered()));
     connect(addobject_button, SIGNAL(clicked()), this, SLOT(add_object()));
-//    connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-//    fillNodeMap(innerModel->getNode("root"), NULL);
+    connect(treepushButton, SIGNAL(clicked()), this, SLOT(add_tree()));
+    connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+    fillNodeMap(innerModel->getNode("root"), NULL);
 	// Additional widgets
 	objectTriggered();
 	visualTriggered();
@@ -150,6 +151,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	qDebug() << __FILE__ << __FUNCTION__ << "Timer period:" << ms;
     groupBox_8->hide();
     groupBox_12->hide();
+    treeWidget->hide();
     //disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     //treeWidget->clear;
 
@@ -221,6 +223,10 @@ void SpecificWorker::add_object()
 
 
 }
+void SpecificWorker:: add_tree()
+{
+    treeWidget->show();
+}
 void SpecificWorker::newnodeConnections(bool enable)
 {
     if(enable)
@@ -274,7 +280,7 @@ void SpecificWorker::shownode()
                      InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
                      par->addChild(newnode);
                      InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
-                     InnerModelNode *check2= innerModel->getNode(nodeid->text());
+                     InnerModelNode *check2= innerModel->getNode(planeid->text());
                      if(check2==NULL)
                      {
                      InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(planeid->text(), par1, texture->text(), rect_w->value(), rect_h->value()
@@ -286,110 +292,110 @@ void SpecificWorker::shownode()
                  }
                  }
              }
-//             disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-//             treeWidget->clear();
-//             connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-//             fillNodeMap(innerModel->getNode("root"), NULL);
+             disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+             treeWidget->clear();
+             connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+             fillNodeMap(innerModel->getNode("root"), NULL);
              imv->update();
          //}
 
  }
 
-// void SpecificWorker::fillNodeMap(InnerModelNode *node, QTreeWidgetItem *parent)
-// {   InnerModelMesh *mesh;
-//     InnerModelPlane *plane;
-//     InnerModelCamera *camera;
-//     InnerModelTransform *transform;
-//     InnerModelIMU *imu;
-//     InnerModelLaser *laser;
-//     InnerModelRGBD *rgbd;
-//     InnerModelJoint *joint;
-//     InnerModelDisplay *display;
+ void SpecificWorker::fillNodeMap(InnerModelNode *node, QTreeWidgetItem *parent)
+ {   InnerModelMesh *mesh;
+     InnerModelPlane *plane;
+     InnerModelCamera *camera;
+     InnerModelTransform *transform;
+     InnerModelIMU *imu;
+     InnerModelLaser *laser;
+     InnerModelRGBD *rgbd;
+     InnerModelJoint *joint;
+     InnerModelDisplay *display;
 
-//     QTreeWidgetItem *item=new QTreeWidgetItem(QTreeWidgetItem::Type);
-//     WorkerNode wnode;
-//     wnode.id =node->id;
-//     wnode.item = item;
+     QTreeWidgetItem *item=new QTreeWidgetItem(QTreeWidgetItem::Type);
+     WorkerNode wnode;
+     wnode.id =node->id;
+     wnode.item = item;
 
-//     item->setText(0,node->id);
-//     if(not parent)
-//     {
-//         treeWidget->addTopLevelItem(item);
-//     }
-//     else
-//     {
-//         parent->addChild(item);
-//     }
-//     if ((transform = dynamic_cast<InnerModelTransform *>(node)))
-//         {
-//             if ((joint = dynamic_cast<InnerModelJoint *>(node)))
-//                 wnode.type = IMJoint;
-//             else if (transform->gui_translation and transform->gui_rotation)
-//                 wnode.type = IMTransform;
-//             else if (transform->gui_translation)
-//                 wnode.type = IMTranslation;
-//             else if (transform->gui_rotation)
-//                 wnode.type = IMRotation;
-//             else
-//                 qFatal("Void transformation node (%s)?\n", transform->id.toStdString().c_str());
+     item->setText(0,node->id);
+     if(not parent)
+     {
+         treeWidget->addTopLevelItem(item);
+     }
+     else
+     {
+         parent->addChild(item);
+     }
+     if ((transform = dynamic_cast<InnerModelTransform *>(node)))
+         {
+             if ((joint = dynamic_cast<InnerModelJoint *>(node)))
+                 wnode.type = IMJoint;
+             else if (transform->gui_translation and transform->gui_rotation)
+                 wnode.type = IMTransform;
+             else if (transform->gui_translation)
+                 wnode.type = IMTranslation;
+             else if (transform->gui_rotation)
+                 wnode.type = IMRotation;
+             else
+                 qFatal("Void transformation node (%s)?\n", transform->id.toStdString().c_str());
 
-//             nodeMap[wnode.id] = wnode;
-//             nodeMapByItem[item] = wnode;
-//             for(int i=0; i<node->children.size(); i++)
-//             {
-//                 fillNodeMap(node->children[i], item);
-//             }
-//         }
-//         else if ((camera = dynamic_cast<InnerModelCamera *>(node)))
-//         {
-//             if ((rgbd = dynamic_cast<InnerModelRGBD *>(node)))
-//             {
-//                 wnode.type = IMRGBD;
-//                 rgbd_id = node->id;
-//             }
-//             else
-//                 wnode.type = IMCamera;
-//             nodeMap[wnode.id] = wnode;
-//             nodeMapByItem[item] = wnode;
-//         }
-//         else if ((plane = dynamic_cast<InnerModelPlane *>(node)))
-//         {
-//             wnode.type = IMPlane;
-//             nodeMap[wnode.id] = wnode;
-//             nodeMapByItem[item] = wnode;
-//         }
-//         else if ((mesh = dynamic_cast<InnerModelMesh *>(node)))
-//         {
-//             wnode.type = IMMesh;
-//             nodeMap[wnode.id] = wnode;
-//             nodeMapByItem[item] = wnode;
-//         }
-//         else if ((imu = dynamic_cast<InnerModelIMU *>(node)))
-//         {
-//             wnode.type = IMIMU;
-//             nodeMap[wnode.id] = wnode;
-//             nodeMapByItem[item] = wnode;
-//         }
-//         else if ((laser = dynamic_cast<InnerModelLaser *>(node)))
-//         {
-//             wnode.type = IMLaser;
-//             nodeMap[wnode.id] = wnode;
-//             nodeMapByItem[item] = wnode;
-//         }
-//         else if ((display = dynamic_cast<InnerModelDisplay *>(node)))
-//         {
-//             wnode.type = IMDisplay;
-//             nodeMap[wnode.id] = wnode;
-//             nodeMapByItem[item] = wnode;
-//         }
-//         else
-//         {
-//             qDebug() << "InnerModelReader::InnerModelReader(): Error: Unknown type of node (see node id=\n" << node->id << "\")";
-//             throw "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
-//         }
+             nodeMap[wnode.id] = wnode;
+             nodeMapByItem[item] = wnode;
+             for(int i=0; i<node->children.size(); i++)
+             {
+                 fillNodeMap(node->children[i], item);
+             }
+         }
+         else if ((camera = dynamic_cast<InnerModelCamera *>(node)))
+         {
+             if ((rgbd = dynamic_cast<InnerModelRGBD *>(node)))
+             {
+                 wnode.type = IMRGBD;
+                 rgbd_id = node->id;
+             }
+             else
+                 wnode.type = IMCamera;
+             nodeMap[wnode.id] = wnode;
+             nodeMapByItem[item] = wnode;
+         }
+         else if ((plane = dynamic_cast<InnerModelPlane *>(node)))
+         {
+             wnode.type = IMPlane;
+             nodeMap[wnode.id] = wnode;
+             nodeMapByItem[item] = wnode;
+         }
+         else if ((mesh = dynamic_cast<InnerModelMesh *>(node)))
+         {
+             wnode.type = IMMesh;
+             nodeMap[wnode.id] = wnode;
+             nodeMapByItem[item] = wnode;
+         }
+         else if ((imu = dynamic_cast<InnerModelIMU *>(node)))
+         {
+             wnode.type = IMIMU;
+             nodeMap[wnode.id] = wnode;
+             nodeMapByItem[item] = wnode;
+         }
+         else if ((laser = dynamic_cast<InnerModelLaser *>(node)))
+         {
+             wnode.type = IMLaser;
+             nodeMap[wnode.id] = wnode;
+             nodeMapByItem[item] = wnode;
+         }
+         else if ((display = dynamic_cast<InnerModelDisplay *>(node)))
+         {
+             wnode.type = IMDisplay;
+             nodeMap[wnode.id] = wnode;
+             nodeMapByItem[item] = wnode;
+         }
+         else
+         {
+             qDebug() << "InnerModelReader::InnerModelReader(): Error: Unknown type of node (see node id=\n" << node->id << "\")";
+             throw "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
+         }
 
 
-// }
+ }
 
 
 //////////////////////////////////////////////////////////////////////
@@ -1142,15 +1148,16 @@ void SpecificWorker::featuresTriggered()
     }
     printf("features\n");
 }
+
 //void SpecificWorker :: viewTriggered()
 //{
 //    if (actionTree->isChecked())
 //    {
-//        VIEWwidget->show();
+//        treeWidget->show();
 //    }
 //    else
 //    {
-//        VIEWwidget->hide();
+//        treeWidget->hide();
 //    }
 //    printf("features\n");
 //}
