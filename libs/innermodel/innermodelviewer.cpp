@@ -76,7 +76,7 @@ InnerModelViewer::InnerModelViewer(InnerModel *im, QString root,  osg::Group *pa
 }
 
 
-IMVPlane::IMVPlane(InnerModelDisplay *plane, std::string imagenEntrada, osg::Vec4 valoresMaterial, float transparencia) : osg::Geode()
+IMVPlane::IMVPlane(InnerModelDisplay *plane, std::string imagenEntrada, osg::Vec4 valoresMaterial, float transparencia, int shape_req) : osg::Geode()
 {
 	data = NULL;
 	bool constantColor = false;
@@ -109,7 +109,7 @@ IMVPlane::IMVPlane(InnerModelDisplay *plane, std::string imagenEntrada, osg::Vec
 	}
 	hints = new osg::TessellationHints;
 	hints->setDetailRatio(2.0f);
-
+	if(shape_req==0){
 	//CAUTION
 	//osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
 	osg::ref_ptr<osg::Box> myBox = new osg::Box(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
@@ -118,7 +118,16 @@ IMVPlane::IMVPlane(InnerModelDisplay *plane, std::string imagenEntrada, osg::Vec
 	planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
 
 	addDrawable(planeDrawable);
+	}
+	if(shape_req==1){
+	osg::ref_ptr<osg::Sphere> mySphere = new osg::Sphere(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width);
+// 	osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(plane->point(0),-plane->point(1),plane->point(2))), plane->width, -plane->height, plane->depth);
+//	osg::ref_ptr<osg::Box> mySphere = new osg::Sphere(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
+	planeDrawable = new osg::ShapeDrawable(mySphere.get());
+	planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
 
+	addDrawable(planeDrawable);
+	}
 	if (not constantColor)
 	{
 		// Texture
@@ -296,7 +305,7 @@ void InnerModelViewer::recursiveConstructor(InnerModelNode *node, osg::Group* pa
 		// Create plane's specific mt
 		osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
 		planeMts[plane->id] = mt;
-		IMVPlane *imvplane = new IMVPlane(plane, plane->texture.toStdString(), osg::Vec4(0.8,0.5,0.5,0.5), 0); 
+		IMVPlane *imvplane = new IMVPlane(plane, plane->texture.toStdString(), osg::Vec4(0.8,0.5,0.5,0.5), 0,plane->shape); 
 		planesHash[node->id] = imvplane;
 		setOSGMatrixTransformForPlane(mt, plane);
 		if (parent) parent->addChild(mt);
@@ -307,7 +316,7 @@ void InnerModelViewer::recursiveConstructor(InnerModelNode *node, osg::Group* pa
 		// Create plane's specific mt
 		osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
 		planeMts[display->id] = mt;
-		IMVPlane *imvplane = new IMVPlane(display, display->texture.toStdString(), osg::Vec4(0.8,0.5,0.5,0.5), 0);
+		IMVPlane *imvplane = new IMVPlane(display, display->texture.toStdString(), osg::Vec4(0.8,0.5,0.5,0.5), 0,plane->shape);
 		planesHash[node->id] = imvplane;
 		setOSGMatrixTransformForDisplay(mt, display);
 		if (parent) parent->addChild(mt);
@@ -570,7 +579,7 @@ osg::Matrix QMatToOSGMat4(const RTMat &nodeB)
 // IMVPlane
 // ------------------------------------------------------------------------------------------------
 
-IMVPlane::IMVPlane(InnerModelPlane *plane, std::string imagenEntrada, osg::Vec4 valoresMaterial, float transparencia) : osg::Geode()
+IMVPlane::IMVPlane(InnerModelPlane *plane, std::string imagenEntrada, osg::Vec4 valoresMaterial, float transparencia, int shape_req) : osg::Geode()
 {
 	data = NULL;
 	bool constantColor = false;
@@ -606,12 +615,24 @@ IMVPlane::IMVPlane(InnerModelPlane *plane, std::string imagenEntrada, osg::Vec4 
 
 	//CAUTION
 	//osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
+	if(shape_req==0){
 	osg::ref_ptr<osg::Box> myBox = new osg::Box(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
 // 	osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(plane->point(0),-plane->point(1),plane->point(2))), plane->width, -plane->height, plane->depth);
+//	osg::ref_ptr<osg::Box> myBox = new osg::Sphere(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
 	planeDrawable = new osg::ShapeDrawable(myBox, hints);
 	planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
 
 	addDrawable(planeDrawable);
+	}
+	if(shape_req==1){
+	osg::ref_ptr<osg::Sphere> mySphere = new osg::Sphere(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width);
+// 	osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(plane->point(0),-plane->point(1),plane->point(2))), plane->width, -plane->height, plane->depth);
+//	osg::ref_ptr<osg::Box> mySphere = new osg::Sphere(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
+	planeDrawable = new osg::ShapeDrawable(mySphere.get());
+	planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
+
+	addDrawable(planeDrawable);
+	}
 
 	if (not constantColor)
 	{

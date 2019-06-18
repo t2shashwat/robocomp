@@ -136,9 +136,29 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     //connect(actionTree, SIGNAL(triggered()), this, SLOT(viewTriggered()));
     connect(addobject_button, SIGNAL(clicked()), this, SLOT(add_object()));
     connect(treepushButton, SIGNAL(clicked()), this, SLOT(add_tree()));
+    connect(comboBox_texture,SIGNAL(currentIndexChanged(int)),this,SLOT(floor_texture()));
+    //connect(texture,SIGNAL(currentIndexChanged(int)),this,SLOT(object_texture()));
     connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     fillNodeMap(innerModel->getNode("root"), NULL);
-	// Additional widgets
+    comboBox_texture->addItem("--Choose Texture--");
+    comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg"),"Metal");
+    comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg"),"Checkerboard");
+    comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/blue.jpg"),"Blue");
+    comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/grid.png"),"Grid");
+    comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/índice.jpeg"),"Indice");
+    comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg"),"Klein Blue");
+    comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/r.jpeg"),"Raw");
+    comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/wood.jpg"),"Wood");
+    texture->addItem("--Choose Texture--");
+    texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg"),"Metal");
+    texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg"),"Checkerboard");
+    texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/blue.jpg"),"Blue");
+    texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/grid.png"),"Grid");
+    texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/índice.jpeg"),"Indice");
+    texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg"),"Klein Blue");
+    texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/r.jpeg"),"Raw");
+    texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/wood.jpg"),"Wood");
+    // Additional widgets
 	objectTriggered();
 	visualTriggered();
     featuresTriggered();
@@ -152,6 +172,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     groupBox_8->hide();
     groupBox_12->hide();
     treeWidget->hide();
+    flag=1;
     //disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     //treeWidget->clear;
 
@@ -251,16 +272,47 @@ void SpecificWorker::shownode()
     {
         groupBox_12->hide();
     }
-    if(comboBox->currentText()=="Transform")
+    if(comboBox->currentText()=="Box")
     {
         groupBox_12->show();
+        trans_gb->show();
+        rot_gb->show();
+        mass_gb->show();
+        texture_gb->show();
+        texture_size_gb->show();
+        texture_val_gb->show();
+        plane_gb->show();
+        texture_sp_gb->hide();
+
     }
+    if(comboBox->currentText()=="Sphere")
+    {
+        groupBox_12->show();
+        trans_gb->show();
+        rot_gb->show();
+        mass_gb->show();
+        texture_gb->show();
+        texture_size_gb->hide();
+        texture_val_gb->hide();
+        plane_gb->show();
+        texture_sp_gb->show();
+
+    }
+}
+void SpecificWorker:: object_texture()
+{
+    texture_txt=texture->currentIndex();
+}
+void SpecificWorker:: connect_texture(bool en)
+{ if(en)
+   connect(texture,SIGNAL(currentIndexChanged(int)),this,SLOT(object_texture()));
 }
  void SpecificWorker::add_new_node()
  {
      printf("andar toh aaya atleast");
-     InnerModelNode *par= innerModel->getNode(parentid->text());
-     qDebug("%s",parentid->text().toLatin1().constData());
+     //InnerModelNode *par= innerModel->getNode(parentid->text());
+     InnerModelNode *par= innerModel->getNode("world");
+     //qDebug("%s",parentid->text().toLatin1().constData());
      //printf(parentid->text());
 //         if (par==NULL)
 //         {
@@ -275,27 +327,77 @@ void SpecificWorker::shownode()
             qDebug("%s",nodeid->text().toLatin1().constData());
              if(check==NULL)
              {
-                 if(comboBox->currentText()=="Transform")
+                 //printf("");
+                 if(comboBox->currentText()=="Box")
                  {
                      InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
                      par->addChild(newnode);
                      InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
-                     InnerModelNode *check2= innerModel->getNode(planeid->text());
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
                      if(check2==NULL)
                      {
-                     InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(planeid->text(), par1, texture->text(), rect_w->value(), rect_h->value()
+                     connect_texture(true);
+
+                     InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture_txt, rect_w->value(), rect_h->value()
                                              , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
-                                             , ptx->value(), pty->value(), ptz->value(), 0);
+                                             , ptx->value(), pty->value(), ptz->value(), 0,0);
                      par1->addChild(newnode1);
-                     //flag=0;
-                     printf("add_object");
+                     flag=0;
+                     //printf("add_object");
+                     qDebug() << "add_object";
+                     //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
+                     //qDebug() << "add_object"<<texture->text();
                  }
                  }
+                 if(comboBox->currentText()=="Sphere")
+                 {
+                     InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
+                     par->addChild(newnode);
+                     InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
+                     if(check2==NULL)
+                     {
+                     connect_texture(true);
+                     InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture_txt, radiusval->value(), rect_h->value()
+                                             , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                             , ptx->value(), pty->value(), ptz->value(), 0,1);
+                     par1->addChild(newnode1);
+                     flag=0;
+                     //printf("add_object");
+                     qDebug() << "add_object";
+                     //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
+                     //qDebug() << "add_object"<<texture->text();
+                 }
+                 }
+             }
+             if(flag==0)
+             {
+//                 if(!rgbd_id.isEmpty())
+//                      imv->cameras[rgbd_id].viewerCamera->~Viewer();
+                 this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+
+                  viewer->~OsgView();
+ //                  rgbd_id.clear();
+                  viewer = new OsgView(frameOSG);
+                   imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+                   qDebug()<< "hogaya....hahahhaha " << nodeid->text();
+                   nodeid->clear();
+                   comboBox->setCurrentIndex(0);
+                   //parentid->clear();
+                   groupBox_12->hide();
+                   groupBox_8->hide();
+                   this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+
+//                   plane1 = "";
+//                   plane2 = "";
+                   flag=1;
              }
              disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
              treeWidget->clear();
              connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
              fillNodeMap(innerModel->getNode("root"), NULL);
+             this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+
              imv->update();
          //}
 
@@ -396,6 +498,206 @@ void SpecificWorker::shownode()
 
 
  }
+// void SpecificWorker:: changeTexture()
+// {
+//     connect(comboBox_texture,SIGNAL(currentIndexChanged(int)),this,SLOT(floor_texture()));
+// }
+  void SpecificWorker:: floor_texture()
+  {
+      qDebug() << "floor_texture";
+      if(comboBox_texture->currentText()=="Metal")
+      {
+          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
+          m->normal = QVec::vec3(0,1,0);
+          m->point = QVec::vec3(0,0,0);
+          m->width = 5000.00;
+          m->height = 5000.00;
+          //const char* str = "home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          //m->texture =QString::fromUtf8(str);
+          m->texture ="/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg";
+          m->repeat = 1000;
+          //prevNode = NULL;
+          //imv->update();
+          qDebug() << "metal hogaya";
+          this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+          viewer->~OsgView();
+          viewer = new OsgView(frameOSG);
+          imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+          this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+          imv->update();
+
+      }
+      else if(comboBox_texture->currentText()=="Blue")
+      {
+          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
+          m->normal = QVec::vec3(0,1,0);
+          m->point = QVec::vec3(0,0,0);
+          m->width = 5000.00;
+          m->height = 5000.00;
+          //const char* str = "home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          //m->texture =QString::fromUtf8(str);
+          m->texture ="/home/robocomp/robocomp/files/osgModels/textures/blue.jpg";
+          m->repeat = 1000;
+          //prevNode = NULL;
+          //imv->update();
+          qDebug() << "metal hogaya";
+
+          this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+          viewer->~OsgView();
+          viewer = new OsgView(frameOSG);
+          imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+          this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+          imv->update();
+
+      }
+      else if(comboBox_texture->currentText()=="Checkerboard")
+      {
+          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
+          m->normal = QVec::vec3(0,1,0);
+          m->point = QVec::vec3(0,0,0);
+          m->width = 5000.00;
+          m->height = 5000.00;
+          //const char* str = "home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          //m->texture =QString::fromUtf8(str);
+          m->texture ="/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          m->repeat = 1000;
+          //prevNode = NULL;
+          //imv->update();
+          qDebug() << "metal hogaya";
+
+          this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+          viewer->~OsgView();
+          viewer = new OsgView(frameOSG);
+          imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+          this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+          imv->update();
+
+      }
+      else if(comboBox_texture->currentText()=="Grid")
+      {
+          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
+          m->normal = QVec::vec3(0,1,0);
+          m->point = QVec::vec3(0,0,0);
+          m->width = 5000.00;
+          m->height = 5000.00;
+          //const char* str = "home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          //m->texture =QString::fromUtf8(str);
+          m->texture ="/home/robocomp/robocomp/files/osgModels/textures/grid.png";
+          m->repeat = 1000;
+          //prevNode = NULL;
+          //imv->update();
+          qDebug() << "metal hogaya";
+
+          this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+          viewer->~OsgView();
+          viewer = new OsgView(frameOSG);
+          imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+          this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+          imv->update();
+
+      }
+      else if(comboBox_texture->currentText()=="Indice")
+      {
+          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
+          m->normal = QVec::vec3(0,1,0);
+          m->point = QVec::vec3(0,0,0);
+          m->width = 5000.00;
+          m->height = 5000.00;
+          //const char* str = "home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          //m->texture =QString::fromUtf8(str);
+          m->texture ="/home/robocomp/robocomp/files/osgModels/textures/índice.jpeg";
+          m->repeat = 1000;
+          //prevNode = NULL;
+          //imv->update();
+          qDebug() << "metal hogaya";
+
+          this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+          viewer->~OsgView();
+          viewer = new OsgView(frameOSG);
+          imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+          this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+          imv->update();
+
+      }
+      else if(comboBox_texture->currentText()=="Klein Blue")
+      {
+          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
+          m->normal = QVec::vec3(0,1,0);
+          m->point = QVec::vec3(0,0,0);
+          m->width = 5000.00;
+          m->height = 5000.00;
+          //const char* str = "home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          //m->texture =QString::fromUtf8(str);
+          m->texture ="/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg";
+          m->repeat = 1000;
+          //prevNode = NULL;
+          //imv->update();
+          qDebug() << "metal hogaya";
+
+          this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+          viewer->~OsgView();
+          viewer = new OsgView(frameOSG);
+          imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+          this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+          imv->update();
+
+      }
+      else if(comboBox_texture->currentText()=="Raw")
+      {
+          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
+          m->normal = QVec::vec3(0,1,0);
+          m->point = QVec::vec3(0,0,0);
+          m->width = 5000.00;
+          m->height = 5000.00;
+          //const char* str = "home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          //m->texture =QString::fromUtf8(str);
+          m->texture ="/home/robocomp/robocomp/files/osgModels/textures/r.jpeg";
+          m->repeat = 1000;
+          //prevNode = NULL;
+          //imv->update();
+          qDebug() << "metal hogaya";
+
+          this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+          viewer->~OsgView();
+          viewer = new OsgView(frameOSG);
+          imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+          this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+          imv->update();
+
+      }
+      else if(comboBox_texture->currentText()=="Wood")
+      {
+          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
+          m->normal = QVec::vec3(0,1,0);
+          m->point = QVec::vec3(0,0,0);
+          m->width = 5000.00;
+          m->height = 5000.00;
+          //const char* str = "home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+          //m->texture =QString::fromUtf8(str);
+          m->texture ="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg";
+          m->repeat = 1000;
+          //prevNode = NULL;
+          //imv->update();
+          qDebug() << "metal hogaya";
+
+          this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+          viewer->~OsgView();
+          viewer = new OsgView(frameOSG);
+          imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+          this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+          imv->update();
+
+      }
+
+  }
 
 
 //////////////////////////////////////////////////////////////////////

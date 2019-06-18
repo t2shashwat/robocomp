@@ -66,7 +66,9 @@ private:
 		//InnerModel
 		std::shared_ptr<InnerModel> innerModel;
 		
-		
+        int flag=1;
+        QString texture_txt;
+        osg::Vec3 eye, center, up;
 		// World
 		SpecificWorker *worker;
 		//InnerModel *innerModel;
@@ -144,6 +146,8 @@ private:
 		void walkTree(InnerModelNode *node = NULL);
         void newnodeConnections(bool enable);
         void fillNodeMap(InnerModelNode *node,QTreeWidgetItem *parent);
+        void changeTexture();
+        void connect_texture(bool en);
 	
 	public slots:
 		// ----------------------------------------------------------------------------------------
@@ -173,6 +177,12 @@ private:
         void add_new_node();
         void shownode();
         void add_tree();
+        //----------------------------------------
+        //change texture of floor
+        //----------------------------------------------
+        void floor_texture();
+        void object_texture();
+
 
 
         void closeEvent(QCloseEvent *event);

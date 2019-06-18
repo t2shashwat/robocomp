@@ -17,7 +17,7 @@
 
 #include "innermodelplane.h"
 
-InnerModelPlane::InnerModelPlane(QString id_, QString texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable_, InnerModelNode *parent_) : InnerModelNode(id_, parent_)
+InnerModelPlane::InnerModelPlane(QString id_, QString texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable_, int shape_, InnerModelNode *parent_) : InnerModelNode(id_, parent_)
 {
 #if FCL_SUPPORT==1
 	collisionObject = NULL;
@@ -32,6 +32,7 @@ InnerModelPlane::InnerModelPlane(QString id_, QString texture_, float width_, fl
 	depth = depth_;
 	repeat = repeat_;
 	collidable = collidable_;
+	shape=shape_;
 
 #if FCL_SUPPORT==1
 	std::vector<fcl::Vec3f> vertices;
@@ -168,7 +169,7 @@ void InnerModelPlane::update(float nx_, float ny_, float nz_, float px_, float p
 
 InnerModelNode * InnerModelPlane::copyNode(QHash<QString, InnerModelNode *> &hash, InnerModelNode *parent)
 {
-	InnerModelPlane *ret = new InnerModelPlane(id, texture, width, height, depth, repeat, normal(0), normal(1), normal(2), point(0), point(1), point(2), parent);
+	InnerModelPlane *ret = new InnerModelPlane(id, texture, width, height, depth, repeat, normal(0), normal(1), normal(2), point(0), point(1), point(2), parent,shape);
 	ret->level = level;
 	ret->fixed = fixed;
 	ret->children.clear();

@@ -27,7 +27,7 @@
 class InnerModelPlane : public InnerModelNode
 {
 	public:
-		InnerModelPlane(QString id_, QString texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable, InnerModelNode *parent_=NULL);
+		InnerModelPlane(QString id_, QString texture_, float width_, float height_,float depth_, int repeat_, float nx_, float ny_, float nz_, float px_, float py_, float pz_, bool collidable, int shape_, InnerModelNode *parent_=NULL);
 		void print(bool verbose);
 		void save(QTextStream &out, int tabs);
 		void setUpdatePointers(float *nx_, float *ny_, float *nz_, float *px_, float *py_, float *pz_);
@@ -38,7 +38,7 @@ class InnerModelPlane : public InnerModelNode
 		QVec normal, point;
 		QString texture;
 		float width, height, depth;
-		int repeat;
+		int repeat,shape;
 		float *nx, *ny, *nz;
 		float *px, *py, *pz;
 };
