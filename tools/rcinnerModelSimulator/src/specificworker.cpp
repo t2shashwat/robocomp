@@ -173,6 +173,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     groupBox_12->hide();
     treeWidget->hide();
     flag=1;
+
     //disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     //treeWidget->clear;
 
@@ -235,13 +236,8 @@ void SpecificWorker::saveScene()
 void SpecificWorker::add_object()
 {
     //newnodeConnections(false);
-    printf("aaya1\n");
-    //qDebug() << "aaya";
     groupBox_8->show();
-    printf("aaya2\n");
     newnodeConnections(true);
-    printf("aaya3\n");
-
 
 }
 void SpecificWorker:: add_tree()
@@ -254,14 +250,14 @@ void SpecificWorker::newnodeConnections(bool enable)
             {
                     connect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
                     connect(add_object_final,SIGNAL(clicked()),this,SLOT(add_new_node()));
-                    printf("new_node-connections");
+
             }
 
              else
              {
                  disconnect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
                  disconnect(add_object_final,SIGNAL(clicked()),this,SLOT(add_new_node()));
-                 printf("disconnect new_node-connections");
+
     }
 
 
@@ -283,6 +279,7 @@ void SpecificWorker::shownode()
         texture_val_gb->show();
         plane_gb->show();
         texture_sp_gb->hide();
+       // connect_texture(true);
 
     }
     if(comboBox->currentText()=="Sphere")
@@ -296,20 +293,23 @@ void SpecificWorker::shownode()
         texture_val_gb->hide();
         plane_gb->show();
         texture_sp_gb->show();
+       // connect_texture(true);
 
     }
+    //connect_texture(true);
 }
-void SpecificWorker:: object_texture()
-{
-    texture_txt=texture->currentIndex();
-}
-void SpecificWorker:: connect_texture(bool en)
-{ if(en)
-   connect(texture,SIGNAL(currentIndexChanged(int)),this,SLOT(object_texture()));
-}
+//QString SpecificWorker:: object_texture()
+//{
+//    texture_txt=texture->currentIndex();
+//    return texture_txt;
+//}
+//void SpecificWorker:: connect_texture(bool en)
+//{ if(en)
+//   connect(texture,SIGNAL(currentIndexChanged(int)),this,SLOT(object_texture()));
+//}
  void SpecificWorker::add_new_node()
  {
-     printf("andar toh aaya atleast");
+
      //InnerModelNode *par= innerModel->getNode(parentid->text());
      InnerModelNode *par= innerModel->getNode("world");
      //qDebug("%s",parentid->text().toLatin1().constData());
@@ -336,20 +336,79 @@ void SpecificWorker:: connect_texture(bool en)
                      InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
                      if(check2==NULL)
                      {
-                     connect_texture(true);
+                      if(texture->currentText()=="Checkerboard")
+                      {
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", rect_w->value(), rect_h->value()
+                                                  , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                  , ptx->value(), pty->value(), ptz->value(), 0,0);
+                          par1->addChild(newnode1);
+                          flag=0;
+                          printf("checkerboard box");
+                      }
+                      else if(texture->currentText()=="Metal")
+                      {
 
-                     InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture_txt, rect_w->value(), rect_h->value()
-                                             , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
-                                             , ptx->value(), pty->value(), ptz->value(), 0,0);
-                     par1->addChild(newnode1);
-                     flag=0;
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", rect_w->value(), rect_h->value()
+                                                  , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                  , ptx->value(), pty->value(), ptz->value(), 0,0);
+                          par1->addChild(newnode1);
+                          flag=0;
+                      }
+                      else if(texture->currentText()=="Blue"){
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg", rect_w->value(), rect_h->value()
+                                                  , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                  , ptx->value(), pty->value(), ptz->value(), 0,0);
+                          par1->addChild(newnode1);
+                          flag=0;
+                      }
+                      else if(texture->currentText()=="Raw")
+                      {
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/r.jpeg", rect_w->value(), rect_h->value()
+                                                  , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                  , ptx->value(), pty->value(), ptz->value(), 0,0);
+                          par1->addChild(newnode1);
+                          flag=0;
+                      }
+                      else if(texture->currentText()=="Klein Blue")
+                      {
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg", rect_w->value(), rect_h->value()
+                                                  , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                  , ptx->value(), pty->value(), ptz->value(), 0,0);
+                          par1->addChild(newnode1);
+                          flag=0;
+                      }
+                      else if(comboBox_texture->currentText()=="Wood")
+                      {
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/wood.jpg", rect_w->value(), rect_h->value(), rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value(), ptx->value(), pty->value(), ptz->value(), 0,0);
+                          par1->addChild(newnode1);
+                          flag=0;
+                      }
+                      else if(texture->currentText()=="Grid")
+                      {
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/grid.png", rect_w->value(), rect_h->value()
+                                                  , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                  , ptx->value(), pty->value(), ptz->value(), 0,0);
+                          par1->addChild(newnode1);
+                          flag=0;
+                      }
+                      else if(texture->currentText()=="Indice")
+                      {
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/indice.jpeg", rect_w->value(), rect_h->value()
+                                                  , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                  , ptx->value(), pty->value(), ptz->value(), 0,0);
+                          par1->addChild(newnode1);
+                          flag=0;
+                      }
+
+
+
                      //printf("add_object");
                      qDebug() << "add_object";
                      //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
                      //qDebug() << "add_object"<<texture->text();
                  }
                  }
-                 if(comboBox->currentText()=="Sphere")
+                 else if(comboBox->currentText()=="Sphere")
                  {
                      InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
                      par->addChild(newnode);
@@ -357,12 +416,78 @@ void SpecificWorker:: connect_texture(bool en)
                      InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
                      if(check2==NULL)
                      {
-                     connect_texture(true);
-                     InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture_txt, radiusval->value(), rect_h->value()
-                                             , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
-                                             , ptx->value(), pty->value(), ptz->value(), 0,1);
-                     par1->addChild(newnode1);
-                     flag=0;
+                     //connect_texture(true);
+                     //texture_out= connect_texture(true);
+                         if(texture->currentText()=="Checkerboard")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", radiusval->value(), rect_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Metal")
+                         {
+
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", radiusval->value(), rect_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Blue"){
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg", radiusval->value(), rect_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         if(texture->currentText()=="Raw")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/r.jpeg", radiusval->value(), rect_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Klein Blue")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg", radiusval->value(), rect_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Wood")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/wood.jpg", radiusval->value(), rect_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Grid")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/grid.png", radiusval->value(), rect_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Indice")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/indice.jpeg", radiusval->value(), rect_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+
+
+                     //InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture->currentText(), radiusval->value(), rect_h->value()
+                                     //        , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                      //       , ptx->value(), pty->value(), ptz->value(), 0,1);
+
                      //printf("add_object");
                      qDebug() << "add_object";
                      //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
@@ -383,9 +508,31 @@ void SpecificWorker:: connect_texture(bool en)
                    qDebug()<< "hogaya....hahahhaha " << nodeid->text();
                    nodeid->clear();
                    comboBox->setCurrentIndex(0);
+                   texture->setCurrentIndex(0);
+                   comboBox_texture->setCurrentIndex(0);
                    //parentid->clear();
                    groupBox_12->hide();
                    groupBox_8->hide();
+                   tx->clear();
+                   ty->clear();
+                   tz->clear();
+                   rx->clear();
+                   ry->clear();
+                   rz->clear();
+                   normx->clear();
+                   normy->clear();
+                   normz->clear();
+                   ptx->clear();
+                   pty->clear();
+                   ptz->clear();
+                   texture_sz->clear();
+                   rect_dep->clear();
+                   rect_w->clear();
+                   rect_h->clear();
+                   radiusval->clear();
+                   mass_b->clear();
+
+
                    this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
 
 //                   plane1 = "";

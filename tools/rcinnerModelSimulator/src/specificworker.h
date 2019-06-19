@@ -67,7 +67,7 @@ private:
 		std::shared_ptr<InnerModel> innerModel;
 		
         int flag=1;
-        QString texture_txt;
+        QString texture_txt,texture_out;
         osg::Vec3 eye, center, up;
 		// World
 		SpecificWorker *worker;
@@ -147,7 +147,7 @@ private:
         void newnodeConnections(bool enable);
         void fillNodeMap(InnerModelNode *node,QTreeWidgetItem *parent);
         void changeTexture();
-        void connect_texture(bool en);
+
 	
 	public slots:
 		// ----------------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ private:
         //change texture of floor
         //----------------------------------------------
         void floor_texture();
-        void object_texture();
+        //void object_texture();
 
 
 
