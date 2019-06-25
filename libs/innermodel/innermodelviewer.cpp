@@ -128,6 +128,32 @@ IMVPlane::IMVPlane(InnerModelDisplay *plane, std::string imagenEntrada, osg::Vec
 
 	addDrawable(planeDrawable);
 	}
+	if(shape_req==2){
+	osg::ref_ptr<osg::Cylinder> myCylinder = new osg::Cylinder(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width,plane->height);
+//	QVec p1=0;
+//osg::Quat quat = quaternionFromInitFinalVector(QVec::vec3(0, 0,1), QVec :: vec3(0,plane->height,0)-QVec::vec3(0,0,0));
+// 	osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(plane->point(0),-plane->point(1),plane->point(2))), plane->width, -plane->height, plane->depth);
+//	osg::ref_ptr<osg::Box> mySphere = new osg::Sphee(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
+//	myCylinder->setRotation(quat);
+	planeDrawable = new osg::ShapeDrawable(myCylinder);
+	planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
+
+	addDrawable(planeDrawable);
+	printf("cyclinder 1");
+	}
+	if(shape_req==3){
+	osg::ref_ptr<osg::Cone> myCone = new osg::Cone(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width,plane->height);
+//	QVec p1=0;
+//osg::Quat quat = quaternionFromInitFinalVector(QVec::vec3(0, 0,1), QVec :: vec3(0,plane->height,0)-QVec::vec3(0,0,0));
+// 	osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(plane->point(0),-plane->point(1),plane->point(2))), plane->width, -plane->height, plane->depth);
+//	osg::ref_ptr<osg::Box> mySphere = new osg::Sphee(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
+//	myCylinder->setRotation(quat);
+	planeDrawable = new osg::ShapeDrawable(myCone);
+	planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
+
+	addDrawable(planeDrawable);
+	printf("cone");
+	}
 	if (not constantColor)
 	{
 		// Texture
@@ -633,7 +659,33 @@ IMVPlane::IMVPlane(InnerModelPlane *plane, std::string imagenEntrada, osg::Vec4 
 
 	addDrawable(planeDrawable);
 	}
+	if(shape_req==2){
+	osg::ref_ptr<osg::Cylinder> myCylinder = new osg::Cylinder(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width,plane->height);
+	QVec p1=0;
+//osg::Quat quat = quaternionFromInitFinalVector(QVec::vec3(0, 0,1), plane->height-p1);
+//osg::Quat quat = quaternionFromInitFinalVector(QVec::vec3(0, 0,1), QVec :: vec3(0,plane->height,0)-QVec::vec3(0,0,0));
+// 	osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(plane->point(0),-plane->point(1),plane->point(2))), plane->width, -plane->height, plane->depth);
+//	osg::ref_ptr<osg::Box> mySphere = new osg::Sphee(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
+//	myCylinder->setRotation(quat);
+	planeDrawable = new osg::ShapeDrawable(myCylinder);
+	planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
+	addDrawable(planeDrawable);
+	printf("cyclinder 2");
 
+}
+	if(shape_req==3){
+	osg::ref_ptr<osg::Cone> myCone = new osg::Cone(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width,plane->height);
+//	QVec p1=0;
+//osg::Quat quat = quaternionFromInitFinalVector(QVec::vec3(0, 0,1), QVec :: vec3(0,plane->height,0)-QVec::vec3(0,0,0));
+// 	osg::Box* myBox = new osg::Box(QVecToOSGVec(QVec::vec3(plane->point(0),-plane->point(1),plane->point(2))), plane->width, -plane->height, plane->depth);
+//	osg::ref_ptr<osg::Box> mySphere = new osg::Sphee(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth);
+//	myCylinder->setRotation(quat);
+	planeDrawable = new osg::ShapeDrawable(myCone);
+	planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
+
+	addDrawable(planeDrawable);
+	printf("cone");
+	}
 	if (not constantColor)
 	{
 		// Texture
@@ -672,7 +724,7 @@ IMVPlane::IMVPlane(InnerModelPlane *plane, std::string imagenEntrada, osg::Vec4 
 	}
 }
 
-IMVPlane::~IMVPlane ( )
+IMVPlane::~IMVPlane ()
 {
 
 }

@@ -296,6 +296,36 @@ void SpecificWorker::shownode()
        // connect_texture(true);
 
     }
+    if(comboBox->currentText()=="Cylinder")
+    {
+        groupBox_12->show();
+        trans_gb->show();
+        rot_gb->show();
+        mass_gb->show();
+        texture_gb->show();
+        texture_size_gb->hide();
+        texture_val_gb->hide();
+        plane_gb->show();
+        texture_sp_gb->hide();
+        cylinder_gb->show();
+       // connect_texture(true);
+
+    }
+    if(comboBox->currentText()=="Cone")
+    {
+        groupBox_12->show();
+        trans_gb->show();
+        rot_gb->show();
+        mass_gb->show();
+        texture_gb->show();
+        texture_size_gb->hide();
+        texture_val_gb->hide();
+        plane_gb->show();
+        texture_sp_gb->hide();
+        cylinder_gb->show();
+       // connect_texture(true);
+
+    }
     //connect_texture(true);
 }
 //QString SpecificWorker:: object_texture()
@@ -479,6 +509,178 @@ void SpecificWorker::shownode()
                              InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/indice.jpeg", radiusval->value(), rect_h->value()
                                                      , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+
+
+                     //InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture->currentText(), radiusval->value(), rect_h->value()
+                                     //        , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                      //       , ptx->value(), pty->value(), ptz->value(), 0,1);
+
+                     //printf("add_object");
+                     qDebug() << "add_object";
+                     //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
+                     //qDebug() << "add_object"<<texture->text();
+                 }
+                 }
+                 else if(comboBox->currentText()=="Cylinder")
+                 {
+                     InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
+                     par->addChild(newnode);
+                     InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
+                     if(check2==NULL)
+                     {
+                     //connect_texture(true);
+                     //texture_out= connect_texture(true);
+                         if(texture->currentText()=="Checkerboard")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,2);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Metal")
+                         {
+
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,2);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Blue"){
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,2);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         if(texture->currentText()=="Raw")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/r.jpeg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,2);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Klein Blue")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,2);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Wood")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/wood.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,2);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Grid")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/grid.png", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,2);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Indice")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/indice.jpeg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,2);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+
+
+                     //InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture->currentText(), radiusval->value(), rect_h->value()
+                                     //        , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                      //       , ptx->value(), pty->value(), ptz->value(), 0,1);
+
+                     //printf("add_object");
+                     qDebug() << "add_object";
+                     //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
+                     //qDebug() << "add_object"<<texture->text();
+                 }
+                 }
+                 else if(comboBox->currentText()=="Cone")
+                 {
+                     InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
+                     par->addChild(newnode);
+                     InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
+                     if(check2==NULL)
+                     {
+                     //connect_texture(true);
+                     //texture_out= connect_texture(true);
+                         if(texture->currentText()=="Checkerboard")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,3);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Metal")
+                         {
+
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,3);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Blue"){
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,3);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         if(texture->currentText()=="Raw")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/r.jpeg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,3);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Klein Blue")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,3);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Wood")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/wood.jpg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,3);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Grid")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/grid.png", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,3);
+                             par1->addChild(newnode1);
+                             flag=0;
+                         }
+                         else if(texture->currentText()=="Indice")
+                         {
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/indice.jpeg", cyl_rad->value(), cyl_h->value()
+                                                     , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
+                                                     , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
                          }
