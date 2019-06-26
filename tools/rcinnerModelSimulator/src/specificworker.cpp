@@ -279,6 +279,7 @@ void SpecificWorker::shownode()
         texture_val_gb->show();
         plane_gb->show();
         texture_sp_gb->hide();
+        cylinder_gb->hide();
        // connect_texture(true);
 
     }
@@ -293,6 +294,7 @@ void SpecificWorker::shownode()
         texture_val_gb->hide();
         plane_gb->show();
         texture_sp_gb->show();
+        cylinder_gb->hide();
        // connect_texture(true);
 
     }
@@ -378,7 +380,7 @@ void SpecificWorker::shownode()
                       else if(texture->currentText()=="Metal")
                       {
 
-                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", rect_w->value(), rect_h->value()
+                          InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg", rect_w->value(), rect_h->value()
                                                   , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
                                                   , ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
@@ -459,7 +461,7 @@ void SpecificWorker::shownode()
                          else if(texture->currentText()=="Metal")
                          {
 
-                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", radiusval->value(), rect_h->value()
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg", radiusval->value(), rect_h->value()
                                                      , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
@@ -545,7 +547,7 @@ void SpecificWorker::shownode()
                          else if(texture->currentText()=="Metal")
                          {
 
-                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", cyl_rad->value(), cyl_h->value()
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg", cyl_rad->value(), cyl_h->value()
                                                      , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
@@ -631,7 +633,7 @@ void SpecificWorker::shownode()
                          else if(texture->currentText()=="Metal")
                          {
 
-                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg", cyl_rad->value(), cyl_h->value()
+                             InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg", cyl_rad->value(), cyl_h->value()
                                                      , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
@@ -715,24 +717,26 @@ void SpecificWorker::shownode()
                    //parentid->clear();
                    groupBox_12->hide();
                    groupBox_8->hide();
-                   tx->clear();
-                   ty->clear();
-                   tz->clear();
-                   rx->clear();
-                   ry->clear();
-                   rz->clear();
-                   normx->clear();
-                   normy->clear();
-                   normz->clear();
-                   ptx->clear();
-                   pty->clear();
-                   ptz->clear();
-                   texture_sz->clear();
-                   rect_dep->clear();
-                   rect_w->clear();
-                   rect_h->clear();
-                   radiusval->clear();
-                   mass_b->clear();
+                   tx->setValue(0.00);
+                   ty->setValue(0.00);
+                   tz->setValue(0.00);
+                   rx->setValue(0.00);
+                   ry->setValue(0.00);
+                   rz->setValue(0.00);
+                   normx->setValue(0.00);
+                   normy->setValue(0.00);
+                   normz->setValue(0.00);
+                   ptx->setValue(0.00);
+                   pty->setValue(0.00);
+                   ptz->setValue(0.00);
+                   texture_sz->setValue(0.00);
+                   rect_dep->setValue(0.00);
+                   rect_w->setValue(0.00);
+                   rect_h->setValue(0.00);
+                   radiusval->setValue(0.00);
+                   mass_b->setValue(0.00);
+                   cyl_h->setValue(0.00);
+                   cyl_rad->setValue(0.00);
 
 
                    this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
