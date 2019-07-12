@@ -75,7 +75,7 @@ private:
 		InnerModelViewer *imv;
 		OsgView *viewer;
 		osgGA::TrackballManipulator *manipulator;
-
+        WorkerNode currentNode;
 		// Handlers
 		Ice::CommunicatorPtr communicator;
 		std::map<uint32_t, JointMotorServer> jm_servers;
@@ -147,6 +147,22 @@ private:
         void newnodeConnections(bool enable);
         void fillNodeMap(InnerModelNode *node,QTreeWidgetItem *parent);
         void changeTexture();
+        void showAvailableGroups();
+        //void highlightNode();
+        void interfaceConnections(bool enable);
+
+        void showTransform(QString id);
+        void showRotation(QString id);
+        //void showJoint(QString id);
+        void showTranslation(QString id);
+        //void showMesh(QString id);
+        void showPlane(QString id);
+        void showPlane_cyl(QString id);
+        void showPlane_cone(QString id);
+        void showPlane_s(QString id);
+        void showDisplay(QString id);
+        //void showCamera(QString id);
+
 
 	
 	public slots:
@@ -182,6 +198,13 @@ private:
         //----------------------------------------------
         void floor_texture();
         //void object_texture();
+        void currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+        void planeChanged();
+        void planeChanged_s();
+        void planeChanged_cone();
+        void planeChanged_cyl();
+        void translationChanged();
+        void rotationChanged();
 
 
 

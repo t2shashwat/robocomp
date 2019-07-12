@@ -420,6 +420,31 @@ void InnerModelViewer::update()
 			InnerModelPlane *plane = (InnerModelPlane *)innerModel->getNode(key);
 			setOSGMatrixTransformForPlane(mt, plane);
 			IMVPlane *imvplane = planesHash[key];
+			imvplane->planeDrawable->dirtyDisplayList();
+		std::string imagenEntrada = plane->texture.toStdString();
+		if(imagenEntrada[0] != '#')
+		{
+			osg::Image *image_ = new osg::Image();
+			image_ = osgDB::readImageFile(plane->texture.toStdString());
+			imvplane->setImage(image_);
+		}
+		else
+			{
+				auto state = imvplane->getOrCreateStateSet();
+				state->removeAttribute(osg::StateAttribute::MATERIAL);
+				imvplane->planeDrawable->setColor(htmlStringToOsgVec4(QString::fromStdString(imagenEntrada)));
+
+			}
+			if(plane->shape==0){
+		imvplane->planeDrawable->setShape(new osg::Box(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, -plane->height, plane->depth));
+}
+			if(plane->shape==1){
+		imvplane->planeDrawable->setShape(new osg::Sphere(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width));
+}
+			if(plane->shape==2){
+		imvplane->planeDrawable->setShape(new osg::Cylinder(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, plane->height));}
+			if(plane->shape==3){
+		imvplane->planeDrawable->setShape(new osg::Cone(QVecToOSGVec(QVec::vec3(0,0,0)), plane->width, plane->height));}
 			if (imvplane)
 			{
 				if (imvplane->texture and imvplane->image and imvplane->data and imvplane->dirty)
