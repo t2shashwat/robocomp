@@ -83,8 +83,9 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	manipulator = new osgGA::TrackballManipulator;
 	qDebug() << __FILE__ << __FUNCTION__ << "HOLa";
 
-	// 	manipulator->setHomePosition(osg::Vec3d(0, 10000, 0), osg::Vec3d(0, 0, 0), osg::Vec3d(0, 0, -10000), true);
-	viewer->setCameraManipulator(manipulator, true);
+    //manipulator->setHomePosition(osg::Vec3d(0, 10000, 0), osg::Vec3d(0, 0, 0), osg::Vec3d(0, 0, -10000), true);
+    //viewer->setCameraManipulator(manipulator, true);
+    this->viewer->setHomePosition(osg::Vec3d(0, 10000, 0),osg::Vec3(0.f,0.,-40.),up, false);
 	
 	// Add mouse pick handler to publish 3D coordinates
 	if (rcis_mousepicker_proxy)
@@ -93,33 +94,33 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	}
 
 	// Restore previous camera position
-	settings = new QSettings("RoboComp", "RCIS");
-	QString path(_innerModelXML);
-	if (path == settings->value("path").toString() )
-	{
-		//restore matrix view
-		QStringList l = settings->value("matrix").toStringList();
-		if (l.size() > 0)
-		{
-			osg::Matrixd m;
-			for (int i=0; i<4; i++ )
-			{
-				for (int j=0; j<4; j++ )
-				{
-					m(i,j)=l.takeFirst().toDouble();
-				}
-			}
-			manipulator->setByMatrix(m);
-		}
-		else
-		{
-			setTopPOV();
-		}
-	}
-	else
-	{
-		settings->setValue("path",path);
- 	}
+//	settings = new QSettings("RoboComp", "RCIS");
+//	QString path(_innerModelXML);
+//	if (path == settings->value("path").toString() )
+//	{
+//		//restore matrix view
+//		QStringList l = settings->value("matrix").toStringList();
+//		if (l.size() > 0)
+//		{
+//			osg::Matrixd m;
+//			for (int i=0; i<4; i++ )
+//			{
+//				for (int j=0; j<4; j++ )
+//				{
+//					m(i,j)=l.takeFirst().toDouble();
+//				}
+//			}
+//			manipulator->setByMatrix(m);
+//		}
+//		else
+//		{
+//			setTopPOV();
+//		}
+//	}
+//	else
+//	{
+//		settings->setValue("path",path);
+// 	}
 	qDebug() << __FILE__ << __FUNCTION__ << "InnerModelViewer created";
 
 	// Connect all the signals
@@ -135,6 +136,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	connect(actionVisual, SIGNAL(triggered()), this, SLOT(visualTriggered()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
     connect(actionFeatures, SIGNAL(triggered()), this, SLOT(featuresTriggered()));
+    connect(actionFloor_Texture, SIGNAL(triggered()), this, SLOT(change_textureTriggered()));
     //connect(actionTree, SIGNAL(triggered()), this, SLOT(viewTriggered()));
     connect(addobject_button, SIGNAL(clicked()), this, SLOT(add_object()));
     connect(treepushButton, SIGNAL(clicked()), this, SLOT(add_tree()));
@@ -294,7 +296,7 @@ void SpecificWorker::interfaceConnections(bool enable)
         connect(normx_4, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_cone()));
 
         connect(ptx_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
-        connect(pty_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_S()));
+        connect(pty_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
         connect(ptz_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
         connect(normx_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
         connect(normx_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
@@ -353,7 +355,7 @@ void SpecificWorker::interfaceConnections(bool enable)
         disconnect(normx_4, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_cone()));
 
         disconnect(ptx_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
-        disconnect(pty_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_S()));
+        disconnect(pty_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
         disconnect(ptz_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
         disconnect(normx_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
         disconnect(normx_5, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_s()));
@@ -914,6 +916,7 @@ void SpecificWorker::add_object()
 {
     //newnodeConnections(false);
     groupBox_8->show();
+    add_object_final->hide();
     newnodeConnections(true);
 
 }
@@ -944,9 +947,10 @@ void SpecificWorker::shownode()
     if(comboBox->currentText()=="Click to show type")
     {
         groupBox_12->hide();
+
     }
     if(comboBox->currentText()=="Box")
-    {
+    {   add_object_final->show();
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -957,11 +961,28 @@ void SpecificWorker::shownode()
         plane_gb->show();
         texture_sp_gb->hide();
         cylinder_gb->hide();
+        tx->setValue(0.00);
+        ty->setValue(0.00);
+        tz->setValue(0.00);
+        rx->setValue(0.00);
+        ry->setValue(0.00);
+        rz->setValue(0.00);
+        normx->setValue(0.00);
+        normy->setValue(0.00);
+        normz->setValue(0.00);
+        ptx->setValue(0.00);
+        pty->setValue(0.00);
+        ptz->setValue(0.00);
+        texture_sz->setValue(0.00);
+        rect_dep->setValue(200.00);
+        rect_w->setValue(400.00);
+        rect_h->setValue(400.00);
+        texture->setCurrentIndex(1);
        // connect_texture(true);
 
     }
     if(comboBox->currentText()=="Sphere")
-    {
+    {   add_object_final->show();
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -972,11 +993,26 @@ void SpecificWorker::shownode()
         plane_gb->show();
         texture_sp_gb->show();
         cylinder_gb->hide();
+        tx->setValue(0.00);
+        ty->setValue(0.00);
+        tz->setValue(0.00);
+        rx->setValue(0.00);
+        ry->setValue(0.00);
+        rz->setValue(0.00);
+        normx->setValue(0.00);
+        normy->setValue(0.00);
+        normz->setValue(0.00);
+        ptx->setValue(0.00);
+        pty->setValue(0.00);
+        ptz->setValue(0.00);
+        texture_sz->setValue(0.00);
+        radiusval->setValue(200.00);
+        texture->setCurrentIndex(1);
        // connect_texture(true);
 
     }
     if(comboBox->currentText()=="Cylinder")
-    {
+    {   add_object_final->show();
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -987,11 +1023,27 @@ void SpecificWorker::shownode()
         plane_gb->show();
         texture_sp_gb->hide();
         cylinder_gb->show();
+        tx->setValue(0.00);
+        ty->setValue(0.00);
+        tz->setValue(0.00);
+        rx->setValue(0.00);
+        ry->setValue(0.00);
+        rz->setValue(0.00);
+        normx->setValue(0.00);
+        normy->setValue(0.00);
+        normz->setValue(0.00);
+        ptx->setValue(0.00);
+        pty->setValue(1.00);
+        ptz->setValue(0.00);
+        texture_sz->setValue(0.00);
+        cyl_h->setValue(400.00);
+        cyl_rad->setValue(100.00);
+        texture->setCurrentIndex(1);
        // connect_texture(true);
 
     }
     if(comboBox->currentText()=="Cone")
-    {
+    {   add_object_final->show();
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -1002,6 +1054,22 @@ void SpecificWorker::shownode()
         plane_gb->show();
         texture_sp_gb->hide();
         cylinder_gb->show();
+        tx->setValue(0.00);
+        ty->setValue(0.00);
+        tz->setValue(0.00);
+        rx->setValue(0.00);
+        ry->setValue(0.00);
+        rz->setValue(0.00);
+        normx->setValue(0.00);
+        normy->setValue(0.00);
+        normz->setValue(0.00);
+        ptx->setValue(0.00);
+        pty->setValue(1.00);
+        ptz->setValue(0.00);
+        texture_sz->setValue(0.00);
+        cyl_h->setValue(400.00);
+        cyl_rad->setValue(100.00);
+        texture->setCurrentIndex(1);
        // connect_texture(true);
 
     }
@@ -1011,8 +1079,8 @@ void SpecificWorker::shownode()
  void SpecificWorker::add_new_node()
  {
 
-     //InnerModelNode *par= innerModel->getNode(parentid->text());
-     InnerModelNode *par= innerModel->getNode("world");
+     InnerModelNode *par= innerModel->getNode(parentid->text());
+     //InnerModelNode *par= innerModel->getNode("world");
      //qDebug("%s",parentid->text().toLatin1().constData());
      //printf(parentid->text());
 //         if (par==NULL)
@@ -1369,18 +1437,19 @@ void SpecificWorker::shownode()
                  }
              }
              if(flag==0)
-             {
+             {  qDebug()<<"flag=0";
 
                  this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//                 if(!rgbd_id.isEmpty()){
-//                       printf("destroy");
-//                      imv->cameras[rgbd_id].viewerCamera->~Viewer();
-//                 }
+
 
                   viewer->~OsgView();
+//                  if(!rgbd_id.isEmpty()){
+//                       qDebug()<<"destroy";
+//                       imv->cameras[rgbd_id].viewerCamera->~Viewer();
+//                  }
                   //rgbd_id.clear();
                   viewer = new OsgView(frameOSG);
-                   imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+                  imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
                    qDebug()<< "hogaya....hahahhaha " << nodeid->text();
                    nodeid->clear();
                    comboBox->setCurrentIndex(0);
@@ -1416,15 +1485,20 @@ void SpecificWorker::shownode()
 //                   plane1 = "";
 //                   plane2 = "";
                    flag=1;
+                  // fillNodeMap(innerModel->getNode("root"), NULL);
              }
              disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
              treeWidget->clear();
              connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-             printf("again tree update");
+             qDebug()<<"again tree update";
              fillNodeMap(innerModel->getNode("root"), NULL);
-             this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-
-             //imv->update();
+//             if(!rgbd_id.isEmpty()){
+//                  qDebug()<<"destroy";
+//                  imv->cameras[rgbd_id].viewerCamera->~Viewer();
+//                 }
+             //this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+             //rgbd_id.clear();
+             imv->update();
          //}
 
  }
@@ -1480,7 +1554,7 @@ void SpecificWorker::shownode()
              {
                  wnode.type = IMRGBD;
                  rgbd_id = node->id;
-                 //printf("rgbd-id");
+                 qDebug()<<"rgbd-id %s"<<node->id;
              }
              else
                  wnode.type = IMCamera;
@@ -1577,7 +1651,7 @@ void SpecificWorker::shownode()
 //          if(!rgbd_id.isEmpty())
 //               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-          rgbd_id.clear();
+        //  rgbd_id.clear();
 
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
@@ -1605,7 +1679,7 @@ void SpecificWorker::shownode()
 //          if(!rgbd_id.isEmpty())
 //               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-          rgbd_id.clear();
+      //    rgbd_id.clear();
 
 
           viewer = new OsgView(frameOSG);
@@ -1634,7 +1708,7 @@ void SpecificWorker::shownode()
 //          if(!rgbd_id.isEmpty())
 //               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           //viewer->~OsgView();
-          rgbd_id.clear();
+        //  rgbd_id.clear();
           viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
@@ -1662,7 +1736,7 @@ void SpecificWorker::shownode()
 //          if(!rgbd_id.isEmpty())
 //               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-          rgbd_id.clear();
+       //   rgbd_id.clear();
           //viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
@@ -1690,7 +1764,7 @@ void SpecificWorker::shownode()
 //          if(!rgbd_id.isEmpty())
 //               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-          rgbd_id.clear();
+        //  rgbd_id.clear();
           //viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
@@ -1718,7 +1792,7 @@ void SpecificWorker::shownode()
 //          if(!rgbd_id.isEmpty())
 //               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-          rgbd_id.clear();
+     //     rgbd_id.clear();
           //viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
@@ -1746,7 +1820,7 @@ void SpecificWorker::shownode()
 //          if(!rgbd_id.isEmpty())
 //               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-          rgbd_id.clear();
+      //    rgbd_id.clear();
           //viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
@@ -2036,8 +2110,9 @@ void SpecificWorker::includeRGBDs()
 	for (it = imv->cameras.constBegin() ; it != imv->cameras.constEnd() ; ++it)
 	{
 		addRGBD(it.value().RGBDNode);
-        //printf("rgbd-include-existing function");
+        qDebug()<<"rgbd-include-existing function";
 	}
+
 }
 
 void SpecificWorker::walkTree(InnerModelNode *node)
@@ -2503,12 +2578,30 @@ void SpecificWorker::featuresTriggered()
     if (actionFeatures->isChecked())
     {
         FEATURESWidget->show();
+        comboBox_texture->hide();
     }
     else
     {
         FEATURESWidget->hide();
+        comboBox_texture->hide();
     }
     printf("features\n");
+}
+void SpecificWorker::change_textureTriggered()
+{
+    if (actionFloor_Texture->isChecked())
+    {
+        FEATURESWidget->show();
+        comboBox_texture->show();
+        addobject_button->hide();
+    }
+    else
+    {
+        FEATURESWidget->hide();
+        comboBox_texture->hide();
+        addobject_button->hide();
+    }
+   // printf("features\n");
 }
 
 //void SpecificWorker :: viewTriggered()

@@ -173,6 +173,7 @@ private:
 		void objectTriggered();
 		void visualTriggered();
         void featuresTriggered();
+        void change_textureTriggered();
         //void viewTriggered();
 		void setTopPOV();
 		void setFrontPOV();
