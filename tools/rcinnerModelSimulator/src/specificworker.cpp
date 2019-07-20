@@ -195,6 +195,10 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     plane_gb_cyl->hide();
     plane_gb_cone->hide();
     plane_gb_sphere->hide();
+    plane_gb_plane->hide();
+    angle_gb->hide();
+    plane_gb_mesh->hide();
+    camera_gb->hide();
 
     //disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     //treeWidget->clear;
@@ -323,7 +327,28 @@ void SpecificWorker::interfaceConnections(bool enable)
         connect(cone_h_2, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_cone()));
         connect(cone_rad_2, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_cone()));
         // Joint-related
-        //connect(jointAngle, SIGNAL(valueChanged(double)), this, SLOT(jointChanged()));
+        connect(jointAngle, SIGNAL(valueChanged(double)), this, SLOT(jointChanged()));
+        //plane
+        connect(texture_plane_2, SIGNAL(editingFinished()), this, SLOT(planeChanged_rest()));
+        connect(ptx_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        connect(pty_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        connect(ptz_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        connect(normx_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        connect(normy_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        connect(normz_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        connect(plane_h_2, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        connect(plane_w_2, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        // connect(textureSize, SIGNAL(valueChanged(double)), this, SLOT(planeChanged()));
+        //camera
+        connect(cam_h, SIGNAL(valueChanged(double)), this, SLOT(cameraChanged()));
+        connect(cam_w, SIGNAL(valueChanged(double)), this, SLOT(cameraChanged()));
+        connect(cam_focal, SIGNAL(valueChanged(double)), this, SLOT(cameraChanged()));
+        // Mesh-related
+        connect(osgFile, SIGNAL(editingFinished()), this, SLOT(meshChanged()));
+        connect(scalex, SIGNAL(valueChanged(double)), this, SLOT(meshChanged()));
+        connect(scaley, SIGNAL(valueChanged(double)), this, SLOT(meshChanged()));
+        connect(scalez, SIGNAL(valueChanged(double)), this, SLOT(meshChanged()));
+
     }
     else
     {
@@ -380,6 +405,28 @@ void SpecificWorker::interfaceConnections(bool enable)
         //cone
         disconnect(cone_h_2, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_cone()));
         disconnect(cone_rad_2, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_cone()));
+        //plane
+        disconnect(texture_plane_2, SIGNAL(editingFinished()), this, SLOT(planeChanged_rest()));
+        disconnect(ptx_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        disconnect(pty_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        disconnect(ptz_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        disconnect(normx_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        disconnect(normy_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        disconnect(normz_6, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        disconnect(plane_h_2, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        disconnect(plane_w_2, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_rest()));
+        //camera
+        disconnect(cam_h, SIGNAL(valueChanged(double)), this, SLOT(cameraChanged()));
+        disconnect(cam_w, SIGNAL(valueChanged(double)), this, SLOT(cameraChanged()));
+        disconnect(cam_focal, SIGNAL(valueChanged(double)), this, SLOT(cameraChanged()));
+        // Mesh-related
+        disconnect(osgFile, SIGNAL(editingFinished()), this, SLOT(meshChanged()));
+        disconnect(comboBox_render, SIGNAL(currentIndexChanged(int)), this, SLOT(meshChanged()));
+        disconnect(scalex, SIGNAL(valueChanged(double)), this, SLOT(meshChanged()));
+        disconnect(scaley, SIGNAL(valueChanged(double)), this, SLOT(meshChanged()));
+        disconnect(scalez, SIGNAL(valueChanged(double)), this, SLOT(meshChanged()));
+        // Joint-related
+        disconnect(jointAngle, SIGNAL(valueChanged(double)), this, SLOT(jointChanged()));
     }
 }
 
@@ -387,6 +434,9 @@ void SpecificWorker::showAvailableGroups()
 {
     // Set node type and id
     NodeType1 type = currentNode.type;
+    qDebug()<<currentNode.type;
+    qDebug()<<currentNode.item;
+
     //printf("Node id --  %s",currentNode.type);
     //lineEdit_nodeId->setText(currentNode.id);
 
@@ -400,7 +450,10 @@ void SpecificWorker::showAvailableGroups()
         plane_gb_cyl->hide();
         plane_gb_cone->hide();
         plane_gb_sphere->hide();
-
+        plane_gb_plane->hide();
+        angle_gb->hide();
+        plane_gb_mesh->hide();
+        camera_gb->hide();
         return;
     }
 //    else
@@ -422,6 +475,11 @@ void SpecificWorker::showAvailableGroups()
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+
+            plane_gb_mesh->hide();
+            camera_gb->hide();
             showTransform(currentNode.id);
             break;
         case IMRotation:
@@ -432,7 +490,11 @@ void SpecificWorker::showAvailableGroups()
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
 
+            angle_gb->hide();
+            plane_gb_mesh->hide();
+            camera_gb->hide();
             showRotation(currentNode.id);
             break;
         case IMTranslation:
@@ -443,17 +505,28 @@ void SpecificWorker::showAvailableGroups()
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+
+            plane_gb_mesh->hide();
+            camera_gb->hide();
 
             showTranslation(currentNode.id);
             break;
         case IMMesh:
-            trans_gb_2->hide();
-            rot_gb_2->hide();
+            trans_gb_2->show();
+            rot_gb_2->show();
             //mass_gb->show();
             plane_gb_box->hide();
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+
+            plane_gb_mesh->show();
+            camera_gb->hide();
+            showMesh(currentNode.id);
+
             break;
         case IMPlane:{
             InnerModelPlane *pn = innerModel->getNode<InnerModelPlane>(currentNode.id);
@@ -461,7 +534,7 @@ void SpecificWorker::showAvailableGroups()
 //            vector<QString> result;
 //            boost::split(result, currentNode.id, boost::is_any_of("_"));
             //QStringList result=currentNode.id.split("_");
-            if(pn->shape==0){
+            if(pn->shape==0 ){
                 trans_gb_2->hide();
                 rot_gb_2->hide();
                 //mass_gb->show();
@@ -469,6 +542,13 @@ void SpecificWorker::showAvailableGroups()
                 plane_gb_cyl->hide();
                 plane_gb_cone->hide();
                 plane_gb_sphere->hide();
+                plane_gb_plane->hide();
+                angle_gb->hide();
+
+                plane_gb_mesh->hide();
+                camera_gb->hide();
+                qDebug()<<currentNode.id;
+                qDebug()<<currentNode.type;
                 showPlane(currentNode.id);
 
             }
@@ -480,6 +560,11 @@ void SpecificWorker::showAvailableGroups()
                 plane_gb_cyl->hide();
                 plane_gb_cone->hide();
                 plane_gb_sphere->show();
+                plane_gb_plane->hide();
+                angle_gb->hide();
+
+                plane_gb_mesh->hide();
+                camera_gb->hide();
                 showPlane_s(currentNode.id);
 
             }
@@ -491,6 +576,11 @@ void SpecificWorker::showAvailableGroups()
                 plane_gb_cyl->show();
                 plane_gb_cone->hide();
                 plane_gb_sphere->hide();
+                plane_gb_plane->hide();
+                angle_gb->hide();
+
+                plane_gb_mesh->hide();
+                camera_gb->hide();
                 showPlane_cyl(currentNode.id);
 
             }
@@ -502,8 +592,28 @@ void SpecificWorker::showAvailableGroups()
                 plane_gb_cyl->hide();
                 plane_gb_cone->show();
                 plane_gb_sphere->hide();
+                plane_gb_plane->hide();
+                angle_gb->hide();
+
+                plane_gb_mesh->hide();
+                camera_gb->hide();
                 showPlane_cone(currentNode.id);
 
+            }
+            else {
+                trans_gb_2->hide();
+                rot_gb_2->hide();
+                //mass_gb->show();
+                plane_gb_box->hide();
+                plane_gb_cyl->hide();
+                plane_gb_cone->show();
+                plane_gb_sphere->hide();
+                plane_gb_plane->hide();
+                angle_gb->hide();
+
+                plane_gb_mesh->hide();
+                camera_gb->hide();
+                showPlane_rest(currentNode.id);
             }
 
         }
@@ -517,6 +627,12 @@ void SpecificWorker::showAvailableGroups()
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+
+            plane_gb_mesh->hide();
+            camera_gb->show();
+            showCamera(currentNode.id);
             break;
         case IMIMU:
             trans_gb_2->hide();
@@ -526,6 +642,12 @@ void SpecificWorker::showAvailableGroups()
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+            plane_gb_mesh->hide();
+            camera_gb->hide();
             break;
         case IMLaser:
             trans_gb_2->hide();
@@ -535,6 +657,10 @@ void SpecificWorker::showAvailableGroups()
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+            plane_gb_mesh->hide();
+            camera_gb->hide();
             break;
         case IMRGBD:
             trans_gb_2->hide();
@@ -544,6 +670,10 @@ void SpecificWorker::showAvailableGroups()
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+            camera_gb->show();
+            showCamera(currentNode.id);
             break;
         case IMJoint:
             trans_gb_2->hide();
@@ -553,16 +683,97 @@ void SpecificWorker::showAvailableGroups()
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
             plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->show();
+            plane_gb_mesh->hide();
+            camera_gb->hide();
+            showJoint(currentNode.id);
             break;
-        case IMDisplay:
+        case IMDisplay:{
+        InnerModelPlane *pn = innerModel->getNode<InnerModelPlane>(currentNode.id);
+        //char *token=strtok(currentNode.id,"_")
+//            vector<QString> result;
+//            boost::split(result, currentNode.id, boost::is_any_of("_"));
+        //QStringList result=currentNode.id.split("_");
+        if(pn->shape==0){
+            trans_gb_2->hide();
+            rot_gb_2->hide();
+            //mass_gb->show();
+            plane_gb_box->show();
+            plane_gb_cyl->hide();
+            plane_gb_cone->hide();
+            plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+            camera_gb->hide();
+            plane_gb_mesh->hide();
+            showPlane(currentNode.id);
+
+        }
+        else if(pn->shape==1){
             trans_gb_2->hide();
             rot_gb_2->hide();
             //mass_gb->show();
             plane_gb_box->hide();
             plane_gb_cyl->hide();
             plane_gb_cone->hide();
+            plane_gb_sphere->show();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+            camera_gb->hide();
+            plane_gb_mesh->hide();
+            showPlane_s(currentNode.id);
+
+        }
+        else if(pn->shape==2){
+            trans_gb_2->hide();
+            rot_gb_2->hide();
+            //mass_gb->show();
+            plane_gb_box->hide();
+            plane_gb_cyl->show();
+            plane_gb_cone->hide();
             plane_gb_sphere->hide();
-            break;
+            plane_gb_plane->hide();
+            angle_gb->hide();
+            camera_gb->hide();
+            plane_gb_mesh->hide();
+            showPlane_cyl(currentNode.id);
+
+        }
+        else if(pn->shape==3){
+            trans_gb_2->hide();
+            rot_gb_2->hide();
+            //mass_gb->show();
+            plane_gb_box->hide();
+            plane_gb_cyl->hide();
+            plane_gb_cone->show();
+            plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+            camera_gb->hide();
+            plane_gb_mesh->hide();
+            showPlane_cone(currentNode.id);
+
+        }
+        else {
+            trans_gb_2->hide();
+            rot_gb_2->hide();
+            //mass_gb->show();
+            plane_gb_box->hide();
+            plane_gb_cyl->hide();
+            plane_gb_cone->show();
+            plane_gb_sphere->hide();
+            plane_gb_plane->hide();
+            angle_gb->hide();
+
+            plane_gb_mesh->hide();
+            camera_gb->hide();
+            showPlane_rest(currentNode.id);
+        }
+
+    }
+        break;
+
     }
 }
 
@@ -590,7 +801,38 @@ void SpecificWorker::showTranslation(QString id)
     tz_2->setValue(t->backtZ);
 }
 
-
+void SpecificWorker::showPlane_rest(QString id)
+{
+    NodeType1 type = currentNode.type;
+    if (type == IMPlane)
+    {
+        InnerModelPlane *p = innerModel->getNode<InnerModelPlane>(id);
+        ptx_6->setValue(p->point(0));
+        pty_6->setValue(p->point(1));
+        ptz_6->setValue(p->point(2));
+        normx_6->setValue(p->normal(0));
+        normy_6->setValue(p->normal(1));
+        normz_6->setValue(p->normal(2));
+        texture_plane_2->setText(p->texture);
+        plane_w_2->setValue(p->width);
+        plane_h_2->setValue(p->height);
+        //rect_dep_2->setValue(p->depth);
+        //textureSize->setValue(p->repeat);
+    }
+    else if (type == IMDisplay)
+    {
+        InnerModelPlane *p = innerModel->getNode<InnerModelPlane>(id);
+        ptx_6->setValue(p->point(0));
+        pty_6->setValue(p->point(1));
+        ptz_6->setValue(p->point(2));
+        normx_6->setValue(p->normal(0));
+        normy_6->setValue(p->normal(1));
+        normz_6->setValue(p->normal(2));
+        texture_plane_2->setText(p->texture);
+        plane_w_2->setValue(p->width);
+        plane_h_2->setValue(p->height);
+    }
+}
 void SpecificWorker::showPlane(QString id)
 {
     NodeType1 type = currentNode.type;
@@ -726,6 +968,98 @@ void SpecificWorker::showPlane_cone(QString id)
     }
 }
 
+void SpecificWorker::showJoint(QString id)
+{
+    InnerModelJoint *j = innerModel->getNode<InnerModelJoint>(id);
+    jointAngle->setValue(j->getAngle());
+}
+void SpecificWorker::showMesh(QString id)
+{
+    InnerModelMesh *m = innerModel->getNode<InnerModelMesh>(id);
+    if (m->render == InnerModelMesh::NormalRendering)
+        comboBox_render->setCurrentIndex(0);
+    else if (m->render == InnerModelMesh::WireframeRendering)
+        comboBox_render->setCurrentIndex(1);
+    else
+        qFatal("Internal error: only Normal and Wireframe rendering modes are supported (index %d not valid).", comboBox_render->currentIndex());
+
+    rx_2->setValue(m->rx);
+    ry_2->setValue(m->ry);
+    rz_2->setValue(m->rz);
+    tx_2->setValue(m->tx);
+    ty_2->setValue(m->ty);
+    tz_2->setValue(m->tz);
+    scalex->setValue(m->scalex);
+    scaley->setValue(m->scaley);
+    scalez->setValue(m->scalez);
+    osgFile->setText(m->meshPath);
+}
+void SpecificWorker::showCamera(QString id)
+{
+    InnerModelCamera *c = innerModel->getNode<InnerModelCamera>(id);
+    cam_focal->setValue(c->camera.getFocal());
+    cam_w->setValue(c->camera.getWidth());
+    cam_h->setValue(c->camera.getHeight());
+}
+
+
+void SpecificWorker::cameraChanged()
+{
+    InnerModelCamera *c = innerModel->getNode<InnerModelCamera>(currentNode.id);
+    c->camera.setSize(cam_w->value(), cam_h->value());
+    c->camera.setFocal(cam_focal->value());
+}
+
+void SpecificWorker::meshChanged()
+{
+    InnerModelMesh *m = innerModel->getNode<InnerModelMesh>(currentNode.id);
+    printf("d %p dd %s\n", m, m->id.toStdString().c_str());
+    if (comboBox_render->currentIndex() == 0)
+        m->render = InnerModelMesh::NormalRendering;
+    else if (comboBox_render->currentIndex() == 1)
+        m->render = InnerModelMesh::WireframeRendering;
+    else
+        //qFatal("Error: only Normal and Wireframe modes are supported (index %d not valid).", renderMode->currentIndex());
+    m->meshPath = osgFile->text();
+    m->scalex = scalex->value();
+    m->scaley = scaley->value();
+    m->scalez = scalez->value();
+    qDebug() << "File " << m->meshPath;
+    // 	qDebug() << "Scale " << m->scale;
+    imv->update();
+    // imv->reloadMesh(m->id);
+}
+
+void SpecificWorker::planeChanged_rest()
+{
+    NodeType1 type = currentNode.type;
+    if (type == IMPlane)
+    {
+        InnerModelPlane *m = innerModel->getNode<InnerModelPlane>(currentNode.id);
+        m->normal = QVec::vec3(normx_6->value(), normy_6->value(), normz_6->value());
+        m->point = QVec::vec3(ptx_6->value(), pty_6->value(), ptz_6->value());
+        m->width = plane_w_2->value();
+        m->height = plane_h_2->value();
+        m->texture = texture_plane_2->text();
+        //m->repeat = textureSize->value();
+
+        imv->update();
+    }
+    else if (type == IMDisplay)
+    {
+        InnerModelPlane *m = innerModel->getNode<InnerModelPlane>(currentNode.id);
+        m->normal = QVec::vec3(normx_6->value(), normy_6->value(), normz_6->value());
+        m->point = QVec::vec3(ptx_6->value(), pty_6->value(), ptz_6->value());
+        m->width = plane_w_2->value();
+        m->height = plane_h_2->value();
+        m->texture = texture_plane_2->text();
+        //m->repeat = textureSize->value();
+
+        imv->update();
+    }
+}
+
+
 void SpecificWorker::planeChanged()
 {
     NodeType1 type = currentNode.type;
@@ -843,6 +1177,7 @@ void SpecificWorker::planeChanged_s()
         printf("plane changed");
         //prevNode = NULL;
         imv->update();
+        qDebug()<<"plane";
     }
     else if (type == IMDisplay)
     {
@@ -857,6 +1192,7 @@ void SpecificWorker::planeChanged_s()
         //m->shape = 0;
         //prevNode = NULL;
         imv->update();
+        qDebug()<<"display";
     }
 }
 
@@ -873,13 +1209,13 @@ void SpecificWorker::translationChanged()
     {
         innerModel->updateTranslationValues(currentNode.id, tx_2->value(), ty_2->value(), tz_2->value());
     }
-//    else if (type == IMMesh)
-//    {
-//        InnerModelMesh *m = innerModel->getNode<InnerModelMesh>(currentNode.id);
-//        m->tx = tx->value();
-//        m->ty = ty->value();
-//        m->tz = tz->value();
-//    }
+    else if (type == IMMesh)
+    {
+        InnerModelMesh *m = innerModel->getNode<InnerModelMesh>(currentNode.id);
+        m->tx = tx_2->value();
+        m->ty = ty_2->value();
+        m->tz = tz_2->value();
+    }
     else
         qFatal("Internal error worker.cpp:%d\n", __LINE__);
 }
@@ -893,13 +1229,25 @@ void SpecificWorker::rotationChanged()
     {
         innerModel->updateRotationValues(currentNode.id, rx_2->value(), ry_2->value(), rz_2->value());
     }
-//    else if (type == IMMesh)
-//    {
-//        InnerModelMesh *m = innerModel->getNode<InnerModelMesh>(currentNode.id);
-//        m->rx = rx->value();
-//        m->ry = ry->value();
-//        m->rz = rz->value();
-//    }
+    else if (type == IMMesh)
+    {
+        InnerModelMesh *m = innerModel->getNode<InnerModelMesh>(currentNode.id);
+        m->rx = rx_2->value();
+        m->ry = ry_2->value();
+        m->rz = rz_2->value();
+    }
+    else
+        qFatal("Internal error worker.cpp:%d\n", __LINE__);
+}
+
+void SpecificWorker::jointChanged()
+{
+    //printf("joint changed\n");
+    if (currentNode.type == IMJoint)
+    {
+        // 		InnerModelJoint *j = innerModel->getNode<InnerModelJoint>(currentNode.id);
+        innerModel->updateRotationValues(currentNode.id, 0, 0, jointAngle->value());
+    }
     else
         qFatal("Internal error worker.cpp:%d\n", __LINE__);
 }
@@ -929,18 +1277,26 @@ void SpecificWorker::newnodeConnections(bool enable)
     if(enable)
             {
                     connect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
-                    connect(add_object_final,SIGNAL(clicked()),this,SLOT(add_new_node()));
+                    connect(add_object_final,SIGNAL(clicked()),this,SLOT(go_back()));
 
             }
 
              else
              {
                  disconnect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
-                 disconnect(add_object_final,SIGNAL(clicked()),this,SLOT(add_new_node()));
+                 disconnect(add_object_final,SIGNAL(clicked()),this,SLOT(go_back()));
 
     }
 
 
+}
+void SpecificWorker::go_back()
+{
+    nodeid->clear();
+    comboBox->setCurrentIndex(0);
+    groupBox_12->hide();
+    groupBox_8->hide();
+    addobject_connections(false);
 }
 void SpecificWorker::shownode()
 {
@@ -961,13 +1317,13 @@ void SpecificWorker::shownode()
         plane_gb->show();
         texture_sp_gb->hide();
         cylinder_gb->hide();
-        tx->setValue(0.00);
-        ty->setValue(0.00);
+        tx->setValue(200.00);
+        ty->setValue(300.00);
         tz->setValue(0.00);
         rx->setValue(0.00);
         ry->setValue(0.00);
         rz->setValue(0.00);
-        normx->setValue(0.00);
+        normx->setValue(1.00);
         normy->setValue(0.00);
         normz->setValue(0.00);
         ptx->setValue(0.00);
@@ -977,8 +1333,11 @@ void SpecificWorker::shownode()
         rect_dep->setValue(200.00);
         rect_w->setValue(400.00);
         rect_h->setValue(400.00);
-        texture->setCurrentIndex(1);
-       // connect_texture(true);
+        texture->setCurrentIndex(2);
+        addobject_connections(false);
+        addobject_connections(true);
+        add_new_node();
+
 
     }
     if(comboBox->currentText()=="Sphere")
@@ -993,13 +1352,13 @@ void SpecificWorker::shownode()
         plane_gb->show();
         texture_sp_gb->show();
         cylinder_gb->hide();
-        tx->setValue(0.00);
+        tx->setValue(300.00);
         ty->setValue(0.00);
-        tz->setValue(0.00);
+        tz->setValue(400.00);
         rx->setValue(0.00);
         ry->setValue(0.00);
         rz->setValue(0.00);
-        normx->setValue(0.00);
+        normx->setValue(1.00);
         normy->setValue(0.00);
         normz->setValue(0.00);
         ptx->setValue(0.00);
@@ -1007,8 +1366,10 @@ void SpecificWorker::shownode()
         ptz->setValue(0.00);
         texture_sz->setValue(0.00);
         radiusval->setValue(200.00);
-        texture->setCurrentIndex(1);
-       // connect_texture(true);
+        texture->setCurrentIndex(2);
+        addobject_connections(false);
+        addobject_connections(true);
+        add_new_node();
 
     }
     if(comboBox->currentText()=="Cylinder")
@@ -1023,23 +1384,25 @@ void SpecificWorker::shownode()
         plane_gb->show();
         texture_sp_gb->hide();
         cylinder_gb->show();
-        tx->setValue(0.00);
+        tx->setValue(400.00);
         ty->setValue(0.00);
-        tz->setValue(0.00);
+        tz->setValue(300.00);
         rx->setValue(0.00);
         ry->setValue(0.00);
         rz->setValue(0.00);
         normx->setValue(0.00);
-        normy->setValue(0.00);
+        normy->setValue(1.00);
         normz->setValue(0.00);
         ptx->setValue(0.00);
-        pty->setValue(1.00);
+        pty->setValue(0.00);
         ptz->setValue(0.00);
         texture_sz->setValue(0.00);
         cyl_h->setValue(400.00);
         cyl_rad->setValue(100.00);
-        texture->setCurrentIndex(1);
-       // connect_texture(true);
+        texture->setCurrentIndex(2);
+        addobject_connections(false);
+        addobject_connections(true);
+        add_new_node();
 
     }
     if(comboBox->currentText()=="Cone")
@@ -1054,30 +1417,32 @@ void SpecificWorker::shownode()
         plane_gb->show();
         texture_sp_gb->hide();
         cylinder_gb->show();
-        tx->setValue(0.00);
+        tx->setValue(400.00);
         ty->setValue(0.00);
-        tz->setValue(0.00);
+        tz->setValue(500.00);
         rx->setValue(0.00);
         ry->setValue(0.00);
         rz->setValue(0.00);
         normx->setValue(0.00);
-        normy->setValue(0.00);
+        normy->setValue(1.00);
         normz->setValue(0.00);
         ptx->setValue(0.00);
-        pty->setValue(1.00);
+        pty->setValue(0.00);
         ptz->setValue(0.00);
         texture_sz->setValue(0.00);
         cyl_h->setValue(400.00);
         cyl_rad->setValue(100.00);
-        texture->setCurrentIndex(1);
-       // connect_texture(true);
+        texture->setCurrentIndex(2);
+        addobject_connections(false);
+        addobject_connections(true);
+        add_new_node();
 
     }
-    //connect_texture(true);
+
 }
 
  void SpecificWorker::add_new_node()
- {
+ {   //add_object_final->show();
 
      InnerModelNode *par= innerModel->getNode(parentid->text());
      //InnerModelNode *par= innerModel->getNode("world");
@@ -1102,7 +1467,7 @@ void SpecificWorker::shownode()
                      InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
                      par->addChild(newnode);
                      InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
-                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_pBox");
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
                      if(check2==NULL)
                      {
                       if(texture->currentText()=="Checkerboard")
@@ -1182,7 +1547,7 @@ void SpecificWorker::shownode()
                      InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
                      par->addChild(newnode);
                      InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
-                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_pSphere");
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
                      if(check2==NULL)
                      {
                      //connect_texture(true);
@@ -1268,7 +1633,7 @@ void SpecificWorker::shownode()
                      InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
                      par->addChild(newnode);
                      InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
-                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_pCylinder");
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
                      if(check2==NULL)
                      {
                      //connect_texture(true);
@@ -1354,7 +1719,7 @@ void SpecificWorker::shownode()
                      InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(nodeid->text(), "static", par, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), mass_b->value());
                      par->addChild(newnode);
                      InnerModelNode *par1= innerModel->getNode<InnerModelNode>(nodeid->text());
-                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_pCone");
+                     InnerModelNode *check2= innerModel->getNode(nodeid->text()+"_p");
                      if(check2==NULL)
                      {
                      //connect_texture(true);
@@ -1451,33 +1816,33 @@ void SpecificWorker::shownode()
                   viewer = new OsgView(frameOSG);
                   imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
                    qDebug()<< "hogaya....hahahhaha " << nodeid->text();
-                   nodeid->clear();
-                   comboBox->setCurrentIndex(0);
-                   texture->setCurrentIndex(0);
-                   comboBox_texture->setCurrentIndex(0);
+                   //nodeid->clear();
+                   //comboBox->setCurrentIndex(0);
+                  // texture->setCurrentIndex(0);
+                  // comboBox_texture->setCurrentIndex(0);
                    //parentid->clear();
-                   groupBox_12->hide();
-                   groupBox_8->hide();
-                   tx->setValue(0.00);
-                   ty->setValue(0.00);
-                   tz->setValue(0.00);
-                   rx->setValue(0.00);
-                   ry->setValue(0.00);
-                   rz->setValue(0.00);
-                   normx->setValue(0.00);
-                   normy->setValue(0.00);
-                   normz->setValue(0.00);
-                   ptx->setValue(0.00);
-                   pty->setValue(0.00);
-                   ptz->setValue(0.00);
-                   texture_sz->setValue(0.00);
-                   rect_dep->setValue(0.00);
-                   rect_w->setValue(0.00);
-                   rect_h->setValue(0.00);
-                   radiusval->setValue(0.00);
-                   mass_b->setValue(0.00);
-                   cyl_h->setValue(0.00);
-                   cyl_rad->setValue(0.00);
+                   //groupBox_12->hide();
+                   //groupBox_8->hide();
+//                   tx->setValue(0.00);
+//                   ty->setValue(0.00);
+//                   tz->setValue(0.00);
+//                   rx->setValue(0.00);
+//                   ry->setValue(0.00);
+//                   rz->setValue(0.00);
+//                   normx->setValue(0.00);
+//                   normy->setValue(0.00);
+//                   normz->setValue(0.00);
+//                   ptx->setValue(0.00);
+//                   pty->setValue(0.00);
+//                   ptz->setValue(0.00);
+//                   texture_sz->setValue(0.00);
+//                   rect_dep->setValue(0.00);
+//                   rect_w->setValue(0.00);
+//                   rect_h->setValue(0.00);
+//                   radiusval->setValue(0.00);
+//                   mass_b->setValue(0.00);
+//                   cyl_h->setValue(0.00);
+//                   cyl_rad->setValue(0.00);
 
 
                    this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
@@ -1499,9 +1864,237 @@ void SpecificWorker::shownode()
              //this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
              //rgbd_id.clear();
              imv->update();
+             //newNode=nodeMapByItem[item];
+             newNode.type=IMPlane;
+             newNode.id=nodeid->text()+"_p";
+             qDebug()<<"nN" <<newNode.id;
+             newNode_t.type=IMTransform;
+             newNode_t.id=nodeid->text();
+             qDebug()<<"nNt" <<newNode_t.id;
+
+
          //}
 
+
  }
+
+
+ void SpecificWorker::translationChanged_2()
+ {
+     NodeType1 type = newNode_t.type;
+
+     // Treat 'root' special read-only special case
+     if (type == IMTransform or type == IMTranslation)
+     {
+         innerModel->updateTranslationValues(newNode_t.id, tx->value(), ty->value(), tz->value());
+     }
+//     else if (type == IMMesh)
+//     {
+//         InnerModelMesh *m = innerModel->getNode<InnerModelMesh>(newNode_t.id);
+//         m->tx = tx->value();
+//         m->ty = ty->value();
+//         m->tz = tz->value();
+//     }
+     else
+         qFatal("Internal error worker.cpp:%d\n", __LINE__);
+ }
+
+ void SpecificWorker::rotationChanged_2()
+ {
+     NodeType1 type = newNode_t.type;
+
+     // Treat 'root' special read-only special case
+     if (type == IMTransform or type == IMTranslation)
+     {
+         innerModel->updateRotationValues(newNode_t.id, rx->value(), ry->value(), rz->value());
+     }
+//     else if (type == IMMesh)
+//     {
+//         InnerModelMesh *m = innerModel->getNode<InnerModelMesh>(newNode_t.id);
+//         m->rx = rx->value();
+//         m->ry = ry->value();
+//         m->rz = rz->value();
+//     }
+     else
+         qFatal("Internal error worker.cpp:%d\n", __LINE__);
+ }
+
+
+ void SpecificWorker::planeChanged_2()
+ {
+     NodeType1 type = newNode.type;
+     if (type == IMPlane)
+     {   qDebug()<<"planeChanged-2"<< newNode.type;
+         qDebug()<<"planeChanged-2"<< newNode.id;
+         InnerModelPlane *m = innerModel->getNode<InnerModelPlane>(newNode.id);
+         m->normal = QVec::vec3(normx->value(), normy->value(), normz->value());
+         m->point = QVec::vec3(ptx->value(), pty->value(), ptz->value());
+         if(m->shape==0){
+             qDebug()<<"shape==0"<<m->shape;
+             m->width = rect_w->value();
+             m->height = rect_h->value();
+             m->depth = rect_dep->value();
+         }
+         else if(m->shape==1){
+             qDebug()<<"shape==1"<<m->shape;
+             m->width = radiusval->value();
+
+         }
+         else if(m->shape==2){
+             m->width = cyl_rad->value();
+             m->height = cyl_h->value();
+             //m->depth = rect_dep->value();
+         }
+         else if(m->shape==3){
+             m->width = cyl_rad->value();
+             m->height = cyl_h->value();
+             //m->depth = rect_dep->value();
+         }
+
+         if(texture->currentText()=="Metal")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg";
+         else if(texture->currentText()=="Checkerboard"){
+             qDebug()<<"checker";
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+         }
+         else if(texture->currentText()=="Blue")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg";
+         else if(texture->currentText()=="Raw")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/r.jpeg";
+         else if(texture->currentText()=="Klein Blue")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg";
+         else if(texture->currentText()=="Wood")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/wood.jpg";
+         else if(texture->currentText()=="Grid")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/grid.png";
+         else if(texture->currentText()=="Indice")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/indice.jpeg";
+
+         //m->repeat = texture_sz_2->value();
+         //m->shape = 0;
+         //printf("plane changed");
+         //prevNode = NULL;
+         qDebug()<<"upda";
+         imv->update();
+     }
+     else if (type == IMDisplay)
+     {
+
+         InnerModelPlane *m = innerModel->getNode<InnerModelPlane>(newNode.id);
+         m->normal = QVec::vec3(normx->value(), normy->value(), normz->value());
+         m->point = QVec::vec3(ptx->value(), pty->value(), ptz->value());
+         if(m->shape==0){
+             m->width = rect_w->value();
+             m->height = rect_h->value();
+             m->depth = rect_dep->value();
+         }
+         else if(m->shape==1){
+             m->width = radiusval->value();
+
+         }
+         else if(m->shape==2){
+             m->width = cyl_rad->value();
+             m->height = cyl_h->value();
+             //m->depth = rect_dep->value();
+         }
+         else if(m->shape==3){
+             m->width = cyl_rad->value();
+             m->height = cyl_h->value();
+             //m->depth = rect_dep->value();
+         }
+
+         if(texture->currentText()=="Metal")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg";
+         else if(texture->currentText()=="Checkerboard")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
+         else if(texture->currentText()=="Blue")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg";
+         else if(texture->currentText()=="Raw")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/r.jpeg";
+         else if(texture->currentText()=="Klein Blue")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/klein_blue3.jpg";
+         else if(texture->currentText()=="Wood")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/wood.jpg";
+         else if(texture->currentText()=="Grid")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/grid.png";
+         else if(texture->currentText()=="Indice")
+             m->texture = "/home/robocomp/robocomp/files/osgModels/textures/indice.jpeg";
+
+         //m->repeat = texture_sz_2->value();
+         //m->shape = 0;
+         //printf("plane changed");
+         //prevNode = NULL;
+         imv->update();
+     }
+
+ }
+
+
+void SpecificWorker::addobject_connections(bool enable)
+{
+    if (enable)
+    {
+
+        // Rotation-related
+        connect(rx, SIGNAL(valueChanged(double)), this, SLOT(rotationChanged_2()));
+        connect(ry, SIGNAL(valueChanged(double)), this, SLOT(rotationChanged_2()));
+        connect(rz, SIGNAL(valueChanged(double)), this, SLOT(rotationChanged_2()));
+        // Translation-related
+        connect(tx, SIGNAL(valueChanged(double)), this, SLOT(translationChanged_2()));
+        connect(ty, SIGNAL(valueChanged(double)), this, SLOT(translationChanged_2()));
+        connect(tz, SIGNAL(valueChanged(double)), this, SLOT(translationChanged_2()));
+        connect(texture, SIGNAL(currentIndexChanged(int)), this, SLOT(planeChanged_2()));
+
+        connect(ptx, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        connect(pty, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        connect(ptz, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        connect(normx, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        connect(normx, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        connect(normx, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+
+        connect(rect_w, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        connect(rect_h, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        connect(rect_dep, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        //cyclinder-related
+        connect(cyl_h, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        connect(cyl_rad, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        //sphere
+        connect(radiusval, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+
+    }
+    else
+    {
+        // Rotation-related
+        disconnect(rx, SIGNAL(valueChanged(double)), this, SLOT(rotationChanged_2()));
+        disconnect(ry, SIGNAL(valueChanged(double)), this, SLOT(rotationChanged_2()));
+        disconnect(rz, SIGNAL(valueChanged(double)), this, SLOT(rotationChanged_2()));
+        // Translation-related
+        disconnect(tx, SIGNAL(valueChanged(double)), this, SLOT(translationChanged_2()));
+        disconnect(ty, SIGNAL(valueChanged(double)), this, SLOT(translationChanged_2()));
+        disconnect(tz, SIGNAL(valueChanged(double)), this, SLOT(translationChanged_2()));
+        disconnect(texture, SIGNAL(currentIndexChanged(int)), this, SLOT(planeChanged_2()));
+
+        disconnect(ptx, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        disconnect(pty, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        disconnect(ptz, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        disconnect(normx, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        disconnect(normx, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        disconnect(normx, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+
+        disconnect(rect_w, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        disconnect(rect_h, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        disconnect(rect_dep, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        //cyclinder-related
+        disconnect(cyl_h, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        disconnect(cyl_rad, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+        //sphere
+        disconnect(radiusval, SIGNAL(valueChanged(double)), this, SLOT(planeChanged_2()));
+
+    }
+
+}
+
+
 
  void SpecificWorker::fillNodeMap(InnerModelNode *node, QTreeWidgetItem *parent)
  {   InnerModelMesh *mesh;

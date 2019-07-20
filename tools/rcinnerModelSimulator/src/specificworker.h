@@ -75,7 +75,7 @@ private:
 		InnerModelViewer *imv;
 		OsgView *viewer;
 		osgGA::TrackballManipulator *manipulator;
-        WorkerNode currentNode;
+        WorkerNode currentNode,newNode,newNode_t;
 		// Handlers
 		Ice::CommunicatorPtr communicator;
 		std::map<uint32_t, JointMotorServer> jm_servers;
@@ -153,15 +153,18 @@ private:
 
         void showTransform(QString id);
         void showRotation(QString id);
-        //void showJoint(QString id);
+        void showJoint(QString id);
         void showTranslation(QString id);
-        //void showMesh(QString id);
+        void showMesh(QString id);
         void showPlane(QString id);
         void showPlane_cyl(QString id);
         void showPlane_cone(QString id);
         void showPlane_s(QString id);
+        void showPlane_rest(QString id);
         void showDisplay(QString id);
-        //void showCamera(QString id);
+        void showCamera(QString id);
+        void add_new_node();
+        void addobject_connections(bool enable);
 
 
 	
@@ -191,7 +194,7 @@ private:
         //add_object
         //------------------------------------------
         void add_object();
-        void add_new_node();
+        //void add_new_node();
         void shownode();
         void add_tree();
         //----------------------------------------
@@ -206,7 +209,14 @@ private:
         void planeChanged_cyl();
         void translationChanged();
         void rotationChanged();
-
+        void meshChanged();
+        void planeChanged_rest();
+        void cameraChanged();
+        void jointChanged();
+        void planeChanged_2();
+        void translationChanged_2();
+        void rotationChanged_2();
+        void go_back();
 
 
         void closeEvent(QCloseEvent *event);
