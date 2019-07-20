@@ -265,7 +265,7 @@ void SpecificWorker::currentItemChanged(QTreeWidgetItem *current, QTreeWidgetIte
          currentNode = nodeMapByItem[current];
          printf("on click in tree");
          showAvailableGroups();
-         //highlightNode();
+         highlightNode();
          interfaceConnections(true);
 }
 void SpecificWorker::interfaceConnections(bool enable)
@@ -428,6 +428,29 @@ void SpecificWorker::interfaceConnections(bool enable)
         // Joint-related
         disconnect(jointAngle, SIGNAL(valueChanged(double)), this, SLOT(jointChanged()));
     }
+}
+void SpecificWorker::highlightNode()
+{
+    InnerModelPlane *plane;
+    if(prevNode!=NULL)
+    {
+        if ((plane = dynamic_cast<InnerModelPlane *>(prevNode)))
+        {
+            plane->texture = prevTexture;
+            imv->update();
+        }
+    }
+
+    prevNode = innerModel->getNode<InnerModelNode>(currentNode.id);
+    InnerModelNode *HighNode = innerModel->getNode<InnerModelNode>(currentNode.id);
+
+    if ((plane = dynamic_cast<InnerModelPlane *>(HighNode)))
+    {
+        prevTexture = plane->texture;
+        plane->texture = "#FF0000";
+        imv->update();
+    }
+
 }
 
 void SpecificWorker::showAvailableGroups()
@@ -1042,7 +1065,7 @@ void SpecificWorker::planeChanged_rest()
         m->height = plane_h_2->value();
         m->texture = texture_plane_2->text();
         //m->repeat = textureSize->value();
-
+        prevNode=NULL;
         imv->update();
     }
     else if (type == IMDisplay)
@@ -1054,7 +1077,7 @@ void SpecificWorker::planeChanged_rest()
         m->height = plane_h_2->value();
         m->texture = texture_plane_2->text();
         //m->repeat = textureSize->value();
-
+        prevNode=NULL;
         imv->update();
     }
 }
@@ -1075,7 +1098,7 @@ void SpecificWorker::planeChanged()
         //m->repeat = texture_sz_2->value();
         //m->shape = 0;
         //printf("plane changed");
-        //prevNode = NULL;
+        prevNode = NULL;
         imv->update();
     }
     else if (type == IMDisplay)
@@ -1089,7 +1112,7 @@ void SpecificWorker::planeChanged()
         m->texture = texture_2->text();
         //m->repeat = texture_sz_2->value();
         //m->shape = 0;
-        //prevNode = NULL;
+        prevNode = NULL;
         imv->update();
     }
 }
@@ -1108,7 +1131,7 @@ void SpecificWorker::planeChanged_cone()
         //m->repeat = texture_sz_2->value();
         //m->shape = 2;
         printf("plane changed");
-        //prevNode = NULL;
+        prevNode = NULL;
         imv->update();
     }
     else if (type == IMDisplay)
@@ -1122,7 +1145,7 @@ void SpecificWorker::planeChanged_cone()
         m->texture = texture_2_cone->text();
         //m->repeat = texture_sz_2->value();
         //m->shape = 0;
-        //prevNode = NULL;
+        prevNode = NULL;
         imv->update();
     }
 }
@@ -1141,7 +1164,7 @@ void SpecificWorker::planeChanged_cyl()
         //m->repeat = texture_sz_2->value();
         //m->shape = 2;
         printf("plane changed");
-        //prevNode = NULL;
+        prevNode = NULL;
         imv->update();
     }
     else if (type == IMDisplay)
@@ -1155,7 +1178,7 @@ void SpecificWorker::planeChanged_cyl()
         m->texture = texture_2_cyl->text();
        // m->repeat = texture_sz_2->value();
         //m->shape = 0;
-        //prevNode = NULL;
+        prevNode = NULL;
         imv->update();
     }
 }
@@ -1175,7 +1198,7 @@ void SpecificWorker::planeChanged_s()
         //m->repeat = texture_sz_2->value();
         //m->shape = 1;
         printf("plane changed");
-        //prevNode = NULL;
+        prevNode = NULL;
         imv->update();
         qDebug()<<"plane";
     }
@@ -1190,7 +1213,7 @@ void SpecificWorker::planeChanged_s()
         m->texture = texture_2_s->text();
         //m->repeat = texture_sz_2->value();
         //m->shape = 0;
-        //prevNode = NULL;
+        prevNode = NULL;
         imv->update();
         qDebug()<<"display";
     }

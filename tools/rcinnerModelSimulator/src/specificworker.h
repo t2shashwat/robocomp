@@ -67,12 +67,13 @@ private:
 		std::shared_ptr<InnerModel> innerModel;
 		
         int flag=1;
-        QString texture_txt,texture_out;
+        QString texture_txt,texture_out,prevTexture;
         osg::Vec3 eye, center, up;
 		// World
 		SpecificWorker *worker;
 		//InnerModel *innerModel;
 		InnerModelViewer *imv;
+        InnerModelNode *prevNode=NULL;
 		OsgView *viewer;
 		osgGA::TrackballManipulator *manipulator;
         WorkerNode currentNode,newNode,newNode_t;
@@ -165,6 +166,7 @@ private:
         void showCamera(QString id);
         void add_new_node();
         void addobject_connections(bool enable);
+        void highlightNode();
 
 
 	
