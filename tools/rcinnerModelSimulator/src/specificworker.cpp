@@ -144,6 +144,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     //connect(texture,SIGNAL(currentIndexChanged(int)),this,SLOT(object_texture()));
     connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     fillNodeMap(innerModel->getNode("root"), NULL);
+    connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
     comboBox_texture->addItem("--Choose Texture--");
     comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg"),"Metal");
     comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg"),"Checkerboard");
@@ -199,6 +200,11 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     angle_gb->hide();
     plane_gb_mesh->hide();
     camera_gb->hide();
+    plane1 = "";
+    plane2 = "";
+    timer.start(Period);
+    showMaximized();
+//    flag1=1;
 
     //disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     //treeWidget->clear;
@@ -242,6 +248,27 @@ void SpecificWorker::compute()
 			
 }
 
+void SpecificWorker::tree_highlight()
+{   //qDebug()<<"flag val"  << viewer->flag2 << viewer->flag1;
+    if(viewer->flag1 == 1 && viewer->flag2 == 2)
+    {
+        IMVPlane* plane;
+        if((plane = dynamic_cast<IMVPlane *>(viewer->hexno)))
+        {
+            plane1 = imv->planesHash.key(plane);
+         //   qDebug() << "innnnnnnn";
+            if(plane1!=plane2)
+            {
+                treeWidget->setCurrentItem(nodeMap[plane1].item);
+                highlightNode();
+            }
+            plane2 = plane1;
+        }
+    }
+
+
+
+}
 ///////////////////////////////////////////////////////////////////////
 ///Add Save Option
 /// ////////////////////////////////////////////////////////////////
@@ -255,6 +282,8 @@ void SpecificWorker::saveScene()
         else {
             innerModel->save(fileName);
         }
+        plane1 = "";
+        plane2 = "";
 }
 ///////////////////////////////////////////////////////////////////
 //edit object properties
@@ -1870,8 +1899,8 @@ void SpecificWorker::shownode()
 
                    this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
 
-//                   plane1 = "";
-//                   plane2 = "";
+                   plane1 = "";
+                   plane2 = "";
                    flag=1;
                   // fillNodeMap(innerModel->getNode("root"), NULL);
              }

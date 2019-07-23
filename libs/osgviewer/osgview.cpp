@@ -661,7 +661,7 @@ void OsgView::resizeGL( int width, int height )
 
 void OsgView::keyPressEvent( QKeyEvent* event )
 {
-//	qDebug()<<"key pressed"<<event->text();
+	qDebug()<<"key pressed"<<event->text();
 	if(event->key() == Qt::Key_Control)
 	{
 		flag1 = 1;
@@ -696,11 +696,16 @@ void OsgView::keyReleaseEvent( QKeyEvent* event )
 void OsgView::mousePressEvent( QMouseEvent* event )
 {
     int button = 0;
+    qDebug()<<"mouse Press";
     switch(event->button())
     {
-        case(Qt::LeftButton): button = 1; {this->pickObject( QPoint(event->x(), event->y()) );flag2=1;} break;
+        case(Qt::LeftButton): button = 1; {this->pickObject( QPoint(event->x(), event->y()) );flag2=1;
+    qDebug()<<"mouse Press left";
+} break;
         case(Qt::MidButton): button = 2; break;
-        case(Qt::RightButton): button = 3;{this->handle( QPoint(event->x(), event->y()) ); flag2=2;}break;
+        case(Qt::RightButton): button = 3;{this->handle( QPoint(event->x(), event->y()) ); flag2=2;
+    qDebug()<<"mouse Press right";
+}break;
         case(Qt::NoButton): button = 0; break;
         default: button = 0; break;
     }
@@ -716,9 +721,11 @@ void OsgView::mouseReleaseEvent( QMouseEvent* event )
     int button = 0;
     switch(event->button())
     {
-        case(Qt::LeftButton): button = 1;{flag2=0; hexno=NULL;}break;
+        case(Qt::LeftButton): button = 1;{flag2=0; hexno=NULL;
+}break;
         case(Qt::MidButton): button = 2; break;
-        case(Qt::RightButton): button = 3;{flag2=0; hexno = NULL;}break;
+        case(Qt::RightButton): button = 3;{flag2=0; hexno = NULL;
+}break;
         case(Qt::NoButton): button = 0; break;
         default: button = 0; break;
     }

@@ -62,12 +62,13 @@ Q_OBJECT
 		
 private:
 		QSettings *settings;
-		
+        int Period;
 		//InnerModel
 		std::shared_ptr<InnerModel> innerModel;
 		
         int flag=1;
-        QString texture_txt,texture_out,prevTexture;
+        QString texture_txt,texture_out,prevTexture,plane1,plane2="";
+        QTimer timer;
         osg::Vec3 eye, center, up;
 		// World
 		SpecificWorker *worker;
@@ -219,6 +220,7 @@ private:
         void translationChanged_2();
         void rotationChanged_2();
         void go_back();
+        void tree_highlight();
 
 
         void closeEvent(QCloseEvent *event);
