@@ -1904,7 +1904,7 @@
             </size>
            </property>
            <property name="title">
-            <string>GroupBox</string>
+            <string>Change properties of the preview object:</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_9">
             <item>
@@ -2407,6 +2407,384 @@
              </widget>
             </item>
             <item>
+             <widget class="QGroupBox" name="camera_gb_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Camera:</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_16">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_65">
+                 <property name="text">
+                  <string>Height</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QDoubleSpinBox" name="cam_h_2">
+                 <property name="minimum">
+                  <double>-10000000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>100000.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_66">
+                 <property name="text">
+                  <string>Width</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="cam_w_2">
+                 <property name="minimum">
+                  <double>-10000000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>100000.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_108">
+                 <property name="text">
+                  <string>Focal</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="cam_focal_2">
+                 <property name="minimum">
+                  <double>-10000000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>100000.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="plane_gb_mesh_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Mesh:</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_18">
+               <item>
+                <layout class="QFormLayout" name="formLayout_17">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_109">
+                   <property name="text">
+                    <string>OSGFile</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="osgFile_2"/>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_111">
+                   <property name="text">
+                    <string>Render</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="comboBox_render_2">
+                   <item>
+                    <property name="text">
+                     <string>Normal</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Wire</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="gridLayout_16">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_113">
+                   <property name="text">
+                    <string>X</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_115">
+                   <property name="text">
+                    <string>Y</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QLabel" name="label_116">
+                   <property name="text">
+                    <string>Z</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QDoubleSpinBox" name="scalex_2">
+                   <property name="minimum">
+                    <double>-100000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QDoubleSpinBox" name="scaley_2">
+                   <property name="minimum">
+                    <double>-1000000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>10000000.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QDoubleSpinBox" name="scalez_2">
+                   <property name="minimum">
+                    <double>-10000000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>10000000.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="angle_gb_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title">
+               <string>Edit Joint:</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_18">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_117">
+                 <property name="text">
+                  <string>Angle</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QDoubleSpinBox" name="jointAngle_2">
+                 <property name="minimum">
+                  <double>-10000000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>100000.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="laser_gb">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <item>
+                <layout class="QGridLayout" name="gridLayout_8">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_118">
+                   <property name="text">
+                    <string>Minimum</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QDoubleSpinBox" name="mini">
+                   <property name="minimum">
+                    <double>-1000000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QLabel" name="label_119">
+                   <property name="text">
+                    <string>Maximum</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="3">
+                  <widget class="QDoubleSpinBox" name="maxi">
+                   <property name="minimum">
+                    <double>-1000000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_120">
+                   <property name="text">
+                    <string>Measures</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QDoubleSpinBox" name="meas">
+                   <property name="minimum">
+                    <double>-1000000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="ifconfig_gb">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_12">
+               <item>
+                <widget class="QLineEdit" name="ifconfig">
+                 <property name="text">
+                  <string>Enter ifconfig</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="noise_gb">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_13">
+               <item>
+                <widget class="QLabel" name="label_122">
+                 <property name="text">
+                  <string>Noise</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QDoubleSpinBox" name="noise">
+                 <property name="minimum">
+                  <double>-1000000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000000.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="port_gb">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>100</height>
+               </size>
+              </property>
+              <property name="title">
+               <string/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_11">
+               <item>
+                <layout class="QGridLayout" name="gridLayout_17">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_121">
+                   <property name="text">
+                    <string>Port</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QDoubleSpinBox" name="port">
+                   <property name="maximum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <widget class="QGroupBox" name="mass_gb">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -2443,7 +2821,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_8">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -2455,7 +2833,7 @@
             </size>
            </property>
            <property name="title">
-            <string>GroupBox</string>
+            <string>Final Addition:</string>
            </property>
            <property name="flat">
             <bool>false</bool>
@@ -2505,6 +2883,38 @@
                 <string>Cone</string>
                </property>
               </item>
+              <item>
+               <property name="text">
+                <string>Mesh</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Camera</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>RGBD</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>IMU</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Laser</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_64">
+              <property name="text">
+               <string>Click below to add object:</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -2610,7 +3020,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Scene</string>
+    <string>Modify Scene</string>
    </property>
   </action>
   <action name="actionGrid">

@@ -139,12 +139,13 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     connect(actionFloor_Texture, SIGNAL(triggered()), this, SLOT(change_textureTriggered()));
     //connect(actionTree, SIGNAL(triggered()), this, SLOT(viewTriggered()));
     connect(addobject_button, SIGNAL(clicked()), this, SLOT(add_object()));
-    connect(treepushButton, SIGNAL(clicked()), this, SLOT(add_tree()));
+    //connect(treepushButton, SIGNAL(clicked()), this, SLOT(add_tree()));
     connect(comboBox_texture,SIGNAL(currentIndexChanged(int)),this,SLOT(floor_texture()));
     //connect(texture,SIGNAL(currentIndexChanged(int)),this,SLOT(object_texture()));
     connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this,SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     fillNodeMap(innerModel->getNode("root"), NULL);
     connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+    connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
     comboBox_texture->addItem("--Choose Texture--");
     comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg"),"Metal");
     comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg"),"Checkerboard");
@@ -203,9 +204,10 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     plane1 = "";
     plane2 = "";
     timer.start(Period);
-    showMaximized();
+    //this->showMaximized();
 //    flag1=1;
-
+//    shortcut1 = new QShortcut(QKeySequence("Ctrl+RightButton"),actionVisual);
+//    connect(shortcut1, SIGNAL(activated()), this, SLOT(add_tree()));
     //disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     //treeWidget->clear;
 
@@ -292,7 +294,7 @@ void SpecificWorker::currentItemChanged(QTreeWidgetItem *current, QTreeWidgetIte
 {
          interfaceConnections(false);
          currentNode = nodeMapByItem[current];
-         printf("on click in tree");
+
          showAvailableGroups();
          highlightNode();
          interfaceConnections(true);
@@ -476,7 +478,7 @@ void SpecificWorker::highlightNode()
     if ((plane = dynamic_cast<InnerModelPlane *>(HighNode)))
     {
         prevTexture = plane->texture;
-        plane->texture = "#FF0000";
+        plane->texture = "#ADFF2F";
         imv->update();
     }
 
@@ -486,8 +488,6 @@ void SpecificWorker::showAvailableGroups()
 {
     // Set node type and id
     NodeType1 type = currentNode.type;
-    qDebug()<<currentNode.type;
-    qDebug()<<currentNode.item;
 
     //printf("Node id --  %s",currentNode.type);
     //lineEdit_nodeId->setText(currentNode.id);
@@ -599,8 +599,8 @@ void SpecificWorker::showAvailableGroups()
 
                 plane_gb_mesh->hide();
                 camera_gb->hide();
-                qDebug()<<currentNode.id;
-                qDebug()<<currentNode.type;
+//                qDebug()<<currentNode.id;
+//                qDebug()<<currentNode.type;
                 showPlane(currentNode.id);
 
             }
@@ -1229,7 +1229,7 @@ void SpecificWorker::planeChanged_s()
         printf("plane changed");
         prevNode = NULL;
         imv->update();
-        qDebug()<<"plane";
+        //qDebug()<<"plane";
     }
     else if (type == IMDisplay)
     {
@@ -1244,7 +1244,7 @@ void SpecificWorker::planeChanged_s()
         //m->shape = 0;
         prevNode = NULL;
         imv->update();
-        qDebug()<<"display";
+        //qDebug()<<"display";
     }
 }
 
@@ -1321,8 +1321,15 @@ void SpecificWorker::add_object()
 
 }
 void SpecificWorker:: add_tree()
-{
-    treeWidget->show();
+{   //qDebug()<<"inn";
+
+    if(viewer->flag1 == 1 && viewer->flag2 == 2 && !actionVisual->isChecked())
+    {
+        actionVisual->setChecked(true);
+        VISUALWidget->show();
+        treepushButton->hide();
+        treeWidget->show();
+    }
 }
 void SpecificWorker::newnodeConnections(bool enable)
 {
@@ -1386,6 +1393,13 @@ void SpecificWorker::shownode()
         rect_w->setValue(400.00);
         rect_h->setValue(400.00);
         texture->setCurrentIndex(2);
+        camera_gb_2->hide();
+        plane_gb_mesh_2->hide();
+        angle_gb_2->hide();
+        port_gb->hide();
+        laser_gb->hide();
+        ifconfig_gb->hide();
+        noise_gb->hide();
         addobject_connections(false);
         addobject_connections(true);
         add_new_node();
@@ -1419,6 +1433,13 @@ void SpecificWorker::shownode()
         texture_sz->setValue(0.00);
         radiusval->setValue(200.00);
         texture->setCurrentIndex(2);
+        camera_gb_2->hide();
+        plane_gb_mesh_2->hide();
+        angle_gb_2->hide();
+        port_gb->hide();
+        laser_gb->hide();
+        ifconfig_gb->hide();
+        noise_gb->hide();
         addobject_connections(false);
         addobject_connections(true);
         add_new_node();
@@ -1452,6 +1473,13 @@ void SpecificWorker::shownode()
         cyl_h->setValue(400.00);
         cyl_rad->setValue(100.00);
         texture->setCurrentIndex(2);
+        camera_gb_2->hide();
+        plane_gb_mesh_2->hide();
+        angle_gb_2->hide();
+        port_gb->hide();
+        laser_gb->hide();
+        ifconfig_gb->hide();
+        noise_gb->hide();
         addobject_connections(false);
         addobject_connections(true);
         add_new_node();
@@ -1485,8 +1513,135 @@ void SpecificWorker::shownode()
         cyl_h->setValue(400.00);
         cyl_rad->setValue(100.00);
         texture->setCurrentIndex(2);
+        camera_gb_2->hide();
+        plane_gb_mesh_2->hide();
+        angle_gb_2->hide();
+        port_gb->hide();
+        laser_gb->hide();
+        ifconfig_gb->hide();
+        noise_gb->hide();
         addobject_connections(false);
         addobject_connections(true);
+        add_new_node();
+
+    }
+    if(comboBox->currentText()=="Camera")
+    {   add_object_final->show();
+        groupBox_12->show();
+        trans_gb->hide();
+        rot_gb->hide();
+        mass_gb->hide();
+        texture_gb->hide();
+        texture_size_gb->hide();
+        texture_val_gb->hide();
+        plane_gb->hide();
+        texture_sp_gb->hide();
+        cylinder_gb->hide();
+        camera_gb_2->show();
+        plane_gb_mesh_2->hide();
+        angle_gb_2->hide();
+        port_gb->hide();
+        laser_gb->hide();
+        ifconfig_gb->hide();
+        noise_gb->hide();
+       // addobject_connections(false);
+       // addobject_connections(true);
+        add_new_node();
+
+    }
+    if(comboBox->currentText()=="RGBD")
+    {   add_object_final->show();
+        groupBox_12->show();
+        trans_gb->hide();
+        rot_gb->hide();
+        mass_gb->hide();
+        texture_gb->hide();
+        texture_size_gb->hide();
+        texture_val_gb->hide();
+        plane_gb->hide();
+        texture_sp_gb->hide();
+        cylinder_gb->hide();
+        camera_gb_2->show();
+        plane_gb_mesh_2->hide();
+        angle_gb_2->hide();
+        port_gb->show();
+        laser_gb->hide();
+        ifconfig_gb->show();
+        noise_gb->show();
+//        addobject_connections(false);
+//        addobject_connections(true);
+        add_new_node();
+
+    }
+    if(comboBox->currentText()=="IMU")
+    {   add_object_final->show();
+        groupBox_12->show();
+        trans_gb->hide();
+        rot_gb->hide();
+        mass_gb->hide();
+        texture_gb->hide();
+        texture_size_gb->hide();
+        texture_val_gb->hide();
+        plane_gb->hide();
+        texture_sp_gb->hide();
+        cylinder_gb->hide();
+        camera_gb_2->hide();
+        plane_gb_mesh_2->hide();
+        angle_gb_2->hide();
+        port_gb->show();
+        laser_gb->hide();
+        ifconfig_gb->hide();
+        noise_gb->hide();
+//        addobject_connections(false);
+//        addobject_connections(true);
+        add_new_node();
+
+    }
+    if(comboBox->currentText()=="Laser")
+    {   add_object_final->show();
+        groupBox_12->show();
+        trans_gb->hide();
+        rot_gb->hide();
+        mass_gb->hide();
+        texture_gb->hide();
+        texture_size_gb->hide();
+        texture_val_gb->hide();
+        plane_gb->hide();
+        texture_sp_gb->hide();
+        cylinder_gb->hide();
+        camera_gb_2->hide();
+        plane_gb_mesh_2->hide();
+        angle_gb_2->hide();
+        port_gb->show();
+        laser_gb->show();
+        ifconfig_gb->show();
+        noise_gb->hide();
+//        addobject_connections(false);
+//        addobject_connections(true);
+        add_new_node();
+
+    }
+    if(comboBox->currentText()=="Mesh")
+    {   add_object_final->show();
+        groupBox_12->show();
+        trans_gb->show();
+        rot_gb->show();
+        mass_gb->hide();
+        texture_gb->hide();
+        texture_size_gb->hide();
+        texture_val_gb->hide();
+        plane_gb->hide();
+        texture_sp_gb->hide();
+        cylinder_gb->hide();
+        camera_gb_2->hide();
+        plane_gb_mesh_2->show();
+        angle_gb_2->hide();
+        port_gb->hide();
+        laser_gb->hide();
+        ifconfig_gb->hide();
+        noise_gb->hide();
+//        addobject_connections(false);
+//        addobject_connections(true);
         add_new_node();
 
     }
@@ -1852,9 +2007,44 @@ void SpecificWorker::shownode()
                      //qDebug() << "add_object"<<texture->text();
                  }
                  }
+                 else if(comboBox->currentText()== "Mesh")
+                             {
+                                 if (comboBox_render_2->currentIndex() == 0)
+                                     render1 = 0;
+                                 else if (comboBox_render_2->currentIndex() == 1)
+                                     render1 = 1;
+                                 InnerModelMesh *newnode = (InnerModelMesh *)innerModel->newMesh(nodeid->text(), par, osgFile_2->text(), scalex_2->value(), scaley_2->value(), scalez_2->value(), render1, tx->value(), ty->value(), tz->value(), rx->value(), ry->value(), rz->value(), 0);
+                                 par->addChild(newnode);
+                                 flag=0;
+                             }
+
+                             else if(comboBox->currentText()== "Camera")
+                             {
+                                 InnerModelCamera *newnode = (InnerModelCamera *)innerModel->newCamera(nodeid->text(), par, cam_w_2->value(), cam_h_2->value(), cam_focal_2->value());
+                                 par->addChild(newnode);
+                                 flag=0;
+                             }
+                             else if(comboBox->currentText()== "IMU")
+                             {
+                                 InnerModelIMU *newnode = (InnerModelIMU *)innerModel->newIMU(nodeid->text(), par,port->value());
+                                 par->addChild(newnode);
+                                 flag=0;
+                             }
+                             else if(comboBox->currentText()== "Laser")
+                             {
+                                 InnerModelLaser *newnode = (InnerModelLaser *)innerModel->newLaser(nodeid->text(), par, port->value(), mini->value(), maxi->value(), jointAngle_2->value(), meas->value(), ifconfig->text());
+                                 par->addChild(newnode);
+                                 flag=0;
+                             }
+                             else if(comboBox->currentText()== "RGBD")
+                             {
+                                 InnerModelRGBD *newnode = (InnerModelRGBD *)innerModel->newRGBD(nodeid->text(), par, cam_w_2->value(), cam_h_2->value(), cam_focal_2->value(), noise->value(), port->value(), ifconfig->text());
+                                 par->addChild(newnode);
+                                 flag=0;
+                             }
              }
              if(flag==0)
-             {  qDebug()<<"flag=0";
+             {
 
                  this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
 
@@ -1867,7 +2057,7 @@ void SpecificWorker::shownode()
                   //rgbd_id.clear();
                   viewer = new OsgView(frameOSG);
                   imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
-                   qDebug()<< "hogaya....hahahhaha " << nodeid->text();
+                  // qDebug()<< "hogaya....hahahhaha " << nodeid->text();
                    //nodeid->clear();
                    //comboBox->setCurrentIndex(0);
                   // texture->setCurrentIndex(0);
@@ -1919,10 +2109,10 @@ void SpecificWorker::shownode()
              //newNode=nodeMapByItem[item];
              newNode.type=IMPlane;
              newNode.id=nodeid->text()+"_p";
-             qDebug()<<"nN" <<newNode.id;
+             //qDebug()<<"nN" <<newNode.id;
              newNode_t.type=IMTransform;
              newNode_t.id=nodeid->text();
-             qDebug()<<"nNt" <<newNode_t.id;
+             //qDebug()<<"nNt" <<newNode_t.id;
 
 
          //}
@@ -1976,19 +2166,19 @@ void SpecificWorker::shownode()
  {
      NodeType1 type = newNode.type;
      if (type == IMPlane)
-     {   qDebug()<<"planeChanged-2"<< newNode.type;
-         qDebug()<<"planeChanged-2"<< newNode.id;
+     {   //qDebug()<<"planeChanged-2"<< newNode.type;
+         //qDebug()<<"planeChanged-2"<< newNode.id;
          InnerModelPlane *m = innerModel->getNode<InnerModelPlane>(newNode.id);
          m->normal = QVec::vec3(normx->value(), normy->value(), normz->value());
          m->point = QVec::vec3(ptx->value(), pty->value(), ptz->value());
          if(m->shape==0){
-             qDebug()<<"shape==0"<<m->shape;
+             //qDebug()<<"shape==0"<<m->shape;
              m->width = rect_w->value();
              m->height = rect_h->value();
              m->depth = rect_dep->value();
          }
          else if(m->shape==1){
-             qDebug()<<"shape==1"<<m->shape;
+             //qDebug()<<"shape==1"<<m->shape;
              m->width = radiusval->value();
 
          }
@@ -2026,7 +2216,7 @@ void SpecificWorker::shownode()
          //m->shape = 0;
          //printf("plane changed");
          //prevNode = NULL;
-         qDebug()<<"upda";
+         //qDebug()<<"upda";
          imv->update();
      }
      else if (type == IMDisplay)
@@ -2199,7 +2389,7 @@ void SpecificWorker::addobject_connections(bool enable)
              {
                  wnode.type = IMRGBD;
                  rgbd_id = node->id;
-                 qDebug()<<"rgbd-id %s"<<node->id;
+               //  qDebug()<<"rgbd-id %s"<<node->id;
              }
              else
                  wnode.type = IMCamera;
@@ -2755,7 +2945,7 @@ void SpecificWorker::includeRGBDs()
 	for (it = imv->cameras.constBegin() ; it != imv->cameras.constEnd() ; ++it)
 	{
 		addRGBD(it.value().RGBDNode);
-        qDebug()<<"rgbd-include-existing function";
+        //qDebug()<<"rgbd-include-existing function";
 	}
 
 }
@@ -3212,10 +3402,14 @@ void SpecificWorker::visualTriggered()
 	if (actionVisual->isChecked())
 	{
 		VISUALWidget->show();
+        treepushButton->hide();
+        treeWidget->show();
 	}
 	else
 	{
 		VISUALWidget->hide();
+        treepushButton->hide();
+        treeWidget->show();
 	}
 }
 void SpecificWorker::featuresTriggered()

@@ -62,11 +62,12 @@ Q_OBJECT
 		
 private:
 		QSettings *settings;
+        QShortcut *shortcut1;
         int Period;
 		//InnerModel
 		std::shared_ptr<InnerModel> innerModel;
 		
-        int flag=1;
+        int flag=1,render1;
         QString texture_txt,texture_out,prevTexture,plane1,plane2="";
         QTimer timer;
         osg::Vec3 eye, center, up;
