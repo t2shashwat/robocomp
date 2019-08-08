@@ -69,8 +69,9 @@ private:
 		
         int flag=1,render1;
         QString texture_txt,texture_out,prevTexture,plane1,plane2="";
-        QTimer timer;
+        QTimer timer,timer1;
         osg::Vec3 eye, center, up;
+        osg::Vec3 move, rove;
 		// World
 		SpecificWorker *worker;
 		//InnerModel *innerModel;
@@ -78,7 +79,7 @@ private:
         InnerModelNode *prevNode=NULL;
 		OsgView *viewer;
 		osgGA::TrackballManipulator *manipulator;
-        WorkerNode currentNode,newNode,newNode_t;
+        WorkerNode currentNode,newNode,newNode_t,current_node;
 		// Handlers
 		Ice::CommunicatorPtr communicator;
 		std::map<uint32_t, JointMotorServer> jm_servers;
@@ -223,6 +224,10 @@ private:
         void go_back();
         void tree_highlight();
 
+        void remove_current_node();
+        void remove_current_node2();
+        void drag_and_drop();
+        void back();
 
         void closeEvent(QCloseEvent *event);
 

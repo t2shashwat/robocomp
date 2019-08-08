@@ -134,8 +134,14 @@ InnerModel* InnerModel::copy()
 void InnerModel::removeNode(const QString & id)
 {
 	InnerModelNode *dd = hash[id];
+	QList<InnerModelNode*>::iterator i;
+	for (i=dd->children.begin(); i!=dd->children.end(); i++)
+	{
+		removeNode((*i)->id);
+	}
 	delete dd;
 	hash.remove(id);
+	dd->parent->children.removeOne(dd);
 }
 
 bool InnerModel::open(std::string xmlFilePath)

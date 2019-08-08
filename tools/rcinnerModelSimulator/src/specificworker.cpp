@@ -92,6 +92,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 	{
 		viewer->addEventHandler(new PickHandler(rcis_mousepicker_proxy));
 	}
+    timer1.start(Period/100);
 
 	// Restore previous camera position
 //	settings = new QSettings("RoboComp", "RCIS");
@@ -146,6 +147,8 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     fillNodeMap(innerModel->getNode("root"), NULL);
     connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
     connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+    connect(&timer1, SIGNAL(timeout()), this, SLOT(drag_and_drop()));
+    connect(delete_button, SIGNAL(clicked()), this, SLOT(remove_current_node()));
     comboBox_texture->addItem("--Choose Texture--");
     comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg"),"Metal");
     comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg"),"Checkerboard");
@@ -210,41 +213,51 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 //    connect(shortcut1, SIGNAL(activated()), this, SLOT(add_tree()));
     //disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     //treeWidget->clear;
-
+    //QTimer::singleShot(0, this, SLOT(showFullScreen()));
+    //widget->showMaximized()
+    //QMainWindow::setWindowState(Qt::WindowMaximized);
 }
 
 
 void SpecificWorker::compute()
 {
 	// Compute the elapsed time interval since the last update
-	static QTime lastTime = QTime::currentTime();
+    static QTime lastTime = QTime::currentTime();
 	
-	QTime currentTime = QTime::currentTime();
-	const int elapsed = lastTime.msecsTo (currentTime);
-	// 	printf("elapsed %d\n", elapsed);
-	lastTime = currentTime;
+    QTime currentTime = QTime::currentTime();
+    const int elapsed = lastTime.msecsTo (currentTime);
+    // 	printf("elapsed %d\n", elapsed);
+    lastTime = currentTime;
 
-	guard gl(innerModel->mutex);
-	
-		updateCameras();
-		updateLasers();
-		updateJoints(float(elapsed)/1000.0f);
-		updateTouchSensors();
+    guard gl(innerModel->mutex);
+    laserDataCartArray_mutex = new QMutex(QMutex::Recursive);
+    laserDataCartArray.clear();
 
-		#ifdef INNERMODELMANAGERDEBUG
-			printf("Elapsed time: %d\n", elapsed);
-		#endif
-		
-		// Shutdown empty servers
-		for (int i=0; i<jointServersToShutDown.size(); i++)
-			jointServersToShutDown[i]->shutdown();
-		jointServersToShutDown.clear();
-	
-		// Resize world widget if necessary, and render the world
-		if (viewer->size() != frameOSG->size())
-			viewer->setFixedSize(frameOSG->width(), frameOSG->height());
+        updateCameras();
+
+        updateLasers();
+
+        updateJoints(float(elapsed)/1000.0f);
+
+        updateTouchSensors();
+
+        #ifdef INNERMODELMANAGERDEBUG
+            printf("Elapsed time: %d\n", elapsed);
+        #endif
+
+        // Shutdown empty servers
+        for (int i=0; i<jointServersToShutDown.size(); i++)
+            jointServersToShutDown[i]->shutdown();
+        jointServersToShutDown.clear();
+
+//		// Resize world widget if necessary, and render the world
+//        if (viewer->size() != frameOSG->size())
+//            viewer->setFixedSize(frameOSG->width(), frameOSG->height());
+        imv->update();
+        viewer->autoResize();
+       //this->viewer->setHomePosition(osg::Vec3d(0, 10000, 0),osg::Vec3(0.f,0.,-40.),up, false);
         //printf("compute inside imv update");
-		imv->update();
+
 		//osg render
 		viewer->frame();
 			
@@ -287,6 +300,160 @@ void SpecificWorker::saveScene()
         plane1 = "";
         plane2 = "";
 }
+///delete node/////////////
+//=============
+void SpecificWorker::remove_current_node()
+{
+    QMessageBox::StandardButton resBtn = QMessageBox::question( this, "RcinnerModelEditor",tr("Are you sure?\n"),QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,QMessageBox::Yes);
+    if(resBtn == QMessageBox::Yes)
+    {
+        interfaceConnections(false);
+        current_node= nodeMapByItem[treeWidget->currentItem()];
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+        if(prevNode!=NULL)
+        {
+            InnerModelPlane *plane;
+            if ((plane = dynamic_cast<InnerModelPlane *>(prevNode)))
+                plane->texture = prevTexture;
+        }
+        innerModel->removeNode(current_node.id);
+        qDebug() << "Removed" << current_node.id;
+        this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+
+        if(!rgbd_id.isEmpty())
+            imv->cameras[rgbd_id].viewerCamera->~Viewer();
+        viewer->~OsgView();
+        viewer = new OsgView(frameOSG);
+        imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+        this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+
+        connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+        rgbd_id.clear();
+        disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+        treeWidget->clear();
+        connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+        fillNodeMap(innerModel->getNode("root"), NULL);
+        //imv->update();
+       // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+//		translationGroup->hide();
+//		rotationGroup->hide();
+//		meshGroup->hide();
+//		planeGroup->hide();
+//		cameraGroup->hide();
+//		jointGroup->hide();
+//		lineEdit_nodeId->setText("root");
+//		lineEdit_nodeId->setEnabled(false);
+//		nodeType->setText("<b>root</b>");
+        prevNode = NULL;
+        plane1="";
+        plane2="";
+        connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+        connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+        interfaceConnections(true);
+    }
+}
+
+void SpecificWorker::remove_current_node2()
+{
+    //QMessageBox::StandardButton resBtn = QMessageBox::question( this, "RcinnerModelEditor",tr("Are you sure?\n"),QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,QMessageBox::Yes);
+    //if(resBtn == QMessageBox::Yes)
+    //{
+        interfaceConnections(false);
+        current_node.id= newNode.id;
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+//        disconnect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+//        disconnect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+        if(prevNode!=NULL)
+        {
+            InnerModelPlane *plane;
+            if ((plane = dynamic_cast<InnerModelPlane *>(prevNode)))
+                plane->texture = prevTexture;
+        }
+        innerModel->removeNode(current_node.id);
+        qDebug() << "Removed" << current_node.id;
+        this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+
+        if(!rgbd_id.isEmpty())
+            imv->cameras[rgbd_id].viewerCamera->~Viewer();
+        viewer->~OsgView();
+        viewer = new OsgView(frameOSG);
+        imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+       // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+
+        connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+        rgbd_id.clear();
+        disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+        treeWidget->clear();
+        connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+        fillNodeMap(innerModel->getNode("root"), NULL);
+        //imv->update();
+       // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+//		translationGroup->hide();
+//		rotationGroup->hide();
+//		meshGroup->hide();
+//		planeGroup->hide();
+//		cameraGroup->hide();
+//		jointGroup->hide();
+//		lineEdit_nodeId->setText("root");
+//		lineEdit_nodeId->setEnabled(false);
+//		nodeType->setText("<b>root</b>");
+        prevNode = NULL;
+        plane1="";
+        plane2="";
+//        connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+//        connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+        current_node.id= newNode_t.id;
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+//        disconnect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+//        disconnect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+        if(prevNode!=NULL)
+        {
+            InnerModelPlane *plane;
+            if ((plane = dynamic_cast<InnerModelPlane *>(prevNode)))
+                plane->texture = prevTexture;
+        }
+        innerModel->removeNode(current_node.id);
+        qDebug() << "Removed" << current_node.id;
+      //  this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+
+        if(!rgbd_id.isEmpty())
+            imv->cameras[rgbd_id].viewerCamera->~Viewer();
+        viewer->~OsgView();
+        viewer = new OsgView(frameOSG);
+        imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+        this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+
+        connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+        rgbd_id.clear();
+        disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+        treeWidget->clear();
+        connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+        fillNodeMap(innerModel->getNode("root"), NULL);
+        //imv->update();
+       // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+//		translationGroup->hide();
+//		rotationGroup->hide();
+//		meshGroup->hide();
+//		planeGroup->hide();
+//		cameraGroup->hide();
+//		jointGroup->hide();
+//		lineEdit_nodeId->setText("root");
+//		lineEdit_nodeId->setEnabled(false);
+//		nodeType->setText("<b>root</b>");
+        prevNode = NULL;
+        plane1="";
+        plane2="";
+        interfaceConnections(true);
+        nodeid->clear();
+        comboBox->setCurrentIndex(0);
+        groupBox_12->hide();
+        groupBox_8->hide();
+        addobject_connections(false);
+    //}
+}
+
 ///////////////////////////////////////////////////////////////////
 //edit object properties
 ///////////////////////////////////////////////////////////////////
@@ -483,6 +650,26 @@ void SpecificWorker::highlightNode()
     }
 
 }
+void SpecificWorker::drag_and_drop()
+{
+    if(viewer->flag1 == 2 && viewer->flag2==2)
+    {
+        IMVPlane* plane;
+
+        move = viewer->kk;
+        if((plane = dynamic_cast<IMVPlane *>(viewer->hexno)))
+        {
+            plane1 = imv->planesHash.key(plane);
+            move = viewer->kk;
+            if(move!=rove)
+            {
+                innerModel->updateTranslationValues(innerModel->getParentIdentifier(plane1), move.x(), 0, -move.z());
+                move = rove;
+            }
+        }
+    }
+}
+
 
 void SpecificWorker::showAvailableGroups()
 {
@@ -1317,6 +1504,10 @@ void SpecificWorker::add_object()
     //newnodeConnections(false);
     groupBox_8->show();
     add_object_final->hide();
+    back_button->hide();
+    label_123->hide();
+    label_64->hide();
+    back_wo_del->hide();
     newnodeConnections(true);
 
 }
@@ -1337,6 +1528,8 @@ void SpecificWorker::newnodeConnections(bool enable)
             {
                     connect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
                     connect(add_object_final,SIGNAL(clicked()),this,SLOT(go_back()));
+                    connect(back_button,SIGNAL(clicked()),this,SLOT(remove_current_node2()));
+                    connect(back_wo_del,SIGNAL(clicked()),this,SLOT(back()));
 
             }
 
@@ -1344,12 +1537,22 @@ void SpecificWorker::newnodeConnections(bool enable)
              {
                  disconnect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
                  disconnect(add_object_final,SIGNAL(clicked()),this,SLOT(go_back()));
+                 disconnect(back_button,SIGNAL(clicked()),this,SLOT(remove_current_node2()));
+                 disconnect(back_wo_del,SIGNAL(clicked()),this,SLOT(back()));
 
     }
 
 
 }
 void SpecificWorker::go_back()
+{
+    nodeid->clear();
+    comboBox->setCurrentIndex(0);
+    groupBox_12->hide();
+    groupBox_8->hide();
+    addobject_connections(false);
+}
+void SpecificWorker::back()
 {
     nodeid->clear();
     comboBox->setCurrentIndex(0);
@@ -1366,6 +1569,10 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="Box")
     {   add_object_final->show();
+        back_button->show();
+        label_123->show();
+        label_64->show();
+
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -1408,6 +1615,9 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="Sphere")
     {   add_object_final->show();
+        back_button->show();
+        label_123->show();
+        label_64->show();
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -1447,6 +1657,9 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="Cylinder")
     {   add_object_final->show();
+        back_button->show();
+        label_123->show();
+        label_64->show();
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -1487,6 +1700,9 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="Cone")
     {   add_object_final->show();
+        back_button->show();
+        label_123->show();
+        label_64->show();
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -1527,6 +1743,7 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="Camera")
     {   add_object_final->show();
+        back_wo_del->show();
         groupBox_12->show();
         trans_gb->hide();
         rot_gb->hide();
@@ -1551,6 +1768,7 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="RGBD")
     {   add_object_final->show();
+        back_wo_del->show();
         groupBox_12->show();
         trans_gb->hide();
         rot_gb->hide();
@@ -1575,6 +1793,7 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="IMU")
     {   add_object_final->show();
+        back_wo_del->show();
         groupBox_12->show();
         trans_gb->hide();
         rot_gb->hide();
@@ -1599,6 +1818,7 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="Laser")
     {   add_object_final->show();
+        back_wo_del->show();
         groupBox_12->show();
         trans_gb->hide();
         rot_gb->hide();
@@ -1623,6 +1843,7 @@ void SpecificWorker::shownode()
     }
     if(comboBox->currentText()=="Mesh")
     {   add_object_final->show();
+        back_wo_del->show();
         groupBox_12->show();
         trans_gb->show();
         rot_gb->show();
@@ -2047,14 +2268,14 @@ void SpecificWorker::shownode()
              {
 
                  this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-
+                 if(!rgbd_id.isEmpty()){
+                      qDebug()<<"destroy";
+                      imv->cameras[rgbd_id].viewerCamera->~Viewer();
+                 }
 
                   viewer->~OsgView();
-//                  if(!rgbd_id.isEmpty()){
-//                       qDebug()<<"destroy";
-//                       imv->cameras[rgbd_id].viewerCamera->~Viewer();
-//                  }
-                  //rgbd_id.clear();
+
+                  rgbd_id.clear();
                   viewer = new OsgView(frameOSG);
                   imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
                   // qDebug()<< "hogaya....hahahhaha " << nodeid->text();
@@ -2105,7 +2326,7 @@ void SpecificWorker::shownode()
 //                 }
              //this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
              //rgbd_id.clear();
-             imv->update();
+            // imv->update();
              //newNode=nodeMapByItem[item];
              newNode.type=IMPlane;
              newNode.id=nodeid->text()+"_p";
@@ -2119,6 +2340,7 @@ void SpecificWorker::shownode()
 
 
  }
+
 
 
  void SpecificWorker::translationChanged_2()
@@ -2704,16 +2926,19 @@ void SpecificWorker::updateLasers()
 			laser->osgNode->removeChild(0, laser->osgNode->getNumChildren());
 		}
 	}
+
 	// Laser
-	{
+
 		//QMutexLocker vm(viewerMutex);
 		QMutexLocker lcds(laserDataCartArray_mutex);
+
 		for (QHash<QString, IMVLaser>::iterator laser = imv->lasers.begin(); laser != imv->lasers.end(); laser++)
-		{
+        {
 			QString id=laser->laserNode->id;
 
 			if (laserDataCartArray.contains(id) == false)
 			{
+
 				osg::Vec3Array *v= new osg::Vec3Array();
 				v->resize(laser->laserNode->measures+1);
 				laserDataCartArray.insert(id,v);
@@ -2721,27 +2946,32 @@ void SpecificWorker::updateLasers()
 
 			// create and insert laser data
 			worker = this;
+
 			laserDataArray.insert(laser->laserNode->id, LASER_createLaserData(laser.value()));
 
 			// create and insert laser shape
 			if (true) // DRAW LASER
-			{
+            {
 				osg::ref_ptr<osg::Node> p=NULL;
 				if (id=="laserSecurity")
 				{
+
 					p = viewer->addPolygon(*(laserDataCartArray[id]), osg::Vec4(0.,0.,1.,0.4));
 				}
 				else
 				{
+
 					p = viewer->addPolygon(*(laserDataCartArray[id]));
 				}
 				if (p!=NULL)
 				{
+
 					laser->osgNode->addChild(p);
 				}
 			}
 		}
-	}
+
+
 }
 
 // Update all the joint positions

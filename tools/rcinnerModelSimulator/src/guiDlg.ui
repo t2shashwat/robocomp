@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1133</width>
-    <height>2274</height>
+    <height>2305</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -537,6 +537,13 @@
           <widget class="QPushButton" name="treepushButton">
            <property name="text">
             <string>Click to select object in the scene</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="delete_button">
+           <property name="text">
+            <string>Delete Selected Node</string>
            </property>
           </widget>
          </item>
@@ -2826,6 +2833,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>250</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
@@ -2924,6 +2937,27 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="back_wo_del">
+              <property name="text">
+               <string>Back</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_123">
+              <property name="text">
+               <string>Click below to leave Preview mode:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="back_button">
+              <property name="text">
+               <string>Back</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -2987,7 +3021,7 @@
    </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
-     <string>Tool</string>
+     <string>Tools</string>
     </property>
     <addaction name="actionObject"/>
     <addaction name="actionVisual"/>
@@ -3012,7 +3046,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Object</string>
+    <string>View</string>
    </property>
   </action>
   <action name="actionVisual">
