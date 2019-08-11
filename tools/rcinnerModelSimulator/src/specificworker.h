@@ -67,7 +67,7 @@ private:
 		//InnerModel
 		std::shared_ptr<InnerModel> innerModel;
 		
-        int flag=1,render1;
+        int flag=1,render1,flg_prev=1;
         QString texture_txt,texture_out,prevTexture,plane1,plane2="";
         QTimer timer,timer1;
         osg::Vec3 eye, center, up;

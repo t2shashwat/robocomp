@@ -192,6 +192,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     groupBox_12->hide();
     treeWidget->hide();
     flag=1;
+    flg_prev=1;
     trans_gb_2->hide();
     rot_gb_2->hide();
     //mass_gb->show();
@@ -353,7 +354,7 @@ void SpecificWorker::remove_current_node2()
     //if(resBtn == QMessageBox::Yes)
     //{
         interfaceConnections(false);
-        //addobject_connections(true);
+        //addobject_connections(false);
 
         current_node.id= newNode.id;
         disconnect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
@@ -389,10 +390,10 @@ void SpecificWorker::remove_current_node2()
         plane2="";
         connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
         connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
-        interfaceConnections(true);
+        //interfaceConnections(true);
          //addobject_connections(true);
 
-        interfaceConnections(false);
+        //interfaceConnections(false);
          //addobject_connections(false);
         current_node.id= newNode_t.id;
         disconnect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
@@ -435,7 +436,7 @@ void SpecificWorker::remove_current_node2()
         connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
         connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
         interfaceConnections(true);
-        addobject_connections(false);
+        //addobject_connections(true);
 
 
     //}
@@ -1489,6 +1490,7 @@ void SpecificWorker::jointChanged()
 void SpecificWorker::add_object()
 {
     newnodeConnections(false);
+    //addobject_connections(false);
     addobject_button->hide();
     groupBox_8->show();
     comboBox->setDisabled(true);
@@ -1498,6 +1500,7 @@ void SpecificWorker::add_object()
     label_64->hide();
     back_wo_del->hide();
     newnodeConnections(true);
+    //addobject_connections(true);
 
 }
 void SpecificWorker:: add_tree()
@@ -1540,30 +1543,32 @@ void SpecificWorker::show_combobox(){
 
 }
 void SpecificWorker::go_back()
-{   addobject_button->show();
+{   //addobject_connections(false);
+    addobject_button->show();
     nodeid->clear();
     comboBox->setCurrentIndex(0);
     groupBox_12->hide();
     groupBox_8->hide();
-    //addobject_connections(false);
+    //addobject_connections(true);
 }
 void SpecificWorker::back()
-{
+{   //addobject_connections(false);
     nodeid->clear();
     comboBox->setCurrentIndex(0);
     groupBox_12->hide();
     groupBox_8->hide();
-    //addobject_connections(false);
+    //addobject_connections(true);
 }
 void SpecificWorker::shownode()
-{
+{   addobject_connections(false);
     if(comboBox->currentText()=="Click to show type")
     {
         groupBox_12->hide();
 
     }
     if(comboBox->currentText()=="Box")
-    {   add_object_final->show();
+    {   //addobject_connections(false);
+        add_object_final->show();
         back_button->show();
         label_123->show();
         label_64->show();
@@ -1602,14 +1607,15 @@ void SpecificWorker::shownode()
         laser_gb->hide();
         ifconfig_gb->hide();
         noise_gb->hide();
-        addobject_connections(false);
-        addobject_connections(true);
+
+        //addobject_connections(true);
         add_new_node();
 
 
     }
     if(comboBox->currentText()=="Sphere")
-    {   add_object_final->show();
+    {  // addobject_connections(false);
+        add_object_final->show();
         back_button->show();
         label_123->show();
         label_64->show();
@@ -1645,13 +1651,14 @@ void SpecificWorker::shownode()
         laser_gb->hide();
         ifconfig_gb->hide();
         noise_gb->hide();
-        addobject_connections(false);
-        addobject_connections(true);
+
+        //addobject_connections(true);
         add_new_node();
 
     }
     if(comboBox->currentText()=="Cylinder")
-    {   add_object_final->show();
+    {   //addobject_connections(false);
+        add_object_final->show();
         back_button->show();
         label_123->show();
         label_64->show();
@@ -1688,13 +1695,14 @@ void SpecificWorker::shownode()
         laser_gb->hide();
         ifconfig_gb->hide();
         noise_gb->hide();
-        addobject_connections(false);
-        addobject_connections(true);
+
+       // addobject_connections(true);
         add_new_node();
 
     }
     if(comboBox->currentText()=="Cone")
-    {   add_object_final->show();
+    {   //addobject_connections(false);
+        add_object_final->show();
         back_button->show();
         label_123->show();
         label_64->show();
@@ -1731,8 +1739,8 @@ void SpecificWorker::shownode()
         laser_gb->hide();
         ifconfig_gb->hide();
         noise_gb->hide();
-        addobject_connections(false);
-        addobject_connections(true);
+
+        //addobject_connections(true);
         add_new_node();
 
     }
@@ -1861,6 +1869,7 @@ void SpecificWorker::shownode()
         add_new_node();
 
     }
+    addobject_connections(true);
 
 }
 
@@ -1900,6 +1909,7 @@ void SpecificWorker::shownode()
                                                   , ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
                           flag=0;
+                          flg_prev=0;
                           printf("checkerboard box");
                       }
                       else if(texture->currentText()=="Metal")
@@ -1910,6 +1920,7 @@ void SpecificWorker::shownode()
                                                   , ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
                           flag=0;
+                          flg_prev=0;
                       }
                       else if(texture->currentText()=="Blue"){
                           InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg", rect_w->value(), rect_h->value()
@@ -1917,6 +1928,7 @@ void SpecificWorker::shownode()
                                                   , ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
                           flag=0;
+                          flg_prev=0;
                       }
                       else if(texture->currentText()=="Raw")
                       {
@@ -1925,6 +1937,7 @@ void SpecificWorker::shownode()
                                                   , ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
                           flag=0;
+                          flg_prev=0;
                       }
                       else if(texture->currentText()=="Klein Blue")
                       {
@@ -1933,12 +1946,14 @@ void SpecificWorker::shownode()
                                                   , ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
                           flag=0;
+                          flg_prev=0;
                       }
                       else if(comboBox_texture->currentText()=="Wood")
                       {
                           InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/wood.jpg", rect_w->value(), rect_h->value(), rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value(), ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
                           flag=0;
+                          flg_prev=0;
                       }
                       else if(texture->currentText()=="Grid")
                       {
@@ -1947,6 +1962,7 @@ void SpecificWorker::shownode()
                                                   , ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
                           flag=0;
+                          flg_prev=0;
                       }
                       else if(texture->currentText()=="Indice")
                       {
@@ -1955,6 +1971,7 @@ void SpecificWorker::shownode()
                                                   , ptx->value(), pty->value(), ptz->value(), 0,0);
                           par1->addChild(newnode1);
                           flag=0;
+                          flg_prev=0;
                       }
 
 
@@ -1982,6 +1999,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Metal")
                          {
@@ -1991,6 +2009,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Blue"){
                              InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg", radiusval->value(), rect_h->value()
@@ -1998,6 +2017,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          if(texture->currentText()=="Raw")
                          {
@@ -2006,6 +2026,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Klein Blue")
                          {
@@ -2014,6 +2035,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Wood")
                          {
@@ -2022,6 +2044,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Grid")
                          {
@@ -2030,6 +2053,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Indice")
                          {
@@ -2038,6 +2062,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,1);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
 
 
@@ -2068,6 +2093,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Metal")
                          {
@@ -2077,6 +2103,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Blue"){
                              InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg", cyl_rad->value(), cyl_h->value()
@@ -2084,6 +2111,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          if(texture->currentText()=="Raw")
                          {
@@ -2092,6 +2120,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Klein Blue")
                          {
@@ -2100,6 +2129,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Wood")
                          {
@@ -2108,6 +2138,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Grid")
                          {
@@ -2116,6 +2147,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Indice")
                          {
@@ -2124,6 +2156,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,2);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
 
 
@@ -2154,6 +2187,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Metal")
                          {
@@ -2163,6 +2197,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Blue"){
                              InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, "/home/robocomp/robocomp/files/osgModels/textures/blue.jpg", cyl_rad->value(), cyl_h->value()
@@ -2170,6 +2205,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          if(texture->currentText()=="Raw")
                          {
@@ -2178,6 +2214,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Klein Blue")
                          {
@@ -2186,6 +2223,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Wood")
                          {
@@ -2194,6 +2232,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Grid")
                          {
@@ -2202,6 +2241,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
                          else if(texture->currentText()=="Indice")
                          {
@@ -2210,6 +2250,7 @@ void SpecificWorker::shownode()
                                                      , ptx->value(), pty->value(), ptz->value(), 0,3);
                              par1->addChild(newnode1);
                              flag=0;
+                             flg_prev=0;
                          }
 
 
@@ -2288,14 +2329,15 @@ void SpecificWorker::shownode()
              connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
              qDebug()<<"again tree update";
              fillNodeMap(innerModel->getNode("root"), NULL);
-
+            if(flg_prev==0){
              newNode.type=IMPlane;
              newNode.id=nodeid->text()+"_p";
              //qDebug()<<"nN" <<newNode.id;
              newNode_t.type=IMTransform;
              newNode_t.id=nodeid->text();
+             flg_prev=1;
              //qDebug()<<"nNt" <<newNode_t.id;
-
+            }
 
          //}
 
