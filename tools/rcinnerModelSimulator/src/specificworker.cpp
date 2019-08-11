@@ -337,15 +337,7 @@ void SpecificWorker::remove_current_node()
         fillNodeMap(innerModel->getNode("root"), NULL);
         //imv->update();
        // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-//		translationGroup->hide();
-//		rotationGroup->hide();
-//		meshGroup->hide();
-//		planeGroup->hide();
-//		cameraGroup->hide();
-//		jointGroup->hide();
-//		lineEdit_nodeId->setText("root");
-//		lineEdit_nodeId->setEnabled(false);
-//		nodeType->setText("<b>root</b>");
+
         prevNode = NULL;
         plane1="";
         plane2="";
@@ -361,10 +353,12 @@ void SpecificWorker::remove_current_node2()
     //if(resBtn == QMessageBox::Yes)
     //{
         interfaceConnections(false);
+        //addobject_connections(true);
+
         current_node.id= newNode.id;
         disconnect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
-//        disconnect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
-//        disconnect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
         if(prevNode!=NULL)
         {
             InnerModelPlane *plane;
@@ -380,7 +374,7 @@ void SpecificWorker::remove_current_node2()
         viewer->~OsgView();
         viewer = new OsgView(frameOSG);
         imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
-       // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+        //this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
 
         connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
         rgbd_id.clear();
@@ -390,24 +384,20 @@ void SpecificWorker::remove_current_node2()
         fillNodeMap(innerModel->getNode("root"), NULL);
         //imv->update();
        // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-//		translationGroup->hide();
-//		rotationGroup->hide();
-//		meshGroup->hide();
-//		planeGroup->hide();
-//		cameraGroup->hide();
-//		jointGroup->hide();
-//		lineEdit_nodeId->setText("root");
-//		lineEdit_nodeId->setEnabled(false);
-//		nodeType->setText("<b>root</b>");
         prevNode = NULL;
         plane1="";
         plane2="";
-//        connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
-//        connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+        connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+        connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+        interfaceConnections(true);
+         //addobject_connections(true);
+
+        interfaceConnections(false);
+         //addobject_connections(false);
         current_node.id= newNode_t.id;
         disconnect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
-//        disconnect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
-//        disconnect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+        disconnect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
         if(prevNode!=NULL)
         {
             InnerModelPlane *plane;
@@ -416,7 +406,7 @@ void SpecificWorker::remove_current_node2()
         }
         innerModel->removeNode(current_node.id);
         qDebug() << "Removed" << current_node.id;
-      //  this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+        //this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
 
         if(!rgbd_id.isEmpty())
             imv->cameras[rgbd_id].viewerCamera->~Viewer();
@@ -433,24 +423,21 @@ void SpecificWorker::remove_current_node2()
         fillNodeMap(innerModel->getNode("root"), NULL);
         //imv->update();
        // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-//		translationGroup->hide();
-//		rotationGroup->hide();
-//		meshGroup->hide();
-//		planeGroup->hide();
-//		cameraGroup->hide();
-//		jointGroup->hide();
-//		lineEdit_nodeId->setText("root");
-//		lineEdit_nodeId->setEnabled(false);
-//		nodeType->setText("<b>root</b>");
+
         prevNode = NULL;
         plane1="";
         plane2="";
-        interfaceConnections(true);
         nodeid->clear();
         comboBox->setCurrentIndex(0);
         groupBox_12->hide();
         groupBox_8->hide();
+        addobject_button->show();
+        connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+        connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+        interfaceConnections(true);
         addobject_connections(false);
+
+
     //}
 }
 
@@ -1501,8 +1488,10 @@ void SpecificWorker::jointChanged()
 /// ///////////////////////////////////////////////////////////////
 void SpecificWorker::add_object()
 {
-    //newnodeConnections(false);
+    newnodeConnections(false);
+    addobject_button->hide();
     groupBox_8->show();
+    comboBox->setDisabled(true);
     add_object_final->hide();
     back_button->hide();
     label_123->hide();
@@ -1526,15 +1515,17 @@ void SpecificWorker::newnodeConnections(bool enable)
 {
     if(enable)
             {
+                    connect(nodeid,SIGNAL(returnPressed()),this,SLOT(show_combobox()));
                     connect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
                     connect(add_object_final,SIGNAL(clicked()),this,SLOT(go_back()));
                     connect(back_button,SIGNAL(clicked()),this,SLOT(remove_current_node2()));
                     connect(back_wo_del,SIGNAL(clicked()),this,SLOT(back()));
 
+
             }
 
              else
-             {
+             {   disconnect(nodeid,SIGNAL(returnPressed()),this,SLOT(show_combobox()));
                  disconnect(comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(shownode()));
                  disconnect(add_object_final,SIGNAL(clicked()),this,SLOT(go_back()));
                  disconnect(back_button,SIGNAL(clicked()),this,SLOT(remove_current_node2()));
@@ -1544,13 +1535,17 @@ void SpecificWorker::newnodeConnections(bool enable)
 
 
 }
+void SpecificWorker::show_combobox(){
+    comboBox->setDisabled(false);
+
+}
 void SpecificWorker::go_back()
-{
+{   addobject_button->show();
     nodeid->clear();
     comboBox->setCurrentIndex(0);
     groupBox_12->hide();
     groupBox_8->hide();
-    addobject_connections(false);
+    //addobject_connections(false);
 }
 void SpecificWorker::back()
 {
@@ -1558,7 +1553,7 @@ void SpecificWorker::back()
     comboBox->setCurrentIndex(0);
     groupBox_12->hide();
     groupBox_8->hide();
-    addobject_connections(false);
+    //addobject_connections(false);
 }
 void SpecificWorker::shownode()
 {
@@ -2278,34 +2273,7 @@ void SpecificWorker::shownode()
                   rgbd_id.clear();
                   viewer = new OsgView(frameOSG);
                   imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
-                  // qDebug()<< "hogaya....hahahhaha " << nodeid->text();
-                   //nodeid->clear();
-                   //comboBox->setCurrentIndex(0);
-                  // texture->setCurrentIndex(0);
-                  // comboBox_texture->setCurrentIndex(0);
-                   //parentid->clear();
-                   //groupBox_12->hide();
-                   //groupBox_8->hide();
-//                   tx->setValue(0.00);
-//                   ty->setValue(0.00);
-//                   tz->setValue(0.00);
-//                   rx->setValue(0.00);
-//                   ry->setValue(0.00);
-//                   rz->setValue(0.00);
-//                   normx->setValue(0.00);
-//                   normy->setValue(0.00);
-//                   normz->setValue(0.00);
-//                   ptx->setValue(0.00);
-//                   pty->setValue(0.00);
-//                   ptz->setValue(0.00);
-//                   texture_sz->setValue(0.00);
-//                   rect_dep->setValue(0.00);
-//                   rect_w->setValue(0.00);
-//                   rect_h->setValue(0.00);
-//                   radiusval->setValue(0.00);
-//                   mass_b->setValue(0.00);
-//                   cyl_h->setValue(0.00);
-//                   cyl_rad->setValue(0.00);
+
 
 
                    this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
@@ -2320,14 +2288,7 @@ void SpecificWorker::shownode()
              connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
              qDebug()<<"again tree update";
              fillNodeMap(innerModel->getNode("root"), NULL);
-//             if(!rgbd_id.isEmpty()){
-//                  qDebug()<<"destroy";
-//                  imv->cameras[rgbd_id].viewerCamera->~Viewer();
-//                 }
-             //this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-             //rgbd_id.clear();
-            // imv->update();
-             //newNode=nodeMapByItem[item];
+
              newNode.type=IMPlane;
              newNode.id=nodeid->text()+"_p";
              //qDebug()<<"nN" <<newNode.id;
@@ -2678,13 +2639,13 @@ void SpecificWorker::addobject_connections(bool enable)
           //imv->update();
          // qDebug() << "metal hogaya";
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//          if(!rgbd_id.isEmpty())
-//               imv->cameras[rgbd_id].viewerCamera->~Viewer();
+          if(!rgbd_id.isEmpty())
+               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-          //rgbd_id.clear();
+          rgbd_id.clear();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
-          //fillNodeMap(innerModel->getNode("root"), NULL);
+          fillNodeMap(innerModel->getNode("root"), NULL);
           this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
           //imv->update();
 
@@ -2705,16 +2666,17 @@ void SpecificWorker::addobject_connections(bool enable)
           //qDebug() << "metal hogaya";
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//          if(!rgbd_id.isEmpty())
-//               imv->cameras[rgbd_id].viewerCamera->~Viewer();
+          if(!rgbd_id.isEmpty())
+               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-        //  rgbd_id.clear();
+          rgbd_id.clear();
 
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+          fillNodeMap(innerModel->getNode("root"), NULL);
 
           this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-          imv->update();
+          //imv->update();
 
       }
       else if(comboBox_texture->currentText()=="Checkerboard")
@@ -2733,17 +2695,18 @@ void SpecificWorker::addobject_connections(bool enable)
           //qDebug() << "metal hogaya";
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//          if(!rgbd_id.isEmpty())
-//               imv->cameras[rgbd_id].viewerCamera->~Viewer();
+          if(!rgbd_id.isEmpty())
+               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-      //    rgbd_id.clear();
+          rgbd_id.clear();
 
 
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+          fillNodeMap(innerModel->getNode("root"), NULL);
 
           this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-          imv->update();
+          //imv->update();
 
       }
       else if(comboBox_texture->currentText()=="Grid")
@@ -2762,16 +2725,17 @@ void SpecificWorker::addobject_connections(bool enable)
          // qDebug() << "metal hogaya";
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//          if(!rgbd_id.isEmpty())
-//               imv->cameras[rgbd_id].viewerCamera->~Viewer();
-          //viewer->~OsgView();
-        //  rgbd_id.clear();
+          if(!rgbd_id.isEmpty())
+               imv->cameras[rgbd_id].viewerCamera->~Viewer();
+          viewer->~OsgView();
+          rgbd_id.clear();
           viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+          fillNodeMap(innerModel->getNode("root"), NULL);
 
           this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-          imv->update();
+          //imv->update();
 
       }
       else if(comboBox_texture->currentText()=="Indice")
@@ -2790,16 +2754,17 @@ void SpecificWorker::addobject_connections(bool enable)
           //qDebug() << "metal hogaya";
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//          if(!rgbd_id.isEmpty())
-//               imv->cameras[rgbd_id].viewerCamera->~Viewer();
+          if(!rgbd_id.isEmpty())
+               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-       //   rgbd_id.clear();
+          rgbd_id.clear();
           //viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+          fillNodeMap(innerModel->getNode("root"), NULL);
 
           this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-          imv->update();
+          //imv->update();
 
       }
       else if(comboBox_texture->currentText()=="Klein Blue")
@@ -2818,16 +2783,17 @@ void SpecificWorker::addobject_connections(bool enable)
          // qDebug() << "metal hogaya";
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//          if(!rgbd_id.isEmpty())
-//               imv->cameras[rgbd_id].viewerCamera->~Viewer();
+          if(!rgbd_id.isEmpty())
+               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-        //  rgbd_id.clear();
+          rgbd_id.clear();
           //viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+          fillNodeMap(innerModel->getNode("root"), NULL);
 
           this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-          imv->update();
+         // imv->update();
 
       }
       else if(comboBox_texture->currentText()=="Raw")
@@ -2846,16 +2812,17 @@ void SpecificWorker::addobject_connections(bool enable)
          // qDebug() << "metal hogaya";
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//          if(!rgbd_id.isEmpty())
-//               imv->cameras[rgbd_id].viewerCamera->~Viewer();
+          if(!rgbd_id.isEmpty())
+               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-     //     rgbd_id.clear();
+          rgbd_id.clear();
           //viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+          fillNodeMap(innerModel->getNode("root"), NULL);
 
           this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-          imv->update();
+          //imv->update();
 
       }
       else if(comboBox_texture->currentText()=="Wood")
@@ -2874,16 +2841,17 @@ void SpecificWorker::addobject_connections(bool enable)
          // qDebug() << "metal hogaya";
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
-//          if(!rgbd_id.isEmpty())
-//               imv->cameras[rgbd_id].viewerCamera->~Viewer();
+          if(!rgbd_id.isEmpty())
+               imv->cameras[rgbd_id].viewerCamera->~Viewer();
           viewer->~OsgView();
-      //    rgbd_id.clear();
+          rgbd_id.clear();
           //viewer->~OsgView();
           viewer = new OsgView(frameOSG);
           imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+          fillNodeMap(innerModel->getNode("root"), NULL);
 
           this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
-          imv->update();
+        //  imv->update();
 
       }
 

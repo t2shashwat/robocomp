@@ -228,6 +228,7 @@ private:
         void remove_current_node2();
         void drag_and_drop();
         void back();
+        void show_combobox();
 
         void closeEvent(QCloseEvent *event);
 
