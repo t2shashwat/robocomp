@@ -119,6 +119,7 @@ public:
 	osg::Shape *addBasicLineShape(const QVec &p1, const QVec &p2, float radius);
 	osg::Node * hexno = NULL;
 	osg::Vec3 kk;
+	int retx,rety;
 	int flag1 = 0, flag2=0;
 
 	osg::Group * getRootGroup()	{ return root; }

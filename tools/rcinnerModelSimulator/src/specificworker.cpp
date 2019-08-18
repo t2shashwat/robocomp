@@ -93,7 +93,8 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
 		viewer->addEventHandler(new PickHandler(rcis_mousepicker_proxy));
 	}
     timer1.start(Period/100);
-
+    timer2.start(Period/100);
+    //undostack.size(10);
 	// Restore previous camera position
 //	settings = new QSettings("RoboComp", "RCIS");
 //	QString path(_innerModelXML);
@@ -148,6 +149,8 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
     connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
     connect(&timer1, SIGNAL(timeout()), this, SLOT(drag_and_drop()));
+    connect(actionUndo, SIGNAL(triggered()), this, SLOT(undoing()));
+
     connect(delete_button, SIGNAL(clicked()), this, SLOT(remove_current_node()));
     comboBox_texture->addItem("--Choose Texture--");
     comboBox_texture->addItem(QIcon("/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg"),"Metal");
@@ -265,7 +268,7 @@ void SpecificWorker::compute()
 }
 
 void SpecificWorker::tree_highlight()
-{   //qDebug()<<"flag val"  << viewer->flag2 << viewer->flag1;
+{   qDebug()<<"coord"  << viewer->retx << viewer->rety;
     if(viewer->flag1 == 1 && viewer->flag2 == 2)
     {
         IMVPlane* plane;
@@ -319,6 +322,104 @@ void SpecificWorker::remove_current_node()
             if ((plane = dynamic_cast<InnerModelPlane *>(prevNode)))
                 plane->texture = prevTexture;
         }
+        qDebug()<<current_node.type;
+        if(current_node.type==IMPlane){
+        InnerModelPlane *p = innerModel->getNode<InnerModelPlane>(current_node.id);
+        undo_del.operation="deletion";
+        undo_del.id=current_node.id;
+        undo_del.type=current_node.type;
+        undo_del.width=p->width;
+        undo_del.height=p->height;
+        undo_del.depth=p->depth;
+        undo_del.nx=p->normal(0);
+        undo_del.ny=p->normal(1);
+        undo_del.nz=p->normal(2);
+        undo_del.px=p->point(0);
+        undo_del.py=p->point(1);
+        undo_del.pz=p->point(2);
+        undo_del.shape=p->shape;
+        undo_del.repeat=p->repeat;
+        undo_del.parent=p->parent;
+        undo_del.texture=p->texture;
+        undostack.push_front(undo_del);
+        //qDebug()<<p->texture;
+        }
+        if(current_node.type==IMTransform && nodeMapByItem[current_node.item->child(0)].type==IMPlane ){
+               qDebug()<<"deletion tran and plane";
+        InnerModelTransform *p = innerModel->getNode<InnerModelTransform>(current_node.id);
+        undo_del.operation="deletion_transform";
+        undo_del.id=current_node.id;
+        undo_del.type=current_node.type;
+        undo_del.parent=p->parent;
+        undo_del.rx=p->backrX;
+        undo_del.ry=p->backrY;
+        undo_del.rz=p->backrZ;
+        undo_del.tx=p->backtX;
+        undo_del.ty=p->backtY;
+        undo_del.tz=p->backtZ;
+        //undo_del.child=p->children;
+
+        InnerModelNode *m = innerModel->getNode<InnerModelNode>(current_node.id);
+        childd=m->children.first();
+
+        InnerModelPlane *t = innerModel->getNode<InnerModelPlane>(childd->id);
+        //InnerModelPlane *t=<InnerModelPlane>childd;
+        undo_del.child=t->id;
+        undo_del.width=t->width;
+        undo_del.height=t->height;
+        undo_del.depth=t->depth;
+        undo_del.nx=t->normal(0);
+        undo_del.ny=t->normal(1);
+        undo_del.nz=t->normal(2);
+        undo_del.px=t->point(0);
+        undo_del.py=t->point(1);
+        undo_del.pz=t->point(2);
+        undo_del.shape=t->shape;
+        undo_del.repeat=t->repeat;
+        //undo_del.parent=t->parent;
+        undo_del.texture=t->texture;
+        undostack.push_front(undo_del);
+
+        }
+        if(current_node.type==IMMesh){
+            InnerModelMesh *p = innerModel->getNode<InnerModelMesh>(current_node.id);
+            undo_del.operation="deletion_mesh";
+            undo_del.id=current_node.id;
+            undo_del.type=current_node.type;
+            undo_del.width=p->scalex;
+            undo_del.height=p->scaley;
+            undo_del.depth=p->scalez;
+
+
+            undo_del.parent=p->parent;
+            undo_del.repeat=p->render;
+            undo_del.texture=p->meshPath;
+            undo_del.rx=p->rx;
+            undo_del.ry=p->ry;
+            undo_del.rz=p->rz;
+            undo_del.tx=p->tx;
+            undo_del.ty=p->ty;
+            undo_del.tz=p->tz;
+            undostack.push_front(undo_del);
+        }
+        if(current_node.type==IMCamera){
+            qDebug()<<"camera deletion";
+            InnerModelCamera *p = innerModel->getNode<InnerModelCamera>(current_node.id);
+            undo_del.operation="deletion_camera";
+            undo_del.id=current_node.id;
+            undo_del.type=current_node.type;
+            undo_del.width=p->camera.getWidth();
+            undo_del.height=p->camera.getHeight();
+            undo_del.depth=p->camera.getFocal();
+
+            undo_del.parent=p->parent;
+            undostack.push_front(undo_del);
+
+        }
+
+
+
+
         innerModel->removeNode(current_node.id);
         qDebug() << "Removed" << current_node.id;
         this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
@@ -658,6 +759,96 @@ void SpecificWorker::drag_and_drop()
     }
 }
 
+void SpecificWorker::undoing()
+{   if(!undostack.empty()){
+     qDebug()<<"inside";
+    undo_node = undostack.front();
+    if(undo_node.operation=="deletion"){
+        qDebug()<<"undo "<<undo_node.id;
+
+        InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(undo_node.id, undo_node.parent, undo_node.texture, undo_node.width, undo_node.height
+                                    , undo_node.depth, undo_node.repeat, undo_node.nx, undo_node.ny, undo_node.nz
+                                    , undo_node.px, undo_node.py, undo_node.pz, 0,undo_node.shape);
+
+
+        undo_node.parent->addChild(newnode1);
+        undostack.pop_front();
+
+    }
+    else if(undo_node.operation=="deletion_transform"){
+            qDebug()<<"transform deletion";
+            qDebug()<<undo_node.parent;
+
+            InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(undo_node.id, "static", undo_node.parent, undo_node.tx, undo_node.ty, undo_node.tz, undo_node.rx, undo_node.ry, undo_node.rz, 0);
+            qDebug()<<undo_node.id;
+            qDebug()<<undo_node.child;
+            undo_node.parent->addChild(newnode);
+
+        InnerModelNode *par1= innerModel->getNode<InnerModelNode>(undo_node.id);
+
+        InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(undo_node.child, par1, undo_node.texture, undo_node.width, undo_node.height
+                                    , undo_node.depth, undo_node.repeat, undo_node.nx, undo_node.ny, undo_node.nz
+                                    , undo_node.px, undo_node.py, undo_node.pz, 0,undo_node.shape);
+
+
+        par1->addChild(newnode1);
+        undostack.pop_front();
+
+
+    }
+    else if(undo_node.operation=="deletion_mesh"){
+        InnerModelMesh *newnode = (InnerModelMesh *)innerModel->newMesh(undo_node.id, undo_node.parent, undo_node.texture, undo_node.width, undo_node.height, undo_node.depth, undo_node.repeat, undo_node.tx, undo_node.ty, undo_node.tz, undo_node.rx, undo_node.ry, undo_node.rz, 0);
+        undo_node.parent->addChild(newnode);
+        undostack.pop_front();
+    }
+    else if(undo_node.operation=="deletion_camera"){
+        InnerModelCamera *newnode = (InnerModelCamera *)innerModel->newCamera(undo_node.id, undo_node.parent, undo_node.width, undo_node.height, undo_node.depth);
+        undo_node.parent->addChild(newnode);
+
+    }
+    else if(undo_node.operation=="deletion_imu"){
+
+
+    }
+    else if(undo_node.operation=="deletion_rgbd"){
+
+
+    }
+    else if(undo_node.operation=="deletion_laser"){
+
+
+    }
+
+    this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
+    if(!rgbd_id.isEmpty()){
+         qDebug()<<"destroy";
+         imv->cameras[rgbd_id].viewerCamera->~Viewer();
+    }
+
+     viewer->~OsgView();
+
+     rgbd_id.clear();
+     viewer = new OsgView(frameOSG);
+     imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+
+
+
+      this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+
+      plane1 = "";
+      plane2 = "";
+
+
+    disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+    treeWidget->clear();
+    connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+    qDebug()<<"again tree update";
+    fillNodeMap(innerModel->getNode("root"), NULL);
+
+
+
+}
+}
 
 void SpecificWorker::showAvailableGroups()
 {
@@ -666,7 +857,7 @@ void SpecificWorker::showAvailableGroups()
 
     //printf("Node id --  %s",currentNode.type);
     //lineEdit_nodeId->setText(currentNode.id);
-
+       qDebug()<<"type  "<<currentNode.type;
     // Treat 'root' special read-only special case
     if (currentNode.id == "root")
     {
@@ -1077,6 +1268,20 @@ void SpecificWorker::showPlane(QString id)
         rect_h_2->setValue(p->height);
         rect_dep_2->setValue(p->depth);
         //textureSize->setValue(p->repeat);
+        undo_del.operation="change_plane_values";
+        undo_del.id=id;
+        undo_del.type=currentNode.type;
+        undo_del.width=p->width;
+        undo_del.height=p->height;
+        undo_del.depth= p->depth;
+        undo_del.nx=p->normal(0);
+        undo_del.ny=p->normal(1);
+        undo_del.nz=p->normal(2);
+        undo_del.px=p->point(0);
+        undo_del.py=p->point(1);
+        undo_del.pz=p->point(2);
+        undo_del.texture=p->texture;
+        undostack.push_front(undo_del);
     }
     else if (type == IMDisplay)
     {
@@ -1092,6 +1297,8 @@ void SpecificWorker::showPlane(QString id)
         rect_h_2->setValue(p->height);
         rect_dep_2->setValue(p->depth);
     }
+    //InnerModelDisplay *p = innerModel->getNode<InnerModelDisplay>(id);
+
 }
 void SpecificWorker::showPlane_s(QString id)
 {
@@ -1125,6 +1332,20 @@ void SpecificWorker::showPlane_s(QString id)
         //rect_h_2->setValue(p->height);
         //rect_dep_2->setValue(p->depth);
     }
+    undo_del.operation="change_plane_values";
+    undo_del.id=currentNode.id;
+    undo_del.type=currentNode.type;
+    undo_del.width=rect_w_2->value();
+    undo_del.height=rect_h_2->value();
+    undo_del.depth= rect_dep_2->value();
+    undo_del.nx=normx_2->value();
+    undo_del.ny=normy_2->value();
+    undo_del.nz=normz_2->value();
+    undo_del.px=ptx_2->value();
+    undo_del.py=pty_2->value();
+    undo_del.pz=ptz_2->value();
+    undo_del.texture=texture_2->text();
+    undostack.push_front(undo_del);
 
 }
 void SpecificWorker::showPlane_cyl(QString id)
@@ -1284,6 +1505,7 @@ void SpecificWorker::planeChanged_rest()
         prevNode=NULL;
         imv->update();
     }
+
 }
 
 
@@ -1319,6 +1541,8 @@ void SpecificWorker::planeChanged()
         prevNode = NULL;
         imv->update();
     }
+    //InnerModelPlane *p = innerModel->getNode<InnerModelPlane>(currentNode.id);
+
 }
 void SpecificWorker::planeChanged_cone()
 {

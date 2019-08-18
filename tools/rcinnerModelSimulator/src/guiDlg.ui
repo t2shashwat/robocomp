@@ -3027,6 +3027,7 @@
     <addaction name="actionVisual"/>
     <addaction name="actionFeatures"/>
     <addaction name="actionFloor_Texture"/>
+    <addaction name="actionUndo"/>
    </widget>
    <addaction name="menuSimulation"/>
    <addaction name="menuTool"/>
@@ -3095,6 +3096,11 @@
    </property>
    <property name="text">
     <string>Floor Texture </string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
    </property>
   </action>
  </widget>

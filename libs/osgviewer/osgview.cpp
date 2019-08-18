@@ -684,8 +684,8 @@ void OsgView::keyReleaseEvent( QKeyEvent* event )
 	if(event->key() == Qt::Key_Q)
 	{
 		flag1 = 0;
-		osg::Vec3 eye, center, up; 
-		this->getCamera()->getViewMatrixAsLookAt( eye, center, up ); 
+		osg::Vec3 eye, center, up;
+		this->getCamera()->getViewMatrixAsLookAt( eye, center, up );
 		setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
 
 	}
@@ -735,6 +735,8 @@ void OsgView::mouseReleaseEvent( QMouseEvent* event )
 
 void OsgView::mouseMoveEvent( QMouseEvent* event )
 {
+  retx  = event->x();
+  rety = event->y();
     _gw->getEventQueue()->mouseMotion(event->x(), event->y());
     osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(this);
  if ( viewer )

@@ -42,6 +42,34 @@ struct WorkerNode
     NodeType1 type;
     QTreeWidgetItem *item;
 };
+struct UndoNode
+{   QString operation;
+    QString id;
+    QString texture;
+    InnerModelNode* parent;
+    //InnerModelNode* child_point;
+    QString child;
+    NodeType1 type;
+    float width=0;
+    float height=0;
+    float depth=0;
+    float nx=0;
+    float ny=0;
+    float nz=0;
+    float px=0;
+    float py=0;
+    float pz=0;
+    int repeat=0;
+    int shape=0;
+    float rx=0;
+    float ry=0;
+    float rz=0;
+    float tx=0;
+    float ty=0;
+    float tz=0;
+
+
+};
 
 class SpecificWorker : public GenericWorker
 {
@@ -69,7 +97,7 @@ private:
 		
         int flag=1,render1,flg_prev=1;
         QString texture_txt,texture_out,prevTexture,plane1,plane2="";
-        QTimer timer,timer1;
+        QTimer timer,timer1,timer2;
         osg::Vec3 eye, center, up;
         osg::Vec3 move, rove;
 		// World
@@ -77,9 +105,11 @@ private:
 		//InnerModel *innerModel;
 		InnerModelViewer *imv;
         InnerModelNode *prevNode=NULL;
+        InnerModelNode *childd=NULL;
 		OsgView *viewer;
 		osgGA::TrackballManipulator *manipulator;
         WorkerNode currentNode,newNode,newNode_t,current_node;
+        UndoNode undo_del,undo_node;
 		// Handlers
 		Ice::CommunicatorPtr communicator;
 		std::map<uint32_t, JointMotorServer> jm_servers;
@@ -94,6 +124,9 @@ private:
         //------------------
         QMap<QString, WorkerNode> nodeMap;
         QMap<QTreeWidgetItem *, WorkerNode> nodeMapByItem;
+        QList<UndoNode> undostack;
+
+
         QString rgbd_id;
 		// IMU
 		DataImu data_imu;
@@ -229,6 +262,7 @@ private:
         void drag_and_drop();
         void back();
         void show_combobox();
+        void undoing();
 
         void closeEvent(QCloseEvent *event);
 
