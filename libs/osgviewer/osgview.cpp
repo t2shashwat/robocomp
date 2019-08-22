@@ -734,8 +734,8 @@ void OsgView::mouseReleaseEvent( QMouseEvent* event )
 }
 
 void OsgView::mouseMoveEvent( QMouseEvent* event )
-{qDebug()<<"mouseMovement";
-if (event->type() == QEvent::MouseMove)
+{//qDebug()<<"mouseMovement";
+/*if (event->type() == QEvent::MouseMove)
   {
     qDebug()<<"mouseMovement sending value";
     QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
@@ -743,7 +743,9 @@ if (event->type() == QEvent::MouseMove)
     rety = mouseEvent->pos().y();
     qDebug()<<"mouseMovement x "<< retx;
     qDebug()<<"mouseMovement y "<< rety;
-  }
+  }*/
+    retx = event->x();
+    rety = event->y();
 
     _gw->getEventQueue()->mouseMotion(event->x(), event->y());
     osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(this);

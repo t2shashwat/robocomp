@@ -205,6 +205,7 @@ private:
         void highlightNode();
 
 
+
 	
 	public slots:
 		// ----------------------------------------------------------------------------------------
@@ -263,6 +264,7 @@ private:
         void back();
         void show_combobox();
         void undoing();
+        //void reset();
 
         void closeEvent(QCloseEvent *event);
 

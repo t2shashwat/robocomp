@@ -150,6 +150,7 @@ SpecificWorker::SpecificWorker(MapPrx& _mprx, Ice::CommunicatorPtr _communicator
     connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
     connect(&timer1, SIGNAL(timeout()), this, SLOT(drag_and_drop()));
     connect(actionUndo, SIGNAL(triggered()), this, SLOT(undoing()));
+    //connect(actionReset, SIGNAL(triggered()), this, SLOT(reset()));
 
     connect(delete_button, SIGNAL(clicked()), this, SLOT(remove_current_node()));
     comboBox_texture->addItem("--Choose Texture--");
@@ -266,9 +267,36 @@ void SpecificWorker::compute()
 		viewer->frame();
 			
 }
+//void SpecificWorker::reset()
+//{
+//    if(!rgbd_id.isEmpty())
+//        imv->cameras[rgbd_id].viewerCamera->~Viewer();
+//    viewer->~OsgView();
+//    viewer = new OsgView(frameOSG);
+//    imv->~InnerModelViewer();
+//    imv = new InnerModelViewer(innerModel, "root", viewer->getRootGroup(),false);
+//    this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+
+//    connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+//    rgbd_id.clear();
+//    disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+//    treeWidget->clear();
+//    connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
+//    fillNodeMap(innerModel->getNode("root"), NULL);
+//    //imv->update();
+//   // this->viewer->setHomePosition(eye,osg::Vec3(0.f,0.,-40.),up, false);
+
+//    prevNode = NULL;
+//    plane1="";
+//    plane2="";
+//    connect(&timer, SIGNAL(timeout()), this, SLOT(tree_highlight()));
+//    connect(&timer, SIGNAL(timeout()), this, SLOT(add_tree()));
+
+
+//}
 
 void SpecificWorker::tree_highlight()
-{ qDebug()<<"coord"  << viewer->retx << viewer->rety;
+{ //qDebug()<<"coord"  << viewer->retx << viewer->rety;
     mouse_pos->setText(QString("X=%1 Y=%2").arg(viewer->retx).arg(viewer->rety));
     if(viewer->flag1 == 1 && viewer->flag2 == 2)
     {

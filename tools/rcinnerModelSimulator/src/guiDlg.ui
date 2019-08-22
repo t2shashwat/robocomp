@@ -347,10 +347,10 @@
          <item>
           <widget class="QLabel" name="mouse_pos">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
            </property>
            <property name="text">
             <string>X = 0, Y = 0</string>
@@ -3044,9 +3044,18 @@
     <addaction name="actionFeatures"/>
     <addaction name="actionFloor_Texture"/>
     <addaction name="actionUndo"/>
+    <addaction name="actionReset"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionPress_q_Right_Click_to_drag_object"/>
+    <addaction name="actionPress_Ctrl_Right_Click_on_the_object_to_highlight_corresponding_node_in_the_tree"/>
    </widget>
    <addaction name="menuSimulation"/>
    <addaction name="menuTool"/>
+   <addaction name="menuHelp"/>
   </widget>
   <action name="actionSave">
    <property name="text">
@@ -3117,6 +3126,21 @@
   <action name="actionUndo">
    <property name="text">
     <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionPress_q_Right_Click_to_drag_object">
+   <property name="text">
+    <string>Press q + Right Click to drag object</string>
+   </property>
+  </action>
+  <action name="actionPress_Ctrl_Right_Click_on_the_object_to_highlight_corresponding_node_in_the_tree">
+   <property name="text">
+    <string>Press Ctrl + Right Click on the object to highlight corresponding node in the tree</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
    </property>
   </action>
  </widget>
