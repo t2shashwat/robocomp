@@ -268,7 +268,8 @@ void SpecificWorker::compute()
 }
 
 void SpecificWorker::tree_highlight()
-{   qDebug()<<"coord"  << viewer->retx << viewer->rety;
+{ qDebug()<<"coord"  << viewer->retx << viewer->rety;
+    mouse_pos->setText(QString("X=%1 Y=%2").arg(viewer->retx).arg(viewer->rety));
     if(viewer->flag1 == 1 && viewer->flag2 == 2)
     {
         IMVPlane* plane;
@@ -280,9 +281,14 @@ void SpecificWorker::tree_highlight()
             {
                 treeWidget->setCurrentItem(nodeMap[plane1].item);
                 highlightNode();
+
             }
             plane2 = plane1;
         }
+
+
+
+//        undostack.push_front(undo_del);
     }
 
 
@@ -740,7 +746,8 @@ void SpecificWorker::highlightNode()
 
 }
 void SpecificWorker::drag_and_drop()
-{
+{   //move = viewer->kk;
+    //qDebug()<<"cddoord"  << move.x() << -move.z();
     if(viewer->flag1 == 2 && viewer->flag2==2)
     {
         IMVPlane* plane;
@@ -749,12 +756,27 @@ void SpecificWorker::drag_and_drop()
         if((plane = dynamic_cast<IMVPlane *>(viewer->hexno)))
         {
             plane1 = imv->planesHash.key(plane);
+            qDebug()<<"plane id"<< innerModel->getParentIdentifier(plane1);
+            //InnerModelPlane *p = innerModel->getNode<InnerModelPlane>(plane1);
+            undo_del.operation="drag_pos_change";
+            undo_del.id=innerModel->getParentIdentifier(plane1);
+            InnerModelTransform *t = innerModel->getNode<InnerModelTransform>(innerModel->getParentIdentifier(plane1));
+            undo_del.tx=t->backtX;
+            undo_del.ty=t->backtY;
+            undo_del.tz=t->backtZ;
+            qDebug()<<"x "<<t->backtX;
+            qDebug()<<"y "<<t->backtY;
+            qDebug()<<"z "<<t->backtZ;
+            undostack.push_front(undo_del);
             move = viewer->kk;
+
             if(move!=rove)
             {
                 innerModel->updateTranslationValues(innerModel->getParentIdentifier(plane1), move.x(), 0, -move.z());
                 move = rove;
             }
+
+
         }
     }
 }
@@ -804,6 +826,7 @@ void SpecificWorker::undoing()
     else if(undo_node.operation=="deletion_camera"){
         InnerModelCamera *newnode = (InnerModelCamera *)innerModel->newCamera(undo_node.id, undo_node.parent, undo_node.width, undo_node.height, undo_node.depth);
         undo_node.parent->addChild(newnode);
+        undostack.pop_front();
 
     }
     else if(undo_node.operation=="deletion_imu"){
@@ -817,6 +840,11 @@ void SpecificWorker::undoing()
     else if(undo_node.operation=="deletion_laser"){
 
 
+    }
+    else if(undo_node.operation=="drag_pos_change"){
+        qDebug()<<"drag undo";
+        innerModel->updateTranslationValues(undo_node.id, undo_node.tx, undo_node.ty, undo_node.tz);
+        undostack.pop_front();
     }
 
     this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
