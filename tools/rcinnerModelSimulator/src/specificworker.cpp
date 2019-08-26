@@ -356,7 +356,7 @@ void SpecificWorker::remove_current_node()
             if ((plane = dynamic_cast<InnerModelPlane *>(prevNode)))
                 plane->texture = prevTexture;
         }
-        qDebug()<<current_node.type;
+        //qDebug()<<current_node.type;
         if(current_node.type==IMPlane){
         InnerModelPlane *p = innerModel->getNode<InnerModelPlane>(current_node.id);
         undo_del.operation="deletion";
@@ -379,7 +379,7 @@ void SpecificWorker::remove_current_node()
         //qDebug()<<p->texture;
         }
         if(current_node.type==IMTransform && nodeMapByItem[current_node.item->child(0)].type==IMPlane ){
-               qDebug()<<"deletion tran and plane";
+             //  qDebug()<<"deletion tran and plane";
         InnerModelTransform *p = innerModel->getNode<InnerModelTransform>(current_node.id);
         undo_del.operation="deletion_transform";
         undo_del.id=current_node.id;
@@ -437,7 +437,7 @@ void SpecificWorker::remove_current_node()
             undostack.push_front(undo_del);
         }
         if(current_node.type==IMCamera){
-            qDebug()<<"camera deletion";
+           // qDebug()<<"camera deletion";
             InnerModelCamera *p = innerModel->getNode<InnerModelCamera>(current_node.id);
             undo_del.operation="deletion_camera";
             undo_del.id=current_node.id;
@@ -455,7 +455,7 @@ void SpecificWorker::remove_current_node()
 
 
         innerModel->removeNode(current_node.id);
-        qDebug() << "Removed" << current_node.id;
+       // qDebug() << "Removed" << current_node.id;
         this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
 
         if(!rgbd_id.isEmpty())
@@ -502,7 +502,7 @@ void SpecificWorker::remove_current_node2()
                 plane->texture = prevTexture;
         }
         innerModel->removeNode(current_node.id);
-        qDebug() << "Removed" << current_node.id;
+        //qDebug() << "Removed" << current_node.id;
         this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
 
         if(!rgbd_id.isEmpty())
@@ -541,7 +541,7 @@ void SpecificWorker::remove_current_node2()
                 plane->texture = prevTexture;
         }
         innerModel->removeNode(current_node.id);
-        qDebug() << "Removed" << current_node.id;
+        //qDebug() << "Removed" << current_node.id;
         //this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
 
         if(!rgbd_id.isEmpty())
@@ -784,7 +784,7 @@ void SpecificWorker::drag_and_drop()
         if((plane = dynamic_cast<IMVPlane *>(viewer->hexno)))
         {
             plane1 = imv->planesHash.key(plane);
-            qDebug()<<"plane id"<< innerModel->getParentIdentifier(plane1);
+            //qDebug()<<"plane id"<< innerModel->getParentIdentifier(plane1);
             //InnerModelPlane *p = innerModel->getNode<InnerModelPlane>(plane1);
             undo_del.operation="drag_pos_change";
             undo_del.id=innerModel->getParentIdentifier(plane1);
@@ -792,9 +792,9 @@ void SpecificWorker::drag_and_drop()
             undo_del.tx=t->backtX;
             undo_del.ty=t->backtY;
             undo_del.tz=t->backtZ;
-            qDebug()<<"x "<<t->backtX;
-            qDebug()<<"y "<<t->backtY;
-            qDebug()<<"z "<<t->backtZ;
+           // qDebug()<<"x "<<t->backtX;
+            //qDebug()<<"y "<<t->backtY;
+            //qDebug()<<"z "<<t->backtZ;
             undostack.push_front(undo_del);
             move = viewer->kk;
 
@@ -811,10 +811,10 @@ void SpecificWorker::drag_and_drop()
 
 void SpecificWorker::undoing()
 {   if(!undostack.empty()){
-     qDebug()<<"inside";
+     //qDebug()<<"inside";
     undo_node = undostack.front();
     if(undo_node.operation=="deletion"){
-        qDebug()<<"undo "<<undo_node.id;
+       // qDebug()<<"undo "<<undo_node.id;
 
         InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(undo_node.id, undo_node.parent, undo_node.texture, undo_node.width, undo_node.height
                                     , undo_node.depth, undo_node.repeat, undo_node.nx, undo_node.ny, undo_node.nz
@@ -826,12 +826,12 @@ void SpecificWorker::undoing()
 
     }
     else if(undo_node.operation=="deletion_transform"){
-            qDebug()<<"transform deletion";
-            qDebug()<<undo_node.parent;
+           // qDebug()<<"transform deletion";
+           // qDebug()<<undo_node.parent;
 
             InnerModelTransform *newnode = (InnerModelTransform *)innerModel->newTransform(undo_node.id, "static", undo_node.parent, undo_node.tx, undo_node.ty, undo_node.tz, undo_node.rx, undo_node.ry, undo_node.rz, 0);
-            qDebug()<<undo_node.id;
-            qDebug()<<undo_node.child;
+            //qDebug()<<undo_node.id;
+            //qDebug()<<undo_node.child;
             undo_node.parent->addChild(newnode);
 
         InnerModelNode *par1= innerModel->getNode<InnerModelNode>(undo_node.id);
@@ -870,14 +870,14 @@ void SpecificWorker::undoing()
 
     }
     else if(undo_node.operation=="drag_pos_change"){
-        qDebug()<<"drag undo";
+       // qDebug()<<"drag undo";
         innerModel->updateTranslationValues(undo_node.id, undo_node.tx, undo_node.ty, undo_node.tz);
         undostack.pop_front();
     }
 
     this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
     if(!rgbd_id.isEmpty()){
-         qDebug()<<"destroy";
+         //qDebug()<<"destroy";
          imv->cameras[rgbd_id].viewerCamera->~Viewer();
     }
 
@@ -898,7 +898,7 @@ void SpecificWorker::undoing()
     disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
     treeWidget->clear();
     connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-    qDebug()<<"again tree update";
+    //qDebug()<<"again tree update";
     fillNodeMap(innerModel->getNode("root"), NULL);
 
 
@@ -913,7 +913,7 @@ void SpecificWorker::showAvailableGroups()
 
     //printf("Node id --  %s",currentNode.type);
     //lineEdit_nodeId->setText(currentNode.id);
-       qDebug()<<"type  "<<currentNode.type;
+     //  qDebug()<<"type  "<<currentNode.type;
     // Treat 'root' special read-only special case
     if (currentNode.id == "root")
     {
@@ -1528,7 +1528,7 @@ void SpecificWorker::meshChanged()
     m->scalex = scalex->value();
     m->scaley = scaley->value();
     m->scalez = scalez->value();
-    qDebug() << "File " << m->meshPath;
+   // qDebug() << "File " << m->meshPath;
     // 	qDebug() << "Scale " << m->scale;
     imv->update();
     // imv->reloadMesh(m->id);
@@ -2170,7 +2170,7 @@ void SpecificWorker::shownode()
         // {
              InnerModelNode *check= innerModel->getNode(nodeid->text());
             //printf(nodeid->text());
-            qDebug("%s",nodeid->text().toLatin1().constData());
+            //qDebug("%s",nodeid->text().toLatin1().constData());
              if(check==NULL)
              {
                  //printf("");
@@ -2256,10 +2256,7 @@ void SpecificWorker::shownode()
 
 
 
-                     //printf("add_object");
-                     //qDebug() << "add_object";
-                     //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
-                     //qDebug() << "add_object"<<texture->text();
+
                  }
                  }
                  else if(comboBox->currentText()=="Sphere")
@@ -2350,10 +2347,7 @@ void SpecificWorker::shownode()
                                      //        , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
                                       //       , ptx->value(), pty->value(), ptz->value(), 0,1);
 
-                     //printf("add_object");
-                     //qDebug() << "add_object";
-                     //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
-                     //qDebug() << "add_object"<<texture->text();
+
                  }
                  }
                  else if(comboBox->currentText()=="Cylinder")
@@ -2440,14 +2434,7 @@ void SpecificWorker::shownode()
                          }
 
 
-                     //InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture->currentText(), radiusval->value(), rect_h->value()
-                                     //        , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
-                                      //       , ptx->value(), pty->value(), ptz->value(), 0,1);
 
-                     //printf("add_object");
-                     //qDebug() << "add_object";
-                     //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
-                     //qDebug() << "add_object"<<texture->text();
                  }
                  }
                  else if(comboBox->currentText()=="Cone")
@@ -2534,14 +2521,6 @@ void SpecificWorker::shownode()
                          }
 
 
-                     //InnerModelPlane *newnode1 = (InnerModelPlane *)innerModel->newPlane(nodeid->text()+"_p", par1, texture->currentText(), radiusval->value(), rect_h->value()
-                                     //        , rect_dep->value(), texture_sz->value(), normx->value(), normy->value(), normz->value()
-                                      //       , ptx->value(), pty->value(), ptz->value(), 0,1);
-
-                     //printf("add_object");
-                    // qDebug() << "add_object";
-                     //qDebug("texture used ; ..   ***** %s",texture->text().toLatin1().constData());
-                     //qDebug() << "add_object"<<texture->text();
                  }
                  }
                  else if(comboBox->currentText()== "Mesh")
@@ -2585,7 +2564,7 @@ void SpecificWorker::shownode()
 
                  this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
                  if(!rgbd_id.isEmpty()){
-                      qDebug()<<"destroy";
+                     // qDebug()<<"destroy";
                       imv->cameras[rgbd_id].viewerCamera->~Viewer();
                  }
 
@@ -2607,7 +2586,7 @@ void SpecificWorker::shownode()
              disconnect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
              treeWidget->clear();
              connect(treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)), this, SLOT(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-             qDebug()<<"again tree update";
+             //qDebug()<<"again tree update";
              fillNodeMap(innerModel->getNode("root"), NULL);
             if(flg_prev==0){
              newNode.type=IMPlane;
@@ -2701,7 +2680,7 @@ void SpecificWorker::shownode()
          if(texture->currentText()=="Metal")
              m->texture = "/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg";
          else if(texture->currentText()=="Checkerboard"){
-             qDebug()<<"checker";
+           //  qDebug()<<"checker";
              m->texture = "/home/robocomp/robocomp/files/osgModels/textures/checkerboard.jpg";
          }
          else if(texture->currentText()=="Blue")
@@ -2945,7 +2924,7 @@ void SpecificWorker::addobject_connections(bool enable)
 // }
   void SpecificWorker:: floor_texture()
   {
-      qDebug() << "floor_texture";
+      //qDebug() << "floor_texture";
       if(comboBox_texture->currentText()=="Metal")
       {
           InnerModelPlane *m = innerModel->getNode<InnerModelPlane>("ddG");
@@ -2959,7 +2938,7 @@ void SpecificWorker::addobject_connections(bool enable)
           m->repeat = 1000;
           //prevNode = NULL;
           //imv->update();
-         // qDebug() << "metal hogaya";
+
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
           if(!rgbd_id.isEmpty())
                imv->cameras[rgbd_id].viewerCamera->~Viewer();
@@ -2985,7 +2964,7 @@ void SpecificWorker::addobject_connections(bool enable)
           m->repeat = 1000;
           //prevNode = NULL;
           //imv->update();
-          //qDebug() << "metal hogaya";
+
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
           if(!rgbd_id.isEmpty())
@@ -3014,7 +2993,7 @@ void SpecificWorker::addobject_connections(bool enable)
           m->repeat = 1000;
           //prevNode = NULL;
           //imv->update();
-          //qDebug() << "metal hogaya";
+
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
           if(!rgbd_id.isEmpty())
@@ -3044,7 +3023,7 @@ void SpecificWorker::addobject_connections(bool enable)
           m->repeat = 1000;
           //prevNode = NULL;
           //imv->update();
-         // qDebug() << "metal hogaya";
+
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
           if(!rgbd_id.isEmpty())
@@ -3073,7 +3052,7 @@ void SpecificWorker::addobject_connections(bool enable)
           m->repeat = 1000;
           //prevNode = NULL;
           //imv->update();
-          //qDebug() << "metal hogaya";
+
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
           if(!rgbd_id.isEmpty())
@@ -3102,7 +3081,7 @@ void SpecificWorker::addobject_connections(bool enable)
           m->repeat = 1000;
           //prevNode = NULL;
           //imv->update();
-         // qDebug() << "metal hogaya";
+
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
           if(!rgbd_id.isEmpty())
@@ -3131,7 +3110,7 @@ void SpecificWorker::addobject_connections(bool enable)
           m->repeat = 1000;
           //prevNode = NULL;
           //imv->update();
-         // qDebug() << "metal hogaya";
+
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
           if(!rgbd_id.isEmpty())
@@ -3160,7 +3139,7 @@ void SpecificWorker::addobject_connections(bool enable)
           m->repeat = 1000;
           //prevNode = NULL;
           //imv->update();
-         // qDebug() << "metal hogaya";
+
 
           this->viewer->getCamera()->getViewMatrixAsLookAt( eye, center, up );
           if(!rgbd_id.isEmpty())
@@ -3465,7 +3444,7 @@ void SpecificWorker::includeRGBDs()
 	for (it = imv->cameras.constBegin() ; it != imv->cameras.constEnd() ; ++it)
 	{
 		addRGBD(it.value().RGBDNode);
-        //qDebug()<<"rgbd-include-existing function";
+
 	}
 
 }
@@ -3532,7 +3511,7 @@ void SpecificWorker::walkTree(InnerModelNode *node)
 		InnerModelTouchSensor *touchNode = dynamic_cast<InnerModelTouchSensor *>(*it);
 		if (touchNode != NULL)
 		{
-			qDebug() << "Touch " << (*it)->id << "CALLING addTouch";
+            //qDebug() << "Touch " << (*it)->id << "CALLING addTouch";
 			addTouch(touchNode);
 		}
 
@@ -3944,7 +3923,7 @@ void SpecificWorker::featuresTriggered()
         FEATURESWidget->hide();
         comboBox_texture->hide();
     }
-    printf("features\n");
+
 }
 void SpecificWorker::change_textureTriggered()
 {
@@ -3960,7 +3939,7 @@ void SpecificWorker::change_textureTriggered()
         comboBox_texture->hide();
         addobject_button->hide();
     }
-   // printf("features\n");
+
 }
 
 //void SpecificWorker :: viewTriggered()

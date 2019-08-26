@@ -2868,7 +2868,7 @@
             <item>
              <widget class="QLabel" name="label_11">
               <property name="text">
-               <string>Please add new object name :</string>
+               <string>Please add new object name and Press Enter:</string>
               </property>
              </widget>
             </item>
